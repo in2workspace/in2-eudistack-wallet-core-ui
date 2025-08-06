@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertController, IonicModule } from '@ionic/angular';
@@ -11,6 +11,8 @@ import { VCReply } from 'src/app/interfaces/verifiable-credential-reply';
 import { VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import {VerifiableCredentialSubjectDataNormalizer} from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LoaderService } from 'src/app/services/loader.service';
+import { ToastServiceHandler } from 'src/app/services/toast.service';
 
 // todo: show only VCs with powers to login
 // todo: if user has only one VC, use this directly
@@ -38,7 +40,6 @@ export class VcSelectorPage {
   public userName = '';
   public isAlertOpen = false;
   public errorAlertOpen = false;
-  public alertButtons = ['OK'];
   public sendCredentialAlert = false;
 
   public _VCReply: VCReply = {
@@ -48,13 +49,16 @@ export class VcSelectorPage {
     redirectUri: '',
   };
 
-  public constructor(
-    private readonly router: Router,
-    private readonly walletService: WalletService,
-    private readonly route: ActivatedRoute,
-    public readonly translate: TranslateService,
-    private readonly alertController: AlertController
-  ) {
+  private readonly alertController = inject(AlertController);
+  private readonly loader = inject(LoaderService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly toastService = inject(ToastServiceHandler);
+  private readonly translate = inject(TranslateService);
+  private readonly walletService = inject(WalletService);
+
+
+  public constructor() {
       this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((params) => {
         this.getExecutionParamsFromQueryParams(params);
         this.formatCredList();
@@ -72,15 +76,25 @@ export class VcSelectorPage {
 
   // Normalize each credential, updating its credentialSubject property
   public formatCredList(){
+    this.loader.addLoadingProcess();
+
     console.log('[VC-selector: Formatting credentials list...');
     const unNormalizedCredList: VerifiableCredential[] = this.executionResponse['selectableVcList'];
     const normalizer = new VerifiableCredentialSubjectDataNormalizer();
-    this.credList = [...unNormalizedCredList].reverse().filter(cred => cred.lifeCycleStatus === 'VALID').map(cred => {
-      if (cred.credentialSubject) {
-        cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject);
-      }
-      return cred;
-    });
+    try{
+      this.credList = [...unNormalizedCredList].reverse().map(cred => {
+        if (cred.credentialSubject) {
+          cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject);
+        }
+        return cred;
+      });
+    }catch(err){
+      console.error('Error normalizing credential list.')
+      console.error(err);
+      this.toastService.showErrorAlertByTranslateLabel("errors.loading-VCs");
+    }finally{
+      this.loader.removeLoadingProcess();
+    }
   }
 
   public resetIsClickList(){
@@ -119,11 +133,15 @@ export class VcSelectorPage {
     if (result.role === 'ok') {
       this.selCredList.push(cred);
       this._VCReply.selectedVcList = this.selCredList;
+      this.loader.addLoadingProcess();
       this.walletService.executeVC(this._VCReply).subscribe({
         next: () => {
+          this.loader.removeLoadingProcess();
+          this.router.navigate(['/tabs/home']);
           this.okMessage();
         },
         error: err => {
+          this.loader.removeLoadingProcess();
           this.handleError(err);
         },
         complete: () => {
@@ -198,7 +216,6 @@ private async handleError(err: any) {
 
     setTimeout(async () => {
       await alert.dismiss();
-      this.router.navigate(['/tabs/home']);
     }, 2000);
   }
 

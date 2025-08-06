@@ -20,6 +20,7 @@ module.exports = {
     "src/app/app.component.ts",
     "src/app/app.routes.ts",
     "src/app/guards/**/*.ts",                  
+    "src/app/helpers/**/*.ts",             
     "src/app/pages/**/*.ts",             
     "src/app/services/**/*.ts",
     "src/app/interceptors/**/*.ts",
@@ -33,13 +34,15 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/', 
     '/dist/',
+    // '/src/app/main',
     // '/src/app/app.routes',
     // '/src/app/app.component',
-    // '/src/app/components/', 
-    // '/src/app/guards/',
+    // '/src/app/components', 
+    // '/src/app/guards',
+    // '/src/app/helpers',
     // '/src/app/interceptors',
     // '/src/app/interfaces',
-    // '/src/app/pages/',
-    // '/src/app/services/(?!authentication)'
+    // '/src/app/pages',
+    // '/src/app/services'
   ]
 };

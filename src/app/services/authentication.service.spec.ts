@@ -116,17 +116,19 @@ describe('AuthenticationService', () => {
       });
     });
 
-    it('should handle error in checkAuth$', (done) => {
-      const error = new Error('auth failed');
+    it('should propagate error when checkAuth throws', (done) => {
+      const error = new Error('checkAuth failed');
       mockOidcSecurityService.checkAuth.mockReturnValue(throwError(() => error));
 
       service.checkAuth$().subscribe({
+        next: () => fail('An error was expected.'),
         error: (err) => {
           expect(err).toBe(error);
           done();
         }
       });
     });
+
   });
 
   describe('updateUserData', () => {
@@ -355,6 +357,44 @@ describe('localLogout$', () => {
 
     service.getName$().subscribe(name => {
       expect(name).toBe(mockName);
+    });
+  });
+
+    describe('constructor error handling', () => {
+    let consoleErrorSpy: jest.SpyInstance;
+    let authorizeSpy: jest.SpyInstance;
+    let checkAuthSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      checkAuthSpy = jest
+        .spyOn(AuthenticationService.prototype as any, 'checkAuth$')
+        .mockReturnValue(throwError(() => new Error('initial checkAuth error')));
+
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      authorizeSpy = jest.spyOn(mockOidcSecurityService, 'authorize').mockImplementation();
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthenticationService,
+          { provide: OidcSecurityService, useValue: mockOidcSecurityService },
+          { provide: PublicEventsService, useValue: mockPublicEventsService }
+        ]
+      });
+      service = TestBed.inject(AuthenticationService);
+    });
+
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+      authorizeSpy.mockRestore();
+      checkAuthSpy.mockRestore();
+    });
+
+    it('should log error and call authorize() when initial checkAuth errors', () => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Checking authentication: error in initial authentication.'
+      );
+      expect(authorizeSpy).toHaveBeenCalled();
     });
   });
 

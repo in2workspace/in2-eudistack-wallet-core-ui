@@ -114,7 +114,7 @@ describe('BarcodeScannerComponent', () => {
     beforeEach(() => {
       jest.spyOn(component, 'modifyConsoleErrorToHandleScannerErrors').mockImplementation();
       jest.spyOn(component, 'initCameraIfNoActivateScanners').mockImplementation();
-      jest.spyOn(component, 'setActivatingTimeout').mockImplementation();
+      jest.spyOn((component as any), 'setActivatingTimeout').mockImplementation();
       jest.spyOn(component, 'restoreOriginalConsoleError').mockImplementation();
       jest.spyOn(mockCameraService.isCameraError$, 'set').mockImplementation();
     });
@@ -135,7 +135,7 @@ describe('BarcodeScannerComponent', () => {
       component.ngOnDestroy();
   
       expect(component.destroy$.next).toHaveBeenCalled();
-      expect(component.setActivatingTimeout).toHaveBeenCalled();
+      expect((component as any).setActivatingTimeout).toHaveBeenCalled();
       expect(component.restoreOriginalConsoleError).toHaveBeenCalled();
       expect(mockCameraService.isCameraError$.set).toHaveBeenCalledWith(false);
     });
@@ -149,7 +149,7 @@ describe('BarcodeScannerComponent', () => {
         device: undefined
       } as any;
   
-      jest.spyOn(component['activatedScanner$$'], 'next');
+      jest.spyOn(component['_activatedScanner$$'], 'next');
     });
   
     it('should enable scanner and set device if permission granted in activateScanner', async () => {
@@ -160,7 +160,7 @@ describe('BarcodeScannerComponent', () => {
       expect(component['scanner'].enable).toBe(true);
       expect(component['scanner'].askForPermission).toHaveBeenCalled();
       expect(component['scanner'].device).toEqual({ deviceId: 'device-123' });
-      expect(component['activatedScanner$$'].next).toHaveBeenCalled();
+      expect(component['_activatedScanner$$'].next).toHaveBeenCalled();
     });
   
     it('should not change scanner device if already set', async () => {
@@ -169,7 +169,7 @@ describe('BarcodeScannerComponent', () => {
       
       await component.activateScanner();
       
-      expect(component['activatedScanner$$'].next).not.toHaveBeenCalled();
+      expect(component['_activatedScanner$$'].next).not.toHaveBeenCalled();
     });
   
     it('should not activate scanner if scanner is undefined', async () => {
@@ -177,7 +177,7 @@ describe('BarcodeScannerComponent', () => {
   
       await component.activateScanner();
   
-      expect(component['activatedScanner$$'].next).not.toHaveBeenCalled();
+      expect(component['_activatedScanner$$'].next).not.toHaveBeenCalled();
     });
   
     it('should not set device if permission is denied', async () => {
@@ -186,7 +186,7 @@ describe('BarcodeScannerComponent', () => {
       await component.activateScanner();
   
       expect(component['scanner'].device).toBeUndefined();
-      expect(component['activatedScanner$$'].next).not.toHaveBeenCalled();
+      expect(component['_activatedScanner$$'].next).not.toHaveBeenCalled();
     });
   
     it('should call activateScanner and set firstActivationCompleted in activateScannerInitially', async () => {

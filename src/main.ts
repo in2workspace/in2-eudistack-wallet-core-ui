@@ -6,7 +6,6 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import {
   HTTP_INTERCEPTORS,
   HttpClient,
@@ -20,22 +19,12 @@ import {
 } from 'angular-auth-oidc-client';
 import { HttpErrorInterceptor } from './app/interceptors/error-handler.interceptor';
 import { IAM_PARAMS, IAM_POST_LOGIN_ROUTE, IAM_POST_LOGOUT_URI, IAM_REDIRECT_URI } from './app/constants/iam.constants';
+import { disableTouchScrollOnPaths } from './app/helpers/disable-touch-scroll-on-paths';
+import { httpTranslateLoader } from './app/helpers/http-translate-loader';
 
-document.addEventListener(
-  'touchmove',
-  function (event) {
-    const noScrollPages = [
-      '/tabs/settings',
-      '/tabs/home'
-    ];
 
-    const currentPath = new URL(window.location.href).pathname;
-
-    if (noScrollPages.includes(currentPath)) {
-      event.preventDefault();
-    }
-  },
-  { passive: false }
+disableTouchScrollOnPaths(
+  ['/tabs/settings', '/tabs/home']
 );
 
 if (environment.production) {
@@ -62,7 +51,7 @@ bootstrapApplication(AppComponent, {
       })
     ),
     importProvidersFrom(IonicStorageModule.forRoot()),
-    importProvidersFrom( AuthModule.forRoot({
+    importProvidersFrom(AuthModule.forRoot({
       config: {
         // You can add "logLevel: 1" to see library logs
         postLoginRoute: IAM_POST_LOGIN_ROUTE,
@@ -84,6 +73,4 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes)
   ],
 });
-export function httpTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http);
-}
+

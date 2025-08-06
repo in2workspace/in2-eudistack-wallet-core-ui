@@ -15,15 +15,21 @@ export class AuthenticationService implements OnDestroy {
   private userData: { name:string } | undefined;
   private readonly broadcastChannel = new BroadcastChannel('auth');
   private static readonly BROADCAST_FORCE_LOGOUT = 'forceWalletLogout'; 
+
+  private readonly authEvents = inject(PublicEventsService);
   private readonly destroy$ = inject(DestroyRef);
   private readonly oidcSecurityService = inject(OidcSecurityService);
-  private readonly authEvents = inject(PublicEventsService);
 
   public constructor() {
     // handle silent renew errors and log when certain events occur
     this.subscribeToAuthEvents();
     // checks if the user is authenticated and gets related data; doesn't redirect to login page; this is done by the auto login guards
-    this.checkAuth$().subscribe();
+    this.checkAuth$().subscribe({
+      error: () => { 
+        console.error('Checking authentication: error in initial authentication.');
+        this.oidcSecurityService.authorize();
+       }
+    });
     // synchronize tabs when logging out
     this.listenToCrossTabLogout();
   }
@@ -106,7 +112,6 @@ export class AuthenticationService implements OnDestroy {
         }
       }),
       catchError((err:Error)=>{
-        console.error('Checking authentication: error in initial authentication.');
         return throwError(()=>err);
       })
     );

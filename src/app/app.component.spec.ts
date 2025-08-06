@@ -2,14 +2,15 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { AppComponent } from './app.component';
 import { TranslateService } from '@ngx-translate/core';
 import { PopoverController, IonicModule, NavController } from '@ionic/angular';
-import { Router, ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
+import { Router, ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { AuthenticationService } from './services/authentication.service';
 import { StorageService } from './services/storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { environment } from '../environments/environment';
 import { WebsocketService } from './services/websocket.service';
-import { ChangeDetectorRef } from '@angular/core';
+import { LoaderService } from './services/loader.service';
+import { MenuComponent } from './components/menu/menu.component';
 describe('AppComponent', () => {
   let component: AppComponent;
   let translateServiceMock: jest.Mocked<TranslateService>;
@@ -57,15 +58,15 @@ describe('AppComponent', () => {
     setDirection: jest.fn(),
   } as unknown as jest.Mocked<NavController>;
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   beforeEach(async () => {
-    isLoadingSubject = new Subject<boolean>();
-    websocketServiceMock = {
-      isLoading$: isLoadingSubject.asObservable(),
-    };
 
     translateServiceMock = {
       addLangs: jest.fn(),
-      getLangs: jest.fn(),
+      getLangs: jest.fn().mockReturnValue(['en', 'es', 'ca']),
       setDefaultLang: jest.fn(),
       use: jest.fn()
     } as unknown as jest.Mocked<TranslateService>;
@@ -98,6 +99,7 @@ describe('AppComponent', () => {
         RouterTestingModule, 
       ],
       providers: [
+        LoaderService,
         { provide: TranslateService, useValue: translateServiceMock },
         { provide: PopoverController, useValue: popoverControllerMock },
         { provide: Router, useValue: routerMock },
@@ -105,9 +107,15 @@ describe('AppComponent', () => {
         { provide: StorageService, useValue: storageServiceMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: NavController, useValue: navControllerMock },
-        { provide: WebsocketService, useValue: websocketServiceMock }
       ],
-    }).compileComponents();
+    }).overrideComponent(AppComponent, {
+    add: {
+      providers: [
+        { provide: PopoverController, useValue: popoverControllerMock }
+      ]
+    }
+  })
+  .compileComponents();
 
     jest.spyOn(AppComponent.prototype as any, 'setDefaultLanguages');
     jest.spyOn(AppComponent.prototype as any, 'setStoredLanguage');
@@ -128,13 +136,11 @@ describe('AppComponent', () => {
     expect((component as any).setCustomStyles).toHaveBeenCalled();
   });
 
-  it('should track router events, handle no cache and show alert for incompatible device', ()=>{
-    jest.spyOn((component as any), 'trackRouterEvents');
+  it('should set up route listeners, handle no cache and show alert for incompatible device', ()=>{
     jest.spyOn((component as any), 'alertIncompatibleDevice');
 
     component.ngOnInit();
 
-    expect((component as any).trackRouterEvents).toHaveBeenCalled();
     expect((component as any).alertIncompatibleDevice).toHaveBeenCalled();
   });
 
@@ -318,71 +324,68 @@ describe('AppComponent', () => {
     alertSpy.mockRestore();
   });
     
-  it('should subscribe to isLoading$ and update isLoading', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const spyDetectChanges = jest.spyOn(component['cdr'], 'detectChanges');
+  it('should synchronize isLoading$ with loader service', () => {
+    const loaderService = TestBed.inject(LoaderService);
+    expect(component.isLoading$()).toBe(loaderService.isLoading$());
 
-    component.ngOnInit(); 
-
-    isLoadingSubject.next(true); 
-    fixture.detectChanges(); 
-
-    expect(component.isLoading).toBe(true);
-    expect(spyDetectChanges).toHaveBeenCalled();
+    loaderService.addLoadingProcess();
+    expect(component.isLoading$()).toBe(loaderService.isLoading$());
+    expect(component.isLoading$()).toBeTruthy;
   });
 
-  it('should not show overlay if isLoading is false', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    component.ngOnInit();
-    isLoadingSubject.next(false); 
-    fixture.detectChanges();
+describe('isCallbackRoute$', () => {
+  it('should return true initially for /callback route', fakeAsync(() => {
+    (routerMock as any).url = '/callback';
+    routerEventsSubject.next(new NavigationEnd(1, '/callback', '/callback') as any);
+    tick();
+    expect(component.isCallbackRoute$()).toBe(true);
+  }));
 
-    expect(component.isLoading).toBe(false);
+  it('should return false for non-callback route', fakeAsync(() => {
+    (routerMock as any).url = '/home';
+    routerEventsSubject.next(new NavigationEnd(1, '/home', '/home') as any);
+    tick();
+    expect(component.isCallbackRoute$()).toBe(false);
+  }));
+
+  it('should return true for routes starting with /callback even with path segments', fakeAsync(() => {
+    (routerMock as any).url = '/callback/step2?foo=bar';
+    routerEventsSubject.next(new NavigationEnd(1, '/callback/step2?foo=bar', '/callback/step2?foo=bar') as any);
+    tick();
+    expect(component.isCallbackRoute$()).toBe(true);
+  }));
+});
+
+it('should NOT open popover on /callback route', fakeAsync(() => {
+  const event = new MouseEvent('click');
+
+  (routerMock as any).url = '/callback';
+  routerEventsSubject.next(new NavigationEnd(1, '/callback', '/callback') as any);
+  tick();
+
+  component.openPopover(event);
+  tick();
+
+  expect(popoverControllerMock.create).not.toHaveBeenCalled();
+}));
+
+it('should open popover on non-callback route', async () => {
+  (component as any).isCallbackRoute$ = () => false;
+
+  popoverControllerMock.create.mockResolvedValue({
+    present: jest.fn(),
+  } as any);
+
+  const event = new MouseEvent('click');
+  await component.openPopover(event);
+
+  expect(popoverControllerMock.create).toHaveBeenCalledWith({
+    component: MenuComponent,
+    event,
+    translucent: true,
+    cssClass: 'custom-popover',
   });
+});
 
-  it('should update isLoading when WebSocketService emits a new value', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    component.ngOnInit();
-
-    isLoadingSubject.next(false);
-    fixture.detectChanges();
-    expect(component.isLoading).toBe(false);
-
-    isLoadingSubject.next(true);
-    fixture.detectChanges();
-    expect(component.isLoading).toBe(true);
-
-    isLoadingSubject.next(false);
-    fixture.detectChanges();
-    expect(component.isLoading).toBe(false);
-  });
- 
-  it('should render the overlay when isLoading is true', async () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    component.isLoading = true; 
-    fixture.detectChanges(); 
-    await fixture.whenStable(); 
-
-    setTimeout(() => {
-      fixture.detectChanges(); 
-      const overlayElement = fixture.nativeElement.querySelector('.overlay');
-
-      expect(overlayElement).not.toBeNull(); 
-      expect(getComputedStyle(overlayElement).display).not.toBe('none');
-    }, 0);
-  });
-
-  it('should not render the overlay when isLoading is false', async () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    component.isLoading = false; 
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    setTimeout(() => {
-      fixture.detectChanges();
-      const overlayElement = fixture.nativeElement.querySelector('.overlay');
-      expect(overlayElement).toBeNull(); 
-    }, 0);
-  });
 });
 

@@ -125,6 +125,7 @@
         "delete-confirm": "Sí, elimina-la",
         "delete-cancel": "Cancel·la",
         "unsigned": "Sense signar",
+         "loading-VCs": "S'ha produït un error en carregar les credencials. Torni a intentar-ho més tard. Si el problema persisteix, posi's en contacte amb l'<a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equip de suport</a>.",
         "unsigned-header": "Credencial sense signar",
         "unsigned-message": "La seva credencial encara no ha estat signada i no pot ser utilitzada. Espere que l' emissor completi el procés de signatura.",
         "revoked": "Revocada"
