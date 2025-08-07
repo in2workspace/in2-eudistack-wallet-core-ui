@@ -158,19 +158,6 @@ export class VcViewComponent implements OnInit {
     this.isModalUnsignedOpen = true;
   }
 
-  handleCardClick(event: Event): void {
-    if ((event.target as HTMLElement).closest('.request-signature-button')) {
-      return;
-    }
-
-    if (this.credentialInput?.lifeCycleStatus === 'ISSUED') {
-      this.isModalUnsignedOpen = true;
-    } else {
-      this.openDetailModal();
-    }
-  }
-
-
   public setOpen(isOpen: boolean): void {
     this.isModalOpen = isOpen;
   }
