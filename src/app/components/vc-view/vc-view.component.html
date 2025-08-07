@@ -1,5 +1,5 @@
 <ion-card
-  (click)="openDetailModal()"
+  (click)="handleCardClick()"
   tabindex="0"
   (keydown)="handleButtonKeydown($event, 'detail')"
   style="
@@ -13,7 +13,7 @@
 >
 @if(credentialInput.lifeCycleStatus == "ISSUED"){
   <button
-      (click)="unsignedInfo()"
+      (click)="unsignedInfo($event)"
       (keydown)="handleButtonKeydown($event, 'info')"
       class="request-signature-button"
     >

@@ -153,9 +153,23 @@ export class VcViewComponent implements OnInit {
     this.isDetailModalOpen = false;
   }
 
-  public unsignedInfo(): void {
+  public unsignedInfo(event: Event): void {
+    event.stopPropagation();
     this.isModalUnsignedOpen = true;
   }
+
+  handleCardClick(event: Event): void {
+    if ((event.target as HTMLElement).closest('.request-signature-button')) {
+      return;
+    }
+
+    if (this.credentialInput?.lifeCycleStatus === 'ISSUED') {
+      this.isModalUnsignedOpen = true;
+    } else {
+      this.openDetailModal();
+    }
+  }
+
 
   public setOpen(isOpen: boolean): void {
     this.isModalOpen = isOpen;
@@ -189,7 +203,7 @@ export class VcViewComponent implements OnInit {
       } else if (action === 'close') {
         this.setOpen(false);
       } else if (action === 'info') {
-        this.unsignedInfo();
+        this.unsignedInfo(event);
       } else if (action === 'detail') {
         this.openDetailModal();
       }
