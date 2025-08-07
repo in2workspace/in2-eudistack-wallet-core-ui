@@ -10,7 +10,7 @@ import { VcViewComponent } from '../../components/vc-view/vc-view.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { VerifiableCredential, CredentialStatus } from 'src/app/interfaces/verifiable-credential';
+import { VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { VerifiableCredentialSubjectDataNormalizer } from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
 import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

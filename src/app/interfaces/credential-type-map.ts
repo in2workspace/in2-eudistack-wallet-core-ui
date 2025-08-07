@@ -36,7 +36,13 @@ export const CredentialTypeMap: Record<string, CredentialMapConfig> = {
         }
         return '';
       }}, 
-      { label: 'Label Level', valueGetter: (s) => s['gx:labelLevel']}
+      {
+        label: 'Label Level',
+        valueGetter: (s) => {
+          const level = s['gx:labelLevel'];
+          return level === 'BL' ? 'Base Line' : level;
+        }
+      }
     ],
   },
 };
