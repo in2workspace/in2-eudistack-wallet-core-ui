@@ -210,6 +210,7 @@
         "incorrect-pin":"PIN incorrecto. Por favor, renueve la oferta de credencial. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>.",
         "pin-expired": "No ha introducido el PIN dentro del límite de tiempo. Por favor, renueve la oferta de credencial. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>.",
         "unsigned": "La credencial firmada aún no esta disponible.",
+        "loading-VCs": "Ha habido un error al cargar las credenciales. Vuélvalo a intentar más tarde. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>.",
         "Errunsigned": "No se pudo obtener la credencial",
         "no-connection": "Se perdió la conexión. Comprueve su conexión a internet e inténtelo de nuevo.",
         "navigation": "Error inesperado al intentar acceder a la página. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>", 

@@ -5,7 +5,8 @@
     <ion-row class="ion-justify-content-start" class="select-row">
       @if(selectedDevice$() && !cameraService.isCameraError$()){
         <div class="selector-container">
-          <ion-select placeholder="Select a camera" [ngModel]="selectedDevice$()?.deviceId" (ionChange)="onDeviceSelectChange($event.target.value)" interface="popover" class="camera-select">
+          <ion-select placeholder="Select a camera" [ngModel]="selectedDevice$()?.deviceId" (ionChange)="onDeviceSelectChange($event.target.value)" interface="popover" class="camera-select" 
+          [disabled]="isChangingDevice">
             @if(availableDevices$().length < 1){
               <ion-select-option value="">{{"camera-selector.no-device" | translate}}</ion-select-option>
             }

@@ -13,15 +13,15 @@
 >
 @if(credentialInput.lifeCycleStatus == "ISSUED"){
   <button
-      (click)="unsignedInfo()"
-      (keydown)="handleButtonKeydown($event, 'info')"
-      class="request-signature-button"
-    >
-      <img
-        src="../../../assets/icons/question_mark_black.png"
-        alt="info"
-        style="width: 18px; height: 18px"
-      />
+    (click)="unsignedInfo($event)"
+    (keydown)="handleButtonKeydown($event, 'info')"
+    class="request-signature-button"
+  >
+    <img
+      src="../../../assets/icons/question_mark_black.png"
+      alt="info"
+      style="width: 18px; height: 18px"
+    />
   </button>
 }
 

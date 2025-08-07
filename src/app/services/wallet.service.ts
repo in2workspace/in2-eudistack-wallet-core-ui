@@ -20,6 +20,7 @@ const options = {
 export class WalletService {
   private http = inject(HttpClient);
 
+  //this sends the URL contained by the QR, which can be a verifiable presentation URl or either a Credential offer URL (cross device)
   public executeContent(url: string): Observable<JSON> {
     return this.http.post<JSON>(
       environment.server_url + SERVER_PATH.EXECUTE_CONTENT,
@@ -27,6 +28,7 @@ export class WalletService {
       options
     );
   }
+  
   public getVCinCBOR(credential: VerifiableCredential): Observable<string> {
     const options = {
       headers: headers,

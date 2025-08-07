@@ -215,6 +215,7 @@
         "incorrect-pin": "Incorrect PIN. Please refresh the credential offer. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
         "pin-expired": "You didn't enter the PIN within the time limit. Please refresh the credential offer. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
         "unsigned": "The signed credential is not yet available",
+        "loading-VCs": "There was an error loading credentials. Please try again. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
         "Errunsigned": "Credential could not be obtained",
         "no-connection": "Connection was lost. Please check your network and try again.",
         "navigation": "There was an unexpected problem when trying to access the page. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",

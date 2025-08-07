@@ -1,12 +1,12 @@
-<ion-app [ngClass]="{ 'no-header': isBaseRoute }">
-  @if(!isBaseRoute){
+<ion-app [ngClass]="{ 'no-header': isBaseRoute$() }">
+  @if(!isBaseRoute$()){
   <ion-header [translucent]="false">
-    <ion-toolbar class="toolbar" [ngClass]="{ 'blurred': isCallbackRoute }">
+    <ion-toolbar class="toolbar" [ngClass]="{ 'blurred': isCallbackRoute$() }">
       <img alt="DOME Logo" [src]="logoSrc" width="auto" slot="start" height="35px" class="logo"/>
       <ion-button
         slot="end"
         class="toolbar-but"
-        [disabled]="isCallbackRoute"
+        [disabled]="isCallbackRoute$()"
         (click)="openPopover($event)"
         (keydown)="openPopoverByKeydown($event)"
         >
@@ -22,7 +22,7 @@
   </ion-header>
 }
   <ion-router-outlet id="main-content" class="main-content"></ion-router-outlet>
-  @if(isLoading){
+  @if(isLoading$()){
   <div class="overlay">
     <div class="spinner"></div>
   </div>

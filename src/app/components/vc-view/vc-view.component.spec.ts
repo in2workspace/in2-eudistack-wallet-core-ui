@@ -133,7 +133,8 @@ describe('VcViewComponent', () => {
   });
 
   it('unsignedInfo should set isModalUnsignedOpen to true', () => {
-    component.unsignedInfo();
+    const mockEvent = new Event('click');
+    component.unsignedInfo(mockEvent);
     expect(component.isModalUnsignedOpen).toBeTruthy();
   });
 
@@ -476,26 +477,6 @@ describe('VcViewComponent', () => {
     expect(encodedSection?.fields.length).toBe(1);
     expect(encodedSection?.fields[0].label).toBe('vc-fields.lear-credential-machine.credentialEncoded');
     expect(encodedSection?.fields[0].value).toBe('encoded_value');
-    if (originalDetailMap) {
-      detailMapModule.CredentialDetailMap[component.credentialType] = originalDetailMap;
-    } else {
-      delete detailMapModule.CredentialDetailMap[component.credentialType];
-    }
-  });
-
-  it('getStructuredFields should add credentialEncoded section with empty value if credentialEncoded is undefined', () => {
-    component.credentialType = 'LEARCredentialMachine';
-    component.credentialInput.credentialEncoded = undefined;
-    const originalDetailMap = detailMapModule.CredentialDetailMap[component.credentialType];
-    detailMapModule.CredentialDetailMap[component.credentialType] = [];
-    component.getStructuredFields();
-    const encodedSection = component.evaluatedSections.find(
-      s => s.section === 'vc-fields.lear-credential-machine.credentialEncoded'
-    );
-    expect(encodedSection).toBeTruthy();
-    expect(encodedSection?.fields.length).toBe(1);
-    expect(encodedSection?.fields[0].label).toBe('vc-fields.lear-credential-machine.credentialEncoded');
-    expect(encodedSection?.fields[0].value).toBe('');
     if (originalDetailMap) {
       detailMapModule.CredentialDetailMap[component.credentialType] = originalDetailMap;
     } else {

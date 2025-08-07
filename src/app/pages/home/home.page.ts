@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { BarcodeScannerComponent } from 'src/app/components/barcode-scanner/barcode-scanner.component';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
@@ -16,7 +15,6 @@ import { ToastServiceHandler } from 'src/app/services/toast.service';
     IonicModule,
     CommonModule,
     FormsModule,
-    BarcodeScannerComponent,
     TranslateModule,
     RouterModule,
   ],
@@ -34,11 +32,11 @@ export class HomePage implements OnInit {
     const scanRoute = '/tabs/credentials/';
     try{
       await this.router.navigate([scanRoute], {
-        queryParams: { toggleScan: true, from: 'home', show_qr: true },
+        queryParams: { showScannerView: true, showScanner: true },
       });
     }catch(err){
       console.error('Error when trying to navigate to ' + scanRoute);
-      this.toastService.showErrorAlertByTranslateLabel("errors.navigation");
+      this.toastService.showErrorAlertByTranslateLabel("errors.navigation").subscribe();
     }
   }
   public handleButtonKeydown(event: KeyboardEvent): void {

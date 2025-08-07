@@ -14,6 +14,7 @@ import { BarcodeFormat, Exception } from '@zxing/library';
 import { ZXingScannerModule, ZXingScannerComponent } from '@zxing/ngx-scanner';
 import {
   BehaviorSubject,
+  Observable,
   Subject,
   debounceTime,
   distinctUntilChanged,
@@ -28,17 +29,17 @@ import {
 import { CameraLogType } from 'src/app/interfaces/camera-log';
 import { CameraService } from 'src/app/services/camera.service';
 import { RouterModule } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonicModule } from '@ionic/angular';
 
 // ! Since console.error is intercepted (to capture the error already caught by zxing), be careful to avoid recursion
 // ! (i.e., console.error should not be called within the execution flow of another console.error)
 
-//when a scanner component is created, it waits for the "destroying scanner list" is empty
-//a scanner component is removed from such list not right after being destroyed, but after some delay,
-//This delay is due to a time range in which the camera stream is deactivated after destroying scanner component
-//Without this delay, if user tries to switch fast betwee two scanner pages, the scanner might be blocked
+// When a scanner component is created, it waits until the "destroying scanner list" is empty.
+// A scanner component (its id) is removed from such list not right after being destroyed, but after some delay.
+// This delay is needed because the activation process requires some time to be completed, so that if the component is 
+// destroyed during this process, the camera is not deactivated and the next activation might be blocked
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -57,7 +58,10 @@ export class BarcodeScannerComponent implements OnInit {
   //COUNTDOWN
   public readonly isError$ = this.cameraService.isCameraError$;
   private readonly activationTimeoutInSeconds = 4;
-  private readonly activatedScanner$$ = new Subject<void>();
+  private readonly _activatedScanner$$ = new Subject<void>();
+  readonly activatedScanner$$: Observable<void> = this._activatedScanner$$.pipe(
+    takeUntilDestroyed()
+  );
   private readonly activationCountdown$ = this.activatedScanner$$.pipe(
     switchMap(() => interval(1000)
       .pipe(
@@ -74,17 +78,29 @@ export class BarcodeScannerComponent implements OnInit {
   private readonly updateScannerDeviceEffect = effect(async () => {
     const selectedDevice = this.selectedDevice$();
     if(this.firstActivationCompleted && this.scanner && selectedDevice && this.scanner.device !== selectedDevice){
-      const hasPermission = await this.scanner.askForPermission()
-        if(hasPermission){
-          this.scanner.device = selectedDevice;
-          this.activatedScanner$$.next();
-        }else{
-          console.error('SCANNER: Permission denied');
+      let hasPermission = undefined;
+      // if there is already a device, sometimes the askForPemission causes error
+      if(!this.scanner.device){
+        console.log('Scanner has no device: ask for permission.');
+        try{
+          hasPermission = await this.scanner.askForPermission();
+        }catch(err){
+          console.error('Barcode-scanner: error when trying to get permission before settings new device.');
+          console.error(err);
+          hasPermission = false;
         }
-  }});
+      }
+      if(hasPermission !== false){
+        setTimeout(() => {
+          this.scanner.device = selectedDevice;
+          this._activatedScanner$$.next();
+        }, 1000);
+      }else{
+        console.error('SCANNER: Permission denied');
+      }
+    }
+  });
   private readonly isActivatingScanner$ = toSignal(this.cameraService.activatingScannersList$);
-
-
   private readonly scanFailureSubject = new Subject<Error>();
   private readonly scanFailureDebounceDelay = 3000;
   private originalConsoleError: undefined|((...data: any[]) => void);
@@ -125,6 +141,7 @@ export class BarcodeScannerComponent implements OnInit {
       this.setActivatingTimeout();
       this.restoreOriginalConsoleError();
       this.cameraService.isCameraError$.set(false);
+      this.destroy$.complete();
     }
 
     public async initCameraIfNoActivateScanners(): Promise<void>{
@@ -161,7 +178,7 @@ export class BarcodeScannerComponent implements OnInit {
       const hasPermission = await this.scanner.askForPermission();
       if(this.scanner.device?.deviceId !== this.selectedDevice$()?.deviceId && hasPermission){
         this.scanner.device = this.selectedDevice$();
-        this.activatedScanner$$.next();
+        this._activatedScanner$$.next();
       }
     }
   }
@@ -188,7 +205,7 @@ export class BarcodeScannerComponent implements OnInit {
     this.cameraLogsService.addCameraLog(error, exceptionType);
   }
 
-  public setActivatingTimeout(): void{
+  private setActivatingTimeout(): void{
     this.cameraService.addActivatingScanner(this.scannerId);
     const activationCountDownValue = this.activationCountdownValue$();
     console.warn('Scanner activation countdown value: ' + activationCountDownValue + ' ms');
@@ -206,13 +223,13 @@ export class BarcodeScannerComponent implements OnInit {
     this.originalConsoleError = console.error;
     console.error = (message?: string, ...optionalParams: any[]) => {
       if(message === "@zxing/ngx-scanner"){
+        console.warn('Logging library error');
         const logMessage = formatLogMessage(message, optionalParams);
         const err = {...new Error(logMessage), name: optionalParams[1]};
         const errorType = optionalParams[0] === 
           "Can't get user media, this is not supported." ?
           'noMediaError' :
           'undefinedError';
-
         this.cameraService.handleCameraErrors(err, errorType);
         return;
       }

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.3](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.3)
+### Changed
+- BL to Base Line
+
 ## [v2.0.2](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.2)
 ### Added
 - New Machine Field
@@ -15,6 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v2.0.0](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.0)
 ### Changed
 - Changed VC
+
+## [v1.9.9](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v1.9.9)
+### Added
+- Added loading spinner for async operations.
+
+### Changed
+- Don't close PIN popup on backdrop click.
+- Wallet Test URL configurable.
+- Disable device selector while selected device is being switched.
+
+### Fixed
+- Don't show credentials tab after clicking on scan button.
+- Avoid error when switching devices.
+- Show credentials list when scanner is open and credentials tab button is clicked.
 
 ## [v1.9.8](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v1.9.8)
 ### Fixed

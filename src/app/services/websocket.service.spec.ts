@@ -6,6 +6,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { environment } from 'src/environments/environment';
 import { TranslateModule } from '@ngx-translate/core';
 import { WEBSOCKET_PATH } from '../constants/api.constants';
+import { LoaderService } from './loader.service';
 
 
 //todo mock broadcast channel
@@ -49,6 +50,7 @@ describe('WebsocketService', () => {
       imports: [HttpClientTestingModule, TranslateModule.forRoot()],
       providers: [
         WebsocketService,
+        LoaderService,
         { provide: AuthenticationService, useValue: mockAuthService },
         { provide: AlertController, useValue: alertControllerMock }
       ],
@@ -107,6 +109,15 @@ describe('WebsocketService', () => {
     expect(logSpy).toHaveBeenCalledWith('Message received:', messageEvent.data);
     expect(createAlertSpy).toHaveBeenCalled();
   }));
+
+  it('rejects the connect promise when WebSocket errors', () => {
+  const connectPromise = service.connect();
+
+  const err = new Error('WebSocket failed to open');
+  mockWebSocketInstance.onerror(err);
+
+  return expect(connectPromise).rejects.toEqual(new Error('Websocket error.'));
+});
 
 
   it('should create and display an alert on receiving a message', fakeAsync(async () => {
@@ -234,28 +245,5 @@ describe('WebsocketService', () => {
     clearIntervalSpy.mockRestore();
   });
   
-  it('should deactivate isLoading when WebSocket closes', fakeAsync(() => {
-    const loadingSpy = jest.spyOn(service['isLoadingSubject'], 'next');
 
-    service.connect();
-    
-    mockWebSocketInstance.onclose(new CloseEvent('close'));
-
-    expect(loadingSpy).toHaveBeenCalledWith(false); 
-  }));
-
-  it('should not activate isLoading if response is received in less than 1 second', fakeAsync(() => {
-    const loadingSpy = jest.spyOn(service['isLoadingSubject'], 'next');
-
-    service.connect();
-    const messageEvent = new MessageEvent('message', {
-      data: JSON.stringify({ tx_code: { description: 'Fast Response' }, timeout: 60 }),
-    });
-
-    mockWebSocketInstance.onmessage(messageEvent);
-
-    jest.advanceTimersByTime(500); 
-
-    expect(loadingSpy).not.toHaveBeenCalledWith(true);
-  }));
 });

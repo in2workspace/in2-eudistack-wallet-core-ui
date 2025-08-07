@@ -55,7 +55,6 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           SERVER_PATH.REQUEST_CREDENTIAL) 
           && (errStatus === 408 || errStatus === 504)
         ){
-          console.log('error is detected')
           errMessage = "PIN expired"
         } 
         //cross-device 

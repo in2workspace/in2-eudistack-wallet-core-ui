@@ -153,7 +153,8 @@ export class VcViewComponent implements OnInit {
     this.isDetailModalOpen = false;
   }
 
-  public unsignedInfo(): void {
+  public unsignedInfo(event: Event): void {
+    event.stopPropagation();
     this.isModalUnsignedOpen = true;
   }
 
@@ -189,7 +190,7 @@ export class VcViewComponent implements OnInit {
       } else if (action === 'close') {
         this.setOpen(false);
       } else if (action === 'info') {
-        this.unsignedInfo();
+        this.unsignedInfo(event);
       } else if (action === 'detail') {
         this.openDetailModal();
       }
@@ -256,7 +257,7 @@ export class VcViewComponent implements OnInit {
             .filter(f => !!f.value && f.value !== ''),
         }));
 
-    if(this.credentialType == 'LEARCredentialMachine') {
+    if(this.credentialType == 'LEARCredentialMachine' && vc.credentialEncoded) {
       detailedSections.push({
         section: 'vc-fields.lear-credential-machine.credentialEncoded',
         fields: [
