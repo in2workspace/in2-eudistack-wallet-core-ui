@@ -1,4 +1,4 @@
-import { Mandatee, Power, CredentialSubject } from './verifiable-credential';
+import { Mandatee, Power, CredentialSubject, CredentialType } from './verifiable-credential';
 
 // Interfaces for the raw JSON of Mandatee and Power
 interface RawMandatee {
@@ -27,7 +27,19 @@ export class VerifiableCredentialSubjectDataNormalizer {
    * Normalizes the complete LearCredentialEmployeeDataDetail object.
    * It applies normalization to the mandatee object and each element of the power array.
    */
-  public normalizeLearCredentialSubject(data: CredentialSubject): CredentialSubject {
+  public normalizeLearCredentialSubject(data: CredentialSubject, type: CredentialType): CredentialSubject {
+    return this.normalizerMapByCredentialType[type](data);
+  }
+
+  private normalizerMapByCredentialType: Record<CredentialType, (s: CredentialSubject) => CredentialSubject> = {
+    'LEARCredentialEmployee': (s: CredentialSubject) => this.normalizeLearCredentialEmployeeSubject(s),
+    'LEARCredentialMachine': (s: CredentialSubject) => s,
+    'gx:LabelCredential': (s: CredentialSubject) => s
+  } as const;
+
+    private normalizeLearCredentialEmployeeSubject(data: CredentialSubject): CredentialSubject {
+    console.log('Received subject');
+    console.log(structuredClone(data));
     // Create a copy to avoid modifying the original object
     const normalizedData = { ...data };
 
@@ -45,6 +57,8 @@ export class VerifiableCredentialSubjectDataNormalizer {
         mandate.power = mandate.power.map((p: RawPower) => this.normalizePower(p));
       }
     }
+    console.log('returned subject normalized')
+    console.log(normalizedData)
     return normalizedData;
   }
 

@@ -4,20 +4,24 @@ import {
   Input,
   OnInit,
   Output,
+  computed,
   inject,
+  input
 } from '@angular/core';
 import { QRCodeModule } from 'angularx-qrcode';
 import { WalletService } from 'src/app/services/wallet.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {
-  VerifiableCredential,
+  ExtendedCredentialType,
+  VerifiableCredential
 } from 'src/app/interfaces/verifiable-credential';
 import { IonicModule } from '@ionic/angular';
-import { CredentialTypeMap } from 'src/app/interfaces/credential-type-map';
+import { CredentialMapConfig, CredentialTypeMap, EvaluatedField } from 'src/app/interfaces/credential-type-map';
 import { CredentialDetailMap, EvaluatedSection } from 'src/app/interfaces/credential-detail-map';
 import * as dayjs from 'dayjs';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
+import { assignDefaultCredentialTypeIfNeeded, getSpecificType } from 'src/app/helpers/get-credential-type';
 
 
 @Component({
@@ -28,13 +32,23 @@ import { ToastServiceHandler } from 'src/app/services/toast.service';
   imports: [IonicModule, QRCodeModule, TranslateModule, CommonModule],
 })
 export class VcViewComponent implements OnInit {
-  @Input() public credentialInput!: VerifiableCredential;
+  public credentialInput$ = input.required<VerifiableCredential>();
+  mappedFields$ = computed<EvaluatedField[]>(() => {
+    const subject = this.credentialInput$().credentialSubject;
+    const mappedFields: EvaluatedField[] = this.typeConfig?.fields.map(f => {
+      return {
+      label: f.label,
+      value: f.valueGetter(subject),
+    }
+    }) ?? [];
+    return mappedFields;
+  });
 
   @Input() public isDetailViewActive = false;
   @Output() public vcEmit: EventEmitter<VerifiableCredential> =
     new EventEmitter();
 
-  credentialType!: string;
+  credentialType!: ExtendedCredentialType;
 
   public cred_cbor = '';
   public isAlertOpenNotFound = false;
@@ -69,7 +83,7 @@ export class VcViewComponent implements OnInit {
       role: 'confirm',
       handler: () => {
         this.isModalDeleteOpen = true;
-        this.vcEmit.emit(this.credentialInput);
+        this.vcEmit.emit(this.credentialInput$());
       },
     },
   ];
@@ -101,19 +115,9 @@ export class VcViewComponent implements OnInit {
 
   public ngOnInit(): void {
     this.checkAvailableFormats();
-    this.credentialType = this.getSpecificType(this.credentialInput);
+    this.credentialType = getSpecificType(this.credentialInput$());
   }
 
-  public getSpecificType(vc: VerifiableCredential): string {
-    const [a, b] = vc.type ?? [];
-    if (a === 'VerifiableCredential') {
-      return b;
-    } else if (b === 'VerifiableCredential') {
-      return a;
-    } else {
-      return 'VerifiableCredential';
-    }
-  }
 
   public async copyToClipboard(text: string): Promise<void> {
     try {
@@ -132,8 +136,8 @@ export class VcViewComponent implements OnInit {
   }
 
   public qrView(): void {
-    if (this.credentialInput.lifeCycleStatus !== "EXPIRED") {
-      this.walletService.getVCinCBOR(this.credentialInput).subscribe({
+    if (this.credentialInput$().lifeCycleStatus !== "EXPIRED") {
+      this.walletService.getVCinCBOR(this.credentialInput$()).subscribe({
         next: (value: string) => {
           this.cred_cbor = value;
           this.isAlertOpenNotFound = false;
@@ -198,25 +202,19 @@ export class VcViewComponent implements OnInit {
     }
   }
 
-  get typeConfig() {
-    return CredentialTypeMap[this.credentialType];
+  get typeConfig(): CredentialMapConfig {
+    const actualCredType: ExtendedCredentialType = this.credentialType;
+    const credType = assignDefaultCredentialTypeIfNeeded(actualCredType);
+    return CredentialTypeMap[credType];
   }
 
   get iconUrl(): string | undefined {
     return this.typeConfig?.icon;
   }
 
-  get mappedFields(): { label: string; value: string }[] {
-    const subject = this.credentialInput.credentialSubject;
-    return this.typeConfig?.fields.map(f => ({
-      label: f.label,
-      value: f.valueGetter(subject),
-    })) ?? [];
-  }
-
   public getStructuredFields(): void {
-    const cs = this.credentialInput.credentialSubject;
-    const vc = this.credentialInput;
+    const cs = this.credentialInput$().credentialSubject;
+    const vc = this.credentialInput$();
 
     const credentialInfo: EvaluatedSection = {
       section: 'vc-fields.title',
