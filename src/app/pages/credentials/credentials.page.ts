@@ -10,7 +10,7 @@ import { VcViewComponent } from '../../components/vc-view/vc-view.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
+import { ExtendedCredentialType, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { VerifiableCredentialSubjectDataNormalizer } from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
 import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,6 +19,8 @@ import { ToastServiceHandler } from 'src/app/services/toast.service';
 import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
+import { credentialsListMock } from 'src/app/mocks/credentials-list.mock';
+import { getCredentialTypeAndAssignDefaultIfNeeded, getSpecificType } from 'src/app/helpers/get-credential-type';
 
 
 // TODO separate scan in another component/ page
@@ -269,11 +271,13 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       tap((credentialListResponse: VerifiableCredential[]) => {
         // Iterate over the list and normalize each credentialSubject
         this.credList = credentialListResponse.slice().reverse().map(cred => {
-          if (cred.credentialSubject) {
-            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject);
+          if (cred.credentialSubject && cred.type) {
+            const credType = getCredentialTypeAndAssignDefaultIfNeeded(cred);
+            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
           }
           return cred;
         });
+        // todo avoid this
         this.cdr.detectChanges();
         if(!isScannerOpen){
           this.loader.removeLoadingProcess();

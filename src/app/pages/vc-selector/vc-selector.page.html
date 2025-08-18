@@ -4,7 +4,7 @@
     <ion-row class="ion-justify-content-center">
       @for (cred of credList; track cred) {
         <ion-card (click)="sendCred(cred)" (keydown)="sendCred(cred)" class="vc-selector-card">
-            <app-vc-view [isDetailViewActive]="false" [credentialInput]="cred"></app-vc-view>
+            <app-vc-view [isDetailViewActive]="false" [credentialInput$]="cred"></app-vc-view>
         </ion-card>
       }
     </ion-row>

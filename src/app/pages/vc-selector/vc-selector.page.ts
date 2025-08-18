@@ -9,10 +9,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VcViewComponent } from '../../components/vc-view/vc-view.component';
 import { VCReply } from 'src/app/interfaces/verifiable-credential-reply';
 import { VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
-import {VerifiableCredentialSubjectDataNormalizer} from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
+import { VerifiableCredentialSubjectDataNormalizer } from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoaderService } from 'src/app/services/loader.service';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
+import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type';
 
 // todo: show only VCs with powers to login
 // todo: if user has only one VC, use this directly
@@ -84,7 +85,8 @@ export class VcSelectorPage {
     try{
       this.credList = [...unNormalizedCredList].reverse().map(cred => {
         if (cred.credentialSubject) {
-          cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject);
+          const credType = getCredentialTypeAndAssignDefaultIfNeeded(cred);
+          cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
         }
         return cred;
       });

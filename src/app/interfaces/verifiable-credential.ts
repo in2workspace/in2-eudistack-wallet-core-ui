@@ -1,17 +1,23 @@
+//todo this will have to be updated to differientate models by credential type
+
 export interface VerifiableCredential {
   '@context': string[];
   id: string;
-  type?: string[];  
+  type?: ExtendedCredentialType[];  
   lifeCycleStatus: LifeCycleStatus; 
   name?: string;
   description?: string;
-  issuer: Issuer;
+  issuer: Issuer; // todo this is different for Label and Machine
   validFrom: string;
   validUntil: string;
   credentialSubject: CredentialSubject;
   credentialStatus: CredentialStatus;
   credentialEncoded?: string;
 }
+
+export const CREDENTIAL_TYPES_ARRAY = ['LEARCredentialEmployee', 'LEARCredentialMachine', 'gx:LabelCredential'] as const;
+export type CredentialType = typeof CREDENTIAL_TYPES_ARRAY[number];
+export type ExtendedCredentialType =  'VerifiableCredential' | CredentialType;
 
 export interface Issuer {
   id: string;
