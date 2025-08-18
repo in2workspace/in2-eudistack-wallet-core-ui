@@ -188,7 +188,7 @@
 
     <ion-content class="ion-padding modal-content">
       <ion-list>
-        @for(section of evaluatedDetailSections; track section.section){
+        @for(section of detailViewSections; track section.section){
           <div class="section">
             <div class="section-header">{{ section.section | translate }}</div>
             @for(field of section.fields; track field.label){

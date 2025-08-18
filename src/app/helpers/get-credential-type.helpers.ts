@@ -1,19 +1,20 @@
-import { VerifiableCredential, ExtendedCredentialType, CredentialType } from "../interfaces/verifiable-credential";
+import { VerifiableCredential, ExtendedCredentialType, CredentialType, CREDENTIAL_TYPES_ARRAY } from "../interfaces/verifiable-credential";
 
-export function getCredentialTypeAndAssignDefaultIfNeeded(vc: VerifiableCredential): CredentialType{
-  const specificType: ExtendedCredentialType = getSpecificType(vc);
+export function getCredentialTypeAndAssignDefaultIfNeeded(vc: VerifiableCredential): CredentialType {
+  const specificType: ExtendedCredentialType = getExtendedType(vc);
   return assignDefaultCredentialTypeIfNeeded(specificType);
 }
 
-export function getSpecificType(vc: VerifiableCredential): ExtendedCredentialType {
+export function getExtendedType(vc: VerifiableCredential): ExtendedCredentialType {
     const [a, b] = vc.type ?? [];
-    if (a === 'VerifiableCredential') {
-      return b;
-    } else if (b === 'VerifiableCredential') {
+    if(CREDENTIAL_TYPES_ARRAY.includes(a as CredentialType)){
       return a;
+    }else if (CREDENTIAL_TYPES_ARRAY.includes(b as CredentialType)) {
+      return b;
     } else {
-      console.error('Invalid credential type: ');
+      console.error("Invalid credential type.");
       console.error(vc.type);
+      console.warn("Using 'VerifiableCredential' as default.");
       return 'VerifiableCredential';
     }
 }

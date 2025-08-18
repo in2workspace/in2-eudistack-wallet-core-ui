@@ -25,7 +25,7 @@ import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-c
 
 
 /**
- * This component displays two types of "details view":
+ * This component displays two types of "details VC view":
  * 1. cardViewFields: the summary data displayed in the VC card.
  * 2. detailViewSections: the comprehensive details shown in the modal that opens
  * when clicking on the VC card.
@@ -41,8 +41,6 @@ export class VcViewComponent implements OnInit {
   public credentialInput$ = input.required<VerifiableCredential>();
   public cardViewFields$ = computed<EvaluatedField[]>(() => {
     const subject = this.credentialInput$().credentialSubject;
-    console.log('subject')
-    console.log(subject)
     const evaluatedFields: EvaluatedField[] = this.cardViewConfigByCredentialType?.fields.map(f => {
       return {
       label: f.label,
