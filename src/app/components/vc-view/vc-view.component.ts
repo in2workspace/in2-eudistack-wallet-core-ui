@@ -20,9 +20,16 @@ import { CredentialMapConfig, CredentialTypeMap } from 'src/app/interfaces/crede
 import { CredentialDetailMap, EvaluatedField, EvaluatedSection } from 'src/app/interfaces/credential-detail-map';
 import * as dayjs from 'dayjs';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type';
+import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type.helpers';
 
 
+
+/**
+ * This component displays two types of "details view":
+ * 1. cardViewFields: the summary data displayed in the VC card.
+ * 2. detailViewSections: the comprehensive details shown in the modal that opens
+ * when clicking on the VC card.
+ */
 @Component({
   selector: 'app-vc-view',
   templateUrl: './vc-view.component.html',
@@ -32,9 +39,10 @@ import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-c
 })
 export class VcViewComponent implements OnInit {
   public credentialInput$ = input.required<VerifiableCredential>();
-  // Fields displayed in the VC card view
   public cardViewFields$ = computed<EvaluatedField[]>(() => {
     const subject = this.credentialInput$().credentialSubject;
+    console.log('subject')
+    console.log(subject)
     const evaluatedFields: EvaluatedField[] = this.cardViewConfigByCredentialType?.fields.map(f => {
       return {
       label: f.label,
@@ -100,8 +108,7 @@ export class VcViewComponent implements OnInit {
   private readonly toastService = inject(ToastServiceHandler);
 
   public isDetailModalOpen = false;
-  // Comprehensive fields displayed in the details modal
-  public evaluatedDetailSections!: EvaluatedSection[];
+  public detailViewSections!: EvaluatedSection[];
 
   public openDetailModal(): void {
     if(this.isDetailViewActive){
@@ -234,7 +241,7 @@ export class VcViewComponent implements OnInit {
     };
 
     const entry = CredentialDetailMap[this.credentialType];
-    const detailedSections: EvaluatedSection[] = typeof entry === 'function'
+    const evaluatedDetailedSections: EvaluatedSection[] = typeof entry === 'function'
       ? entry(cs, vc).map(section => ({
           section: section.section,
           fields: section.fields
@@ -255,7 +262,7 @@ export class VcViewComponent implements OnInit {
         }));
 
     if(this.credentialType == 'LEARCredentialMachine' && vc.credentialEncoded) {
-      detailedSections.push({
+      evaluatedDetailedSections.push({
         section: 'vc-fields.lear-credential-machine.credentialEncoded',
         fields: [
           { label: 'vc-fields.lear-credential-machine.credentialEncoded', value: vc.credentialEncoded ?? '' }
@@ -264,7 +271,7 @@ export class VcViewComponent implements OnInit {
 
     }
     
-    this.evaluatedDetailSections = [credentialInfo, ...detailedSections].filter(section => section.fields.length > 0);
+    this.detailViewSections = [credentialInfo, ...evaluatedDetailedSections].filter(section => section.fields.length > 0);
   }
 
   private formatDate(date: string | undefined): string {

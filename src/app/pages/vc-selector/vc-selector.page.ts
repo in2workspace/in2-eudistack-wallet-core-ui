@@ -13,7 +13,7 @@ import { VerifiableCredentialSubjectDataNormalizer } from 'src/app/interfaces/ve
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoaderService } from 'src/app/services/loader.service';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type';
+import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type.helpers';
 
 // todo: show only VCs with powers to login
 // todo: if user has only one VC, use this directly
@@ -91,7 +91,7 @@ export class VcSelectorPage {
         return cred;
       });
     }catch(err){
-      console.error('Error normalizing credential list.')
+      console.error('Error normalizing credential list.');
       console.error(err);
       this.toastService.showErrorAlertByTranslateLabel("errors.loading-VCs");
     }finally{

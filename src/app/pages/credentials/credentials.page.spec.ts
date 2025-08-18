@@ -121,7 +121,7 @@ describe('CredentialsPage', () => {
         expirationDate: new Date().toISOString(),
         validUntil: new Date().toISOString(),
         credentialStatus: {} as CredentialStatus,
-      };
+      } as any;
       component.credList = [pendingCredential];
 
       const response: HttpResponse<string> = { status: 204 } as HttpResponse<string>;
@@ -153,7 +153,7 @@ describe('CredentialsPage', () => {
             validUntil: new Date().toISOString(),
             credentialStatus: {} as CredentialStatus,
 
-          };
+          } as any;
       component.credList = [pendingCredential];
 
       const errorResponse = new HttpErrorResponse({
