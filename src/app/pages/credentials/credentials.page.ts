@@ -19,6 +19,7 @@ import { ToastServiceHandler } from 'src/app/services/toast.service';
 import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
 
 // TODO separate scan in another component/ page
@@ -269,11 +270,15 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       tap((credentialListResponse: VerifiableCredential[]) => {
         // Iterate over the list and normalize each credentialSubject
         this.credList = credentialListResponse.slice().reverse().map(cred => {
-          if (cred.credentialSubject) {
-            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject);
+          if (cred.credentialSubject && cred.type) {
+            const credType = getExtendedCredentialType(cred);
+            if(isValidCredentialType(credType)){
+              cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+            }
           }
           return cred;
         });
+        // todo avoid this
         this.cdr.detectChanges();
         if(!isScannerOpen){
           this.loader.removeLoadingProcess();

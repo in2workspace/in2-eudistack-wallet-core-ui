@@ -4,22 +4,30 @@ import {
   Input,
   OnInit,
   Output,
+  computed,
   inject,
+  input
 } from '@angular/core';
 import { QRCodeModule } from 'angularx-qrcode';
 import { WalletService } from 'src/app/services/wallet.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  VerifiableCredential,
-} from 'src/app/interfaces/verifiable-credential';
+import { ExtendedCredentialType, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { IonicModule } from '@ionic/angular';
-import { CredentialTypeMap } from 'src/app/interfaces/credential-type-map';
-import { CredentialDetailMap, EvaluatedSection } from 'src/app/interfaces/credential-detail-map';
+import { CredentialMapConfig, CredentialTypeMap } from 'src/app/interfaces/credential-type-map';
+import { CredentialDetailMap, EvaluatedField, EvaluatedSection } from 'src/app/interfaces/credential-detail-map';
 import * as dayjs from 'dayjs';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
 
+
+/**
+ * This component displays two types of "details VC view":
+ * 1. cardViewFields: the summary data displayed in the VC card.
+ * 2. detailViewSections: the comprehensive details shown in the modal that opens
+ * when clicking on the VC card.
+ */
 @Component({
   selector: 'app-vc-view',
   templateUrl: './vc-view.component.html',
@@ -28,13 +36,23 @@ import { ToastServiceHandler } from 'src/app/services/toast.service';
   imports: [IonicModule, QRCodeModule, TranslateModule, CommonModule],
 })
 export class VcViewComponent implements OnInit {
-  @Input() public credentialInput!: VerifiableCredential;
+  public credentialInput$ = input.required<VerifiableCredential>();
+  public cardViewFields$ = computed<EvaluatedField[]>(() => {
+    const subject = this.credentialInput$().credentialSubject;
+    const evaluatedFields: EvaluatedField[] = this.cardViewConfigByCredentialType?.fields.map(f => {
+      return {
+      label: f.label,
+      value: f.valueGetter(subject),
+    }
+    }) ?? [];
+    return evaluatedFields;
+  });
 
   @Input() public isDetailViewActive = false;
   @Output() public vcEmit: EventEmitter<VerifiableCredential> =
     new EventEmitter();
 
-  credentialType!: string;
+  credentialType!: ExtendedCredentialType;
 
   public cred_cbor = '';
   public isAlertOpenNotFound = false;
@@ -69,7 +87,7 @@ export class VcViewComponent implements OnInit {
       role: 'confirm',
       handler: () => {
         this.isModalDeleteOpen = true;
-        this.vcEmit.emit(this.credentialInput);
+        this.vcEmit.emit(this.credentialInput$());
       },
     },
   ];
@@ -86,7 +104,7 @@ export class VcViewComponent implements OnInit {
   private readonly toastService = inject(ToastServiceHandler);
 
   public isDetailModalOpen = false;
-  public evaluatedSections!: EvaluatedSection[];
+  public detailViewSections!: EvaluatedSection[];
 
   public openDetailModal(): void {
     if(this.isDetailViewActive){
@@ -101,19 +119,9 @@ export class VcViewComponent implements OnInit {
 
   public ngOnInit(): void {
     this.checkAvailableFormats();
-    this.credentialType = this.getSpecificType(this.credentialInput);
+    this.credentialType = getExtendedCredentialType(this.credentialInput$());
   }
 
-  public getSpecificType(vc: VerifiableCredential): string {
-    const [a, b] = vc.type ?? [];
-    if (a === 'VerifiableCredential') {
-      return b;
-    } else if (b === 'VerifiableCredential') {
-      return a;
-    } else {
-      return 'VerifiableCredential';
-    }
-  }
 
   public async copyToClipboard(text: string): Promise<void> {
     try {
@@ -132,8 +140,8 @@ export class VcViewComponent implements OnInit {
   }
 
   public qrView(): void {
-    if (this.credentialInput.lifeCycleStatus !== "EXPIRED") {
-      this.walletService.getVCinCBOR(this.credentialInput).subscribe({
+    if (this.credentialInput$().lifeCycleStatus !== "EXPIRED") {
+      this.walletService.getVCinCBOR(this.credentialInput$()).subscribe({
         next: (value: string) => {
           this.cred_cbor = value;
           this.isAlertOpenNotFound = false;
@@ -198,25 +206,18 @@ export class VcViewComponent implements OnInit {
     }
   }
 
-  get typeConfig() {
-    return CredentialTypeMap[this.credentialType];
+  get cardViewConfigByCredentialType(): CredentialMapConfig | undefined {
+    const credType = this.credentialType;
+    return isValidCredentialType(credType) ? CredentialTypeMap[credType] : undefined;
   }
 
   get iconUrl(): string | undefined {
-    return this.typeConfig?.icon;
-  }
-
-  get mappedFields(): { label: string; value: string }[] {
-    const subject = this.credentialInput.credentialSubject;
-    return this.typeConfig?.fields.map(f => ({
-      label: f.label,
-      value: f.valueGetter(subject),
-    })) ?? [];
+    return this.cardViewConfigByCredentialType?.icon;
   }
 
   public getStructuredFields(): void {
-    const cs = this.credentialInput.credentialSubject;
-    const vc = this.credentialInput;
+    const cs = this.credentialInput$().credentialSubject;
+    const vc = this.credentialInput$();
 
     const credentialInfo: EvaluatedSection = {
       section: 'vc-fields.title',
@@ -236,8 +237,8 @@ export class VcViewComponent implements OnInit {
       ].filter(field => !!field.value && field.value !== ''),
     };
 
-    const entry = CredentialDetailMap[this.credentialType];
-    const detailedSections: EvaluatedSection[] = typeof entry === 'function'
+    const entry = isValidCredentialType(this.credentialType) ? CredentialDetailMap[this.credentialType] : undefined;
+    const evaluatedDetailedSections: EvaluatedSection[] = typeof entry === 'function'
       ? entry(cs, vc).map(section => ({
           section: section.section,
           fields: section.fields
@@ -258,7 +259,7 @@ export class VcViewComponent implements OnInit {
         }));
 
     if(this.credentialType == 'LEARCredentialMachine' && vc.credentialEncoded) {
-      detailedSections.push({
+      evaluatedDetailedSections.push({
         section: 'vc-fields.lear-credential-machine.credentialEncoded',
         fields: [
           { label: 'vc-fields.lear-credential-machine.credentialEncoded', value: vc.credentialEncoded ?? '' }
@@ -267,7 +268,7 @@ export class VcViewComponent implements OnInit {
 
     }
     
-    this.evaluatedSections = [credentialInfo, ...detailedSections].filter(section => section.fields.length > 0);
+    this.detailViewSections = [credentialInfo, ...evaluatedDetailedSections].filter(section => section.fields.length > 0);
   }
 
   private formatDate(date: string | undefined): string {
