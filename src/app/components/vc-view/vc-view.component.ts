@@ -12,15 +12,13 @@ import { QRCodeModule } from 'angularx-qrcode';
 import { WalletService } from 'src/app/services/wallet.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  CredentialType, VerifiableCredential
-} from 'src/app/interfaces/verifiable-credential';
+import { ExtendedCredentialType, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { IonicModule } from '@ionic/angular';
 import { CredentialMapConfig, CredentialTypeMap } from 'src/app/interfaces/credential-type-map';
 import { CredentialDetailMap, EvaluatedField, EvaluatedSection } from 'src/app/interfaces/credential-detail-map';
 import * as dayjs from 'dayjs';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type.helpers';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
 
 
@@ -54,7 +52,7 @@ export class VcViewComponent implements OnInit {
   @Output() public vcEmit: EventEmitter<VerifiableCredential> =
     new EventEmitter();
 
-  credentialType!: CredentialType;
+  credentialType!: ExtendedCredentialType;
 
   public cred_cbor = '';
   public isAlertOpenNotFound = false;
@@ -121,7 +119,7 @@ export class VcViewComponent implements OnInit {
 
   public ngOnInit(): void {
     this.checkAvailableFormats();
-    this.credentialType = getCredentialTypeAndAssignDefaultIfNeeded(this.credentialInput$());
+    this.credentialType = getExtendedCredentialType(this.credentialInput$());
   }
 
 
@@ -208,8 +206,9 @@ export class VcViewComponent implements OnInit {
     }
   }
 
-  get cardViewConfigByCredentialType(): CredentialMapConfig {
-    return CredentialTypeMap[this.credentialType];
+  get cardViewConfigByCredentialType(): CredentialMapConfig | undefined {
+    const credType = this.credentialType;
+    return isValidCredentialType(credType) ? CredentialTypeMap[credType] : undefined;
   }
 
   get iconUrl(): string | undefined {
@@ -238,7 +237,7 @@ export class VcViewComponent implements OnInit {
       ].filter(field => !!field.value && field.value !== ''),
     };
 
-    const entry = CredentialDetailMap[this.credentialType];
+    const entry = isValidCredentialType(this.credentialType) ? CredentialDetailMap[this.credentialType] : undefined;
     const evaluatedDetailedSections: EvaluatedSection[] = typeof entry === 'function'
       ? entry(cs, vc).map(section => ({
           section: section.section,

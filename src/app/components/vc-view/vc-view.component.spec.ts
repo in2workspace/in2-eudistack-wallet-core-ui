@@ -451,7 +451,7 @@ describe('VcViewComponent', () => {
     if (originalDetailMap) {
       detailMapModule.CredentialDetailMap[component.credentialType] = originalDetailMap;
     } else {
-      delete detailMapModule.CredentialDetailMap[component.credentialType];
+      detailMapModule.CredentialDetailMap[component.credentialType] = undefined as any;;
     }
   });
 

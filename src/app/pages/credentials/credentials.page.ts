@@ -19,7 +19,7 @@ import { ToastServiceHandler } from 'src/app/services/toast.service';
 import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
-import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type.helpers';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
 
 // TODO separate scan in another component/ page
@@ -271,8 +271,10 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         // Iterate over the list and normalize each credentialSubject
         this.credList = credentialListResponse.slice().reverse().map(cred => {
           if (cred.credentialSubject && cred.type) {
-            const credType = getCredentialTypeAndAssignDefaultIfNeeded(cred);
-            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+            const credType = getExtendedCredentialType(cred);
+            if(isValidCredentialType(credType)){
+              cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+            }
           }
           return cred;
         });

@@ -1,4 +1,4 @@
-//todo this will have to be updated to differientate models by credential type
+//todo these models will have to be updated to differientiate models by credential type
 
 export interface VerifiableCredential {
   '@context': string[];
@@ -7,7 +7,7 @@ export interface VerifiableCredential {
   lifeCycleStatus: LifeCycleStatus; 
   name?: string;
   description?: string;
-  issuer: Issuer; // todo this is different for Label and Machine
+  issuer: Issuer;
   validFrom: string;
   validUntil: string;
   credentialSubject: CredentialSubject;

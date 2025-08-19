@@ -1,4 +1,4 @@
-import { getExtendedType, assignDefaultCredentialTypeIfNeeded, getCredentialTypeAndAssignDefaultIfNeeded } from "./get-credential-type.helpers";
+import { getExtendedCredentialType, isValidCredentialType } from "./get-credential-type.helpers";
 
 describe('credential type helpers', () => {
   const originalError = console.error;
@@ -20,34 +20,47 @@ describe('credential type helpers', () => {
     jest.clearAllMocks();
   });
 
-  describe('getSpecificType', () => {
-    it('returns the specific type when order is [VC, Type]', () => {
+  describe('isValidCredentialType', () => {
+    it('returns true for a known credential type', () => {
+      expect(isValidCredentialType('LEARCredentialEmployee' as any)).toBe(true);
+      expect(isValidCredentialType('LEARCredentialMachine' as any)).toBe(true);
+      expect(isValidCredentialType('gx:LabelCredential' as any)).toBe(true);
+    });
+
+    it('returns false for an unknown credential type', () => {
+      expect(isValidCredentialType('VerifiableCredential' as any)).toBe(false);
+      expect(isValidCredentialType('LearCredentialEmployee' as any)).toBe(false);
+    });
+  });
+
+  describe('getExtendedCredentialType', () => {
+    it('Returns type when order is [VerifiableCredential, type]', () => {
       const vc = { type: ['VerifiableCredential', 'LEARCredentialEmployee'] } as any;
-      const result = getExtendedType(vc);
+      const result = getExtendedCredentialType(vc);
       expect(result).toBe('LEARCredentialEmployee');
       expect(errorSpy).not.toHaveBeenCalled();
       expect(warnSpy).not.toHaveBeenCalled();
     });
 
-    it('returns the specific type when order is [Type, VC]', () => {
+    it('Returns type when order is [Type, VerifiableCredential]', () => {
       const vc = { type: ['LEARCredentialEmployee', 'VerifiableCredential'] } as any;
-      const result = getExtendedType(vc);
+      const result = getExtendedCredentialType(vc);
       expect(result).toBe('LEARCredentialEmployee');
       expect(errorSpy).not.toHaveBeenCalled();
       expect(warnSpy).not.toHaveBeenCalled();
     });
 
-    it('logs two errors, one warning, and returns "VerifiableCredential" if no valid type is found', () => {
+    it('Handles invalid credential type', () => {
       const vc = { type: ['Foo', 'Bar'] } as any;
-      const result = getExtendedType(vc);
+      const result = getExtendedCredentialType(vc);
       expect(result).toBe('VerifiableCredential');
       expect(errorSpy).toHaveBeenCalledTimes(2); // "Invalid credential type." + vc.type
       expect(warnSpy).toHaveBeenCalledWith("Using 'VerifiableCredential' as default.");
     });
 
-    it('handles null or empty type and returns "VerifiableCredential" with 2 errors and 1 warning', () => {
+    it('Handles null or empty returning "VerifiableCredential"', () => {
       const vc1 = { type: undefined } as any;
-      const r1 = getExtendedType(vc1);
+      const r1 = getExtendedCredentialType(vc1);
       expect(r1).toBe('VerifiableCredential');
       expect(errorSpy).toHaveBeenCalledTimes(2);
       expect(warnSpy).toHaveBeenCalledWith("Using 'VerifiableCredential' as default.");
@@ -56,66 +69,10 @@ describe('credential type helpers', () => {
       warnSpy.mockClear();
 
       const vc2 = { type: [] } as any;
-      const r2 = getExtendedType(vc2);
+      const r2 = getExtendedCredentialType(vc2);
       expect(r2).toBe('VerifiableCredential');
       expect(errorSpy).toHaveBeenCalledTimes(2);
       expect(warnSpy).toHaveBeenCalledWith("Using 'VerifiableCredential' as default.");
-    });
-  });
-
-  describe('assignDefaultCredentialTypeIfNeeded', () => {
-    it('returns "LEARCredentialEmployee" and warns if input is "VerifiableCredential"', () => {
-      const result = assignDefaultCredentialTypeIfNeeded('VerifiableCredential' as any);
-      expect(result).toBe('LEARCredentialEmployee');
-      expect(warnSpy).toHaveBeenCalledWith('Using LEARCredentialEmployee as default');
-    });
-
-    it('returns the same type and does not warn if input is a specific type', () => {
-      const result = assignDefaultCredentialTypeIfNeeded('LEARCredentialEmployee' as any);
-      expect(result).toBe('LEARCredentialEmployee');
-      expect(warnSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('getCredentialTypeAndAssignDefaultIfNeeded (integration)', () => {
-    it('detects the specific type correctly when order is [VC, Type]', () => {
-      const vc = { type: ['VerifiableCredential', 'LEARCredentialEmployee'] } as any;
-      const result = getCredentialTypeAndAssignDefaultIfNeeded(vc);
-      expect(result).toBe('LEARCredentialEmployee');
-      expect(errorSpy).not.toHaveBeenCalled();
-      expect(warnSpy).not.toHaveBeenCalled();
-    });
-
-    it('returns the default "LEARCredentialEmployee" if type is invalid or empty and logs accordingly', () => {
-      const vcInvalid = { type: ['Foo', 'Bar'] } as any;
-      const resultInvalid = getCredentialTypeAndAssignDefaultIfNeeded(vcInvalid);
-      expect(resultInvalid).toBe('LEARCredentialEmployee');
-
-      // getSpecificType: 2 errors + 1 warning
-      // assignDefaultCredentialTypeIfNeeded: 1 warning
-      expect(errorSpy).toHaveBeenCalledTimes(2);
-      expect(warnSpy).toHaveBeenCalledTimes(2);
-      expect(warnSpy).toHaveBeenNthCalledWith(1, "Using 'VerifiableCredential' as default.");
-      expect(warnSpy).toHaveBeenNthCalledWith(2, 'Using LEARCredentialEmployee as default');
-
-      errorSpy.mockClear();
-      warnSpy.mockClear();
-
-      const vcEmpty = { type: [] } as any;
-      const resultEmpty = getCredentialTypeAndAssignDefaultIfNeeded(vcEmpty);
-      expect(resultEmpty).toBe('LEARCredentialEmployee');
-      expect(errorSpy).toHaveBeenCalledTimes(2);
-      expect(warnSpy).toHaveBeenCalledTimes(2);
-      expect(warnSpy).toHaveBeenNthCalledWith(1, "Using 'VerifiableCredential' as default.");
-      expect(warnSpy).toHaveBeenNthCalledWith(2, 'Using LEARCredentialEmployee as default');
-    });
-
-    it('works when the specific type is first and VC is second', () => {
-      const vc = { type: ['LEARCredentialEmployee', 'VerifiableCredential'] } as any;
-      const result = getCredentialTypeAndAssignDefaultIfNeeded(vc);
-      expect(result).toBe('LEARCredentialEmployee');
-      expect(errorSpy).not.toHaveBeenCalled();
-      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 });

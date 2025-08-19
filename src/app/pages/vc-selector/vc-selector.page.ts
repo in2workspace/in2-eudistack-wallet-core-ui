@@ -13,7 +13,7 @@ import { VerifiableCredentialSubjectDataNormalizer } from 'src/app/interfaces/ve
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoaderService } from 'src/app/services/loader.service';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { getCredentialTypeAndAssignDefaultIfNeeded } from 'src/app/helpers/get-credential-type.helpers';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
 // todo: show only VCs with powers to login
 // todo: if user has only one VC, use this directly
@@ -85,9 +85,11 @@ export class VcSelectorPage {
     try{
       this.credList = [...unNormalizedCredList].reverse().map(cred => {
         if (cred.credentialSubject) {
-          const credType = getCredentialTypeAndAssignDefaultIfNeeded(cred);
-          cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
-        }
+          const credType = getExtendedCredentialType(cred);
+          if(isValidCredentialType(credType)){
+            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+          }
+          }
         return cred;
       });
     }catch(err){
