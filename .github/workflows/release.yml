@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release-snapshot:
@@ -26,6 +27,10 @@ jobs:
       - name: Get Project Version
         id: get_version
         run: echo "VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+
+      - name: Compute PR-based snapshot suffix
+        if: github.event_name == 'pull_request'
+        run: echo "SNAPSHOT_SUFFIX=-pr-${{ github.event.number }}" >> $GITHUB_ENV
 
       - name: Check for existing release tag (only on PR)
         if: github.event_name == 'pull_request'
@@ -44,13 +49,13 @@ jobs:
       - name: Build and Push docker image
         run: |
           PROJECT_NAME=$(jq -r '.name' package.json)
-          IMAGE_TAG="$PROJECT_NAME:v$VERSION$SUFFIX"
+          IMAGE_TAG="$PROJECT_NAME:v$VERSION$SNAPSHOT_SUFFIX"
           docker build . --file Dockerfile --tag $DOCKER_HUB_CLIENT_NAME/$IMAGE_TAG
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           docker push $DOCKER_HUB_CLIENT_NAME/$IMAGE_TAG
         env:
           VERSION: ${{ env.VERSION }}
-          SUFFIX: -snapshot
+          SNAPSHOT_SUFFIX: ${{ env.SNAPSHOT_SUFFIX }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
           DOCKER_HUB_CLIENT_NAME: in2workspace
