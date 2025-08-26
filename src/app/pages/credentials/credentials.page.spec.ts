@@ -9,7 +9,7 @@ import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { CredentialStatus, LifeCycleStatus, LifeCycleStatuses, Mandate, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
+import { CredentialStatus, LifeCycleStatuses, Mandate, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { TranslateService } from '@ngx-translate/core';
 
 import { LoaderService } from 'src/app/services/loader.service';
@@ -20,15 +20,10 @@ describe('CredentialsPage', () => {
   let routerMock: any;
   let toastServiceHandlerMock: any;
   let activatedRouteMock: any;
-  let activatedRouteMock: any;
 
   beforeEach(async () => {
     walletServiceMock = {
       requestSignature: jest.fn(),
-      getAllVCs: jest.fn().mockReturnValue(of()),
-      deleteVc: jest.fn().mockReturnValue(of()),
-      executeContent: jest.fn().mockReturnValue(of()),
-      requestOpenidCredentialOffer: jest.fn().mockReturnValue(of())
       getAllVCs: jest.fn().mockReturnValue(of()),
       deleteVc: jest.fn().mockReturnValue(of()),
       executeContent: jest.fn().mockReturnValue(of()),
@@ -75,12 +70,10 @@ describe('CredentialsPage', () => {
 
   describe('ngOnInit', () => {
     it('should call sameDeviceVcActivationFlow only if credentialOfferUri is not null', () => {
-    it('should call sameDeviceVcActivationFlow only if credentialOfferUri is not null', () => {
       component.credentialOfferUri = 'testUri';
       component.ngOnInit();
       expect(component.sameDeviceVcActivationFlow).toHaveBeenCalledTimes(1);
     });
-    it('should not call sameDeviceVcActivationFlow only if credentialOfferUri is null', () => {
     it('should not call sameDeviceVcActivationFlow only if credentialOfferUri is null', () => {
       component.credentialOfferUri = '';
       component.ngOnInit();
