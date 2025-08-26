@@ -20,10 +20,15 @@ describe('CredentialsPage', () => {
   let routerMock: any;
   let toastServiceHandlerMock: any;
   let activatedRouteMock: any;
+  let activatedRouteMock: any;
 
   beforeEach(async () => {
     walletServiceMock = {
       requestSignature: jest.fn(),
+      getAllVCs: jest.fn().mockReturnValue(of()),
+      deleteVc: jest.fn().mockReturnValue(of()),
+      executeContent: jest.fn().mockReturnValue(of()),
+      requestOpenidCredentialOffer: jest.fn().mockReturnValue(of())
       getAllVCs: jest.fn().mockReturnValue(of()),
       deleteVc: jest.fn().mockReturnValue(of()),
       executeContent: jest.fn().mockReturnValue(of()),
@@ -42,6 +47,7 @@ describe('CredentialsPage', () => {
       imports: [IonicModule.forRoot()],
       providers: [
         CredentialsPage,
+        LoaderService,
         LoaderService,
         { provide: WalletService, useValue: walletServiceMock },
         { provide: Router, useValue: routerMock },
@@ -62,17 +68,23 @@ describe('CredentialsPage', () => {
     component.sameDeviceVcActivationFlow = jest.fn();
     (component as any).forcePageReload = jest.fn();
     activatedRouteMock = TestBed.inject(ActivatedRoute);
+    component.sameDeviceVcActivationFlow = jest.fn();
+    (component as any).forcePageReload = jest.fn();
+    activatedRouteMock = TestBed.inject(ActivatedRoute);
   });
 
   describe('ngOnInit', () => {
+    it('should call sameDeviceVcActivationFlow only if credentialOfferUri is not null', () => {
     it('should call sameDeviceVcActivationFlow only if credentialOfferUri is not null', () => {
       component.credentialOfferUri = 'testUri';
       component.ngOnInit();
       expect(component.sameDeviceVcActivationFlow).toHaveBeenCalledTimes(1);
     });
     it('should not call sameDeviceVcActivationFlow only if credentialOfferUri is null', () => {
+    it('should not call sameDeviceVcActivationFlow only if credentialOfferUri is null', () => {
       component.credentialOfferUri = '';
       component.ngOnInit();
+      expect(component.sameDeviceVcActivationFlow).not.toHaveBeenCalled();
       expect(component.sameDeviceVcActivationFlow).not.toHaveBeenCalled();
     });
   });
@@ -128,6 +140,7 @@ describe('CredentialsPage', () => {
       walletServiceMock.requestSignature.mockReturnValue(of(response));
 
       (component as any).forcePageReload = jest.fn();
+      (component as any).forcePageReload = jest.fn();
 
       (component as any).requestPendingSignatures();
       flush(); 
@@ -164,6 +177,7 @@ describe('CredentialsPage', () => {
 
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       (component as any).forcePageReload = jest.fn();
+      (component as any).forcePageReload = jest.fn();
 
       (component as any).requestPendingSignatures();
       flush();
@@ -171,12 +185,14 @@ describe('CredentialsPage', () => {
       expect(walletServiceMock.requestSignature).toHaveBeenCalledWith('456');
       expect(toastServiceHandlerMock.showErrorAlert).not.toHaveBeenCalled();
       expect((component as any).forcePageReload).not.toHaveBeenCalled();
+      expect((component as any).forcePageReload).not.toHaveBeenCalled();
       consoleErrorSpy.mockRestore();
     }));
   });
 
   describe('forcePageReload', () => {
     it('should navigate to /tabs/credentials and reload the window', async () => {
+      (component as any).forcePageReload = (CredentialsPage as any).prototype.forcePageReload.bind(component);
       (component as any).forcePageReload = (CredentialsPage as any).prototype.forcePageReload.bind(component);
 
       const reloadSpy = jest.fn();
@@ -189,6 +205,7 @@ describe('CredentialsPage', () => {
       routerMock.navigate.mockReturnValue(Promise.resolve(true));
 
       await (component as any).forcePageReload();
+      await (component as any).forcePageReload();
 
       expect(routerMock.navigate).toHaveBeenCalledWith(['/tabs/credentials']);
       expect(reloadSpy).toHaveBeenCalled();
@@ -196,6 +213,56 @@ describe('CredentialsPage', () => {
       window.location = originalLocation as any;
     });
   });
+
+   it('openScanner hauria de cridar router.navigate amb els queryParams showScannerView i showScanner i merge', () => {
+    component.openScannerViewAndScanner();
+
+    expect(routerMock.navigate).toHaveBeenCalledTimes(1);
+    expect(routerMock.navigate).toHaveBeenCalledWith(
+      [],
+      {
+        relativeTo: activatedRouteMock,
+        queryParams: {
+          showScannerView: true,
+          showScanner: true
+        },
+        queryParamsHandling: 'merge'
+      }
+    );
+  });
+
+   it('should navigate to show scanner view without activating scanner', fakeAsync(() => {
+    component.openScannerViewWithoutScanner();
+    flush();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith([], {
+      relativeTo: activatedRouteMock,
+      queryParams: { showScannerView: true },
+      queryParamsHandling: 'merge'
+    });
+  }));
+
+  it('should navigate to close scanner view and scanner', fakeAsync(() => {
+    component.closeScannerViewAndScanner();
+    flush();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith([], {
+      relativeTo: activatedRouteMock,
+      queryParams: { showScannerView: false, showScanner: false },
+      queryParamsHandling: 'merge'
+    });
+  }));
+
+  it('should navigate to close scanner only', fakeAsync(() => {
+    component.closeScanner();
+    flush();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith([], {
+      relativeTo: activatedRouteMock,
+      queryParams: { showScanner: false },
+      queryParamsHandling: 'merge'
+    });
+  }));
 
    it('openScanner hauria de cridar router.navigate amb els queryParams showScannerView i showScanner i merge', () => {
     component.openScannerViewAndScanner();
