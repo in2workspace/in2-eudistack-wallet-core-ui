@@ -71,7 +71,6 @@ jobs:
           DH_IMAGE="docker.io/${DOCKERHUB_ORG}/${PROJECT_NAME}:${TAG}"
 
           docker build -f Dockerfile --build-arg SKIP_TESTS=true -t "${DH_IMAGE}" .
-          docker tag "${DH_IMAGE}"
 
           docker push "${DH_IMAGE}"
 
@@ -117,14 +116,11 @@ jobs:
         run: |
           set -euo pipefail
           TAG="v${VERSION}"
-
           DH_IMAGE="docker.io/${DOCKERHUB_ORG}/${PROJECT_NAME}:${TAG}"
           DH_LATEST="docker.io/${DOCKERHUB_ORG}/${PROJECT_NAME}:latest"
 
           docker build -f Dockerfile --build-arg SKIP_TESTS=true -t "${DH_IMAGE}" .
           docker tag "${DH_IMAGE}" "${DH_LATEST}"
-          docker tag "${DH_IMAGE}" "${ECR_IMAGE}"
-          docker tag "${DH_IMAGE}" "${ECR_LATEST}"
 
           docker push "${DH_IMAGE}"
           docker push "${DH_LATEST}"
