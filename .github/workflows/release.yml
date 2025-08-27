@@ -25,6 +25,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Get Project Name
+        id: project_name
+        run: echo "PROJECT_NAME=$(jq -r '.name' package.json)" >> $GITHUB_ENV
+
       - name: Get Project Version
         id: get_version
         run: echo "VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
