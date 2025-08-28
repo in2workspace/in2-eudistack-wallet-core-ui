@@ -45,7 +45,7 @@ jobs:
       # Step 4: Build the Angular application
       # Compiles the app in production mode and outputs to dist/out directory
       - name: Npm Build
-        run: npm run build -- --output-path=./dist/out --configuration "production"
+        run: npm run build -- --output-path=./dist/out --configuration "deployment"
 
       # Step 4.1: Generate runtime-config.json to inject runtime variables
       # Creates a JSON file with environment-specific settings for the app
