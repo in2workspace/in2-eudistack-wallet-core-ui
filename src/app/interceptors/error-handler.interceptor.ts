@@ -32,7 +32,8 @@ export class HttpErrorInterceptor implements HttpInterceptor {
         const errStatus = errorResp.status ?? errorResp.error?.status;
         //DONT'T SHOW POPUP CASES
         // get credentials endpoint
-        if ( //todo review this handler
+        if ( 
+          //todo review this handler
           request.url.endsWith(SERVER_PATH.CREDENTIALS) && errMessage?.startsWith('The credentials list is empty')
         ) {
           this.logHandledSilentlyErrorMsg(errMessage);

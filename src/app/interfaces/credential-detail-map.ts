@@ -1,3 +1,5 @@
+import { CredentialType } from "./verifiable-credential";
+
 export interface DetailField {
   label: string;
   valueGetter: (subject: any, vc: any) => string;
@@ -23,7 +25,7 @@ export type CredentialDetailMapEntry =
   | ((subject: any, vc: any) => DetailSection[]);
 
 
-export const CredentialDetailMap: Record<string, CredentialDetailMapEntry> = {
+export const CredentialDetailMap: Record<CredentialType, CredentialDetailMapEntry> = {
   LEARCredentialEmployee: (s) => [
     {
       section: 'vc-fields.learCredentialEmployee.mantadatee.title',

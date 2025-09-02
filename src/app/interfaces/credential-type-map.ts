@@ -1,3 +1,5 @@
+import { CredentialType } from "./verifiable-credential";
+
 export interface FieldConfig {
   label: string;
   valueGetter: (subject: any) => string;
@@ -8,7 +10,7 @@ export interface CredentialMapConfig {
   fields: FieldConfig[];
 }
 
-export const CredentialTypeMap: Record<string, CredentialMapConfig> = {
+export const CredentialTypeMap: Record<CredentialType, CredentialMapConfig> = {
   LEARCredentialEmployee: {
     icon: 'assets/icons/LearCredentialEmployee.png',
     fields: [

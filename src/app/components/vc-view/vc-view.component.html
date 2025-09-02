@@ -1,3 +1,6 @@
+@let credentialInput = credentialInput$();
+
+<!-- VC CARD VIEW -->
 <ion-card
   (click)="openDetailModal()"
   tabindex="0"
@@ -72,7 +75,7 @@
               }}
             </ion-card-title>
           </ion-row>
-          @for(field of mappedFields; track field) {
+          @for(field of cardViewFields$(); track field) {
             <ion-row>
               <ion-card-title style="color: grey; font-size: 12px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 {{ field.value }}
@@ -167,9 +170,9 @@
     [message]="'vc-view.unsigned-message' | translate"
     [buttons]="unsignedButtons"
   ></ion-alert>
-
 </ion-card>
 
+<!-- DETAILS MODAL VIEW -->
 <ion-modal [isOpen]="isDetailModalOpen" (didDismiss)="closeDetailModal()" class="credential-detail-modal">
   <ng-template>
     <ion-header>
@@ -185,28 +188,32 @@
 
     <ion-content class="ion-padding modal-content">
       <ion-list>
-        <ng-container *ngFor="let section of evaluatedSections">
+        @for(section of detailViewSections; track section.section){
           <div class="section">
             <div class="section-header">{{ section.section | translate }}</div>
-            <ion-item *ngFor="let field of section.fields" lines="none" class="field-item compact-item">
-              <ion-label class="field-label" *ngIf="field.label !== 'vc-fields.lear-credential-machine.credentialEncoded'">
-                <strong>{{ field.label | translate }}:</strong> {{ field.value }}
-              </ion-label>
-
-              <div *ngIf="field.label === 'vc-fields.lear-credential-machine.credentialEncoded'" class="token-container">
-                <div class="token-value ellipsis-text" [title]="field.value">
-                  {{ field.value }}
+            @for(field of section.fields; track field.label){
+              <ion-item lines="none" class="field-item compact-item">
+                @if(field.label !== 'vc-fields.lear-credential-machine.credentialEncoded'){
+                  <ion-label class="field-label" >
+                    <strong>{{ field.label | translate }}:</strong> {{ field.value }}
+                  </ion-label>
+                }
+              @if(field.label === 'vc-fields.lear-credential-machine.credentialEncoded'){
+                <div class="token-container">
+                  <div class="token-value ellipsis-text" [title]="field.value">
+                    {{ field.value }}
+                  </div>
+                  <div class="token-actions">
+                    <ion-button fill="clear" size="small" (click)="copyToClipboard(field.value)" (keydown)="copyToClipboard(field.value)">
+                      <ion-icon name="copy-outline"></ion-icon>
+                    </ion-button>
+                  </div>
                 </div>
-                <div class="token-actions">
-                  <ion-button fill="clear" size="small" (click)="copyToClipboard(field.value)" (keydown)="copyToClipboard(field.value)">
-                    <ion-icon name="copy-outline"></ion-icon>
-                  </ion-button>
-                </div>
-              </div>
-            </ion-item>
-
+              }
+              </ion-item>
+          }
           </div>
-        </ng-container>
+        }
       </ion-list>
     </ion-content>
 
