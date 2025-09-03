@@ -442,11 +442,11 @@ describe('VcViewComponent', () => {
     detailMapModule.CredentialDetailMap[component.credentialType] = [];
     component.getStructuredFields();
     const encodedSection = component.detailViewSections.find(
-      s => s.section === 'vc-fields.lear-credential-machine.credentialEncoded'
+      s => s.section === 'vc-fields.credentialEncoded'
     );
     expect(encodedSection).toBeTruthy();
     expect(encodedSection?.fields.length).toBe(1);
-    expect(encodedSection?.fields[0].label).toBe('vc-fields.lear-credential-machine.credentialEncoded');
+    expect(encodedSection?.fields[0].label).toBe('vc-fields.credentialEncoded');
     expect(encodedSection?.fields[0].value).toBe('encoded_value');
     if (originalDetailMap) {
       detailMapModule.CredentialDetailMap[component.credentialType] = originalDetailMap;
