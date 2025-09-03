@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v2.0.0](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.0)
 ### Changed
 - Changed VC
+- 
 ### Added
 - Credential Status
 - Show LEARCredentialMachine mandatee details.
+
+### Fixed
+- Don't show "Credentials not found" message while loading credentials.
 
 ## [v1.9.9](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v1.9.9)
 ### Added

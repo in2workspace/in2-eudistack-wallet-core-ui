@@ -80,7 +80,31 @@ describe('CredentialsPage', () => {
       expect(component.sameDeviceVcActivationFlow).not.toHaveBeenCalled();
       expect(component.sameDeviceVcActivationFlow).not.toHaveBeenCalled();
     });
+
+    
+    it('should set isFirstCredentialLoadCompleted to true after the first successful load', fakeAsync(() => {
+      component.isFirstCredentialLoadCompleted = false;
+      jest.spyOn(component as any, 'loadCredentials').mockReturnValue(of(null));
+
+      component.ngOnInit();
+      flush();
+
+      expect(component.isFirstCredentialLoadCompleted).toBe(true);
+    }));
+
+    it('should set isFirstCredentialLoadCompleted to true even if the first load errors', () => {
+      component.isFirstCredentialLoadCompleted = false;
+      jest.spyOn(component as any, 'loadCredentials')
+          .mockReturnValue(throwError(() => new Error('boomJest')));
+
+      try {
+        component.ngOnInit();
+      } catch (_) {}
+
+      expect(component.isFirstCredentialLoadCompleted).toBe(true);
+    });
   });
+
   describe('ionViewerDidEnter', () => {
     it('should call requestPendingSignatures when refreshing or entering endpoint', fakeAsync(() => {
       const requestPendingSignaturesSpy = jest.spyOn(component as any, 'requestPendingSignatures');

@@ -46,6 +46,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
   public credList: Array<VerifiableCredential> = [];
   public showScannerView = false;
   public showScanner = false;
+  public isFirstCredentialLoadCompleted = false;
   public credentialOfferUri = '';
 
 
@@ -73,7 +74,9 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
   }
 
   public ngOnInit(): void {
-    this.loadCredentials().subscribe();
+    this.loadCredentials()
+    .pipe(finalize(() => this.isFirstCredentialLoadCompleted = true))
+    .subscribe();
 
     if (this.credentialOfferUri) {
       this.sameDeviceVcActivationFlow();
