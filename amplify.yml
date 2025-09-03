@@ -1,0 +1,17 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install --force --ignore-scripts
+        - npm install -g --ignore-scripts @angular/cli
+    build:
+      commands:
+        - ng build --configuration deployment --output-path=/dist
+  artifacts:
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
