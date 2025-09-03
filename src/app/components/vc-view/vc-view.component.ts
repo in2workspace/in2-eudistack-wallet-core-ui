@@ -118,7 +118,6 @@ export class VcViewComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.checkAvailableFormats();
     this.credentialType = getExtendedCredentialType(this.credentialInput$());
   }
 
@@ -132,12 +131,6 @@ export class VcViewComponent implements OnInit {
     }
   }
 
-
-  // TO DO: funcion antigua, revisar si se puede eliminar
-  public checkAvailableFormats(): void {
-    /*this.showChip =
-      this.credentialInput.available_formats?.includes('cwt_vc') ?? false;*/
-  }
 
   public qrView(): void {
     if (this.credentialInput$().lifeCycleStatus !== "EXPIRED") {

@@ -43,7 +43,6 @@ describe('CredentialsPage', () => {
       providers: [
         CredentialsPage,
         LoaderService,
-        LoaderService,
         { provide: WalletService, useValue: walletServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ToastServiceHandler, useValue: toastServiceHandlerMock },
@@ -63,9 +62,6 @@ describe('CredentialsPage', () => {
     component.sameDeviceVcActivationFlow = jest.fn();
     (component as any).forcePageReload = jest.fn();
     activatedRouteMock = TestBed.inject(ActivatedRoute);
-    component.sameDeviceVcActivationFlow = jest.fn();
-    (component as any).forcePageReload = jest.fn();
-    activatedRouteMock = TestBed.inject(ActivatedRoute);
   });
 
   describe('ngOnInit', () => {
@@ -77,7 +73,6 @@ describe('CredentialsPage', () => {
     it('should not call sameDeviceVcActivationFlow only if credentialOfferUri is null', () => {
       component.credentialOfferUri = '';
       component.ngOnInit();
-      expect(component.sameDeviceVcActivationFlow).not.toHaveBeenCalled();
       expect(component.sameDeviceVcActivationFlow).not.toHaveBeenCalled();
     });
 
@@ -140,7 +135,7 @@ describe('CredentialsPage', () => {
       } as Mandate
       const pendingCredential = {
         id: '123',
-        lifeCycleStatus: LifeCycleStatuses[1],
+        lifeCycleStatus: 'ISSUED',
         '@context': ['https://www.w3.org/ns/credentials/v2'],
         issuer: { id: 'issuer' },
         issuanceDate: new Date().toISOString(),
@@ -157,7 +152,6 @@ describe('CredentialsPage', () => {
       walletServiceMock.requestSignature.mockReturnValue(of(response));
 
       (component as any).forcePageReload = jest.fn();
-      (component as any).forcePageReload = jest.fn();
 
       (component as any).requestPendingSignatures();
       flush(); 
@@ -172,7 +166,7 @@ describe('CredentialsPage', () => {
           } as Mandate
           const pendingCredential = {
             id: '456',
-            lifeCycleStatus: LifeCycleStatuses[1],
+            lifeCycleStatus: 'ISSUED',
             '@context': ['https://www.w3.org/ns/credentials/v2'],
             issuer: { id: 'issuer' },
             issuanceDate: new Date().toISOString(),
@@ -194,7 +188,6 @@ describe('CredentialsPage', () => {
 
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       (component as any).forcePageReload = jest.fn();
-      (component as any).forcePageReload = jest.fn();
 
       (component as any).requestPendingSignatures();
       flush();
@@ -202,14 +195,12 @@ describe('CredentialsPage', () => {
       expect(walletServiceMock.requestSignature).toHaveBeenCalledWith('456');
       expect(toastServiceHandlerMock.showErrorAlert).not.toHaveBeenCalled();
       expect((component as any).forcePageReload).not.toHaveBeenCalled();
-      expect((component as any).forcePageReload).not.toHaveBeenCalled();
       consoleErrorSpy.mockRestore();
     }));
   });
 
   describe('forcePageReload', () => {
     it('should navigate to /tabs/credentials and reload the window', async () => {
-      (component as any).forcePageReload = (CredentialsPage as any).prototype.forcePageReload.bind(component);
       (component as any).forcePageReload = (CredentialsPage as any).prototype.forcePageReload.bind(component);
 
       const reloadSpy = jest.fn();
@@ -221,7 +212,6 @@ describe('CredentialsPage', () => {
 
       routerMock.navigate.mockReturnValue(Promise.resolve(true));
 
-      await (component as any).forcePageReload();
       await (component as any).forcePageReload();
 
       expect(routerMock.navigate).toHaveBeenCalledWith(['/tabs/credentials']);
