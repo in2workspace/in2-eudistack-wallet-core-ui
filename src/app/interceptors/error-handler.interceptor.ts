@@ -45,8 +45,13 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           this.logHandledSilentlyErrorMsg(errMessage);
           return throwError(() => errorResp);
         } 
+        // REQUEST SIGNATURE endpoint
+        if(request.url.endsWith(SERVER_PATH.CREDENTIALS_SIGNED_BY_ID)){
+          this.logHandledSilentlyErrorMsg(errMessage);
+          return throwError(() => errorResp);    
+        }
         // IAM endpoint
-        if (request.url.startsWith(environment.iam_url)) {
+        if(request.url.startsWith(environment.iam_url)) {
           this.logHandledSilentlyErrorMsg(errMessage);
           return throwError(() => errorResp);
         }

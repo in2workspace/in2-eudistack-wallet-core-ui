@@ -142,6 +142,24 @@ describe('HttpErrorInterceptor with HttpClient', () => {
     );
   });
 
+    it('should handle errors silently for request signature URI', () => {
+    const testUrl = SERVER_PATH.CREDENTIALS_SIGNED_BY_ID;
+    const spy = jest.spyOn(console, 'error');
+
+    httpClient.get(testUrl).subscribe({
+      error: (error) => {
+        expect(spy).toHaveBeenCalledWith('Handled silently:', 'Test error message');
+        expect(error).toBeTruthy();
+      },
+    });
+
+    const req = httpMock.expectOne(testUrl);
+    req.flush(
+      { message: 'Test error message' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+  });
+
   it('should handle errors silently for IAM URI', () => {
     const testUrl = environment.iam_url;
     const spy = jest.spyOn(console, 'error');
