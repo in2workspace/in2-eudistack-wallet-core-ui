@@ -28,6 +28,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     return next.handle(request)
     .pipe(
       catchError((errorResp: HttpErrorResponse) => {
+        //Normalize URL to ensure request params are not included in the conditionals below
         const urlObj = new URL(request.url);
         const pathname = urlObj.pathname;
 
