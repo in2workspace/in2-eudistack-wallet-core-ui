@@ -218,7 +218,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
           <span>${this.translate.instant('home.ok-msg')}</span>
         </div>
       `,
-      cssClass: 'custom-alert-ok',
+      cssClass: 'custom-alert-ok-info',
     });
 
     await alert.present();
