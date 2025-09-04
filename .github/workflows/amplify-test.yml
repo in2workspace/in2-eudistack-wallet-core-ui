@@ -1,0 +1,28 @@
+name: Release
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  amplify:
+    if: github.event_name == 'pull_request'
+    name: Amplify
+    runs-on: ubuntu-latest
+    environment: local
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Amplify
+        run: |
+          amplify pull --appId aws_amplify_app.issuer_ui.id --envName development
+          amplify push
