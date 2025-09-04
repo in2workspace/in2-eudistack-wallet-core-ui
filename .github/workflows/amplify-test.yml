@@ -25,5 +25,4 @@ jobs:
       - name: Deploy to Amplify
         run: |
           npm install -g @aws-amplify/cli
-          amplify pull --appId aws_amplify_app.issuer_ui.id --envName development
-          amplify push
+          amplify publish --yes
