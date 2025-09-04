@@ -213,7 +213,7 @@ private async handleError(err: any) {
           <span>${this.translate.instant('vc-selector.ok-header')}</span>
         </div>
       `,
-      cssClass: 'custom-alert-ok',
+      cssClass: 'custom-alert-ok-info',
     });
 
     await alert.present();
