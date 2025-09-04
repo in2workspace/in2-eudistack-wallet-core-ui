@@ -251,11 +251,11 @@ export class VcViewComponent implements OnInit {
             .filter(f => !!f.value && f.value !== ''),
         }));
 
-    if(this.credentialType == 'LEARCredentialMachine' && vc.credentialEncoded) {
+    if((this.credentialType == 'LEARCredentialMachine' || this.credentialType == 'gx:LabelCredential') && vc.credentialEncoded) {
       evaluatedDetailedSections.push({
-        section: 'vc-fields.lear-credential-machine.credentialEncoded',
+        section: 'vc-fields.credentialEncoded',
         fields: [
-          { label: 'vc-fields.lear-credential-machine.credentialEncoded', value: vc.credentialEncoded ?? '' }
+          { label: 'vc-fields.credentialEncoded', value: vc.credentialEncoded ?? '' }
         ]
       });
 

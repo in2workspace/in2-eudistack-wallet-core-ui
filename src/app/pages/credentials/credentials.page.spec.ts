@@ -221,22 +221,6 @@ describe('CredentialsPage', () => {
     });
   });
 
-   it('openScanner hauria de cridar router.navigate amb els queryParams showScannerView i showScanner i merge', () => {
-    component.openScannerViewAndScanner();
-
-    expect(routerMock.navigate).toHaveBeenCalledTimes(1);
-    expect(routerMock.navigate).toHaveBeenCalledWith(
-      [],
-      {
-        relativeTo: activatedRouteMock,
-        queryParams: {
-          showScannerView: true,
-          showScanner: true
-        },
-        queryParamsHandling: 'merge'
-      }
-    );
-  });
 
    it('should navigate to show scanner view without activating scanner', fakeAsync(() => {
     component.openScannerViewWithoutScanner();
@@ -271,23 +255,7 @@ describe('CredentialsPage', () => {
     });
   }));
 
-   it('openScanner hauria de cridar router.navigate amb els queryParams showScannerView i showScanner i merge', () => {
-    component.openScannerViewAndScanner();
-
-    expect(routerMock.navigate).toHaveBeenCalledTimes(1);
-    expect(routerMock.navigate).toHaveBeenCalledWith(
-      [],
-      {
-        relativeTo: activatedRouteMock,
-        queryParams: {
-          showScannerView: true,
-          showScanner: true
-        },
-        queryParamsHandling: 'merge'
-      }
-    );
-  });
-
+   
    it('should navigate to show scanner view without activating scanner', fakeAsync(() => {
     component.openScannerViewWithoutScanner();
     flush();

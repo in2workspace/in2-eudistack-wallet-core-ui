@@ -148,6 +148,8 @@
             "validFrom": "Válido desde",
             "validUntil": "Válido hasta"
         },
+        
+        "credentialEncoded": "Credencial",
         "learCredentialEmployee": {
             "mantadatee": {
                 "title": "Persona mandatada",
@@ -182,8 +184,7 @@
                 "serialNumber": "Número de serie",
                 "country": "País"
             },
-            "powers": "Poderes",
-            "credentialEncoded": "Credencial"
+            "powers": "Poderes"
         },
         "gaia-x-label-credential": {
             "label-info": {

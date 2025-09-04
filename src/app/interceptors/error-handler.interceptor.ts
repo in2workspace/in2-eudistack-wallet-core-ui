@@ -69,10 +69,9 @@ export class HttpErrorInterceptor implements HttpInterceptor {
         } 
         //cross-device 
         else if (pathname.endsWith(SERVER_PATH.EXECUTE_CONTENT)){
-          if(errMessage.startsWith('The credentials list is empty')){
+          if(errMessage.startsWith('The credentials list is empty')  || errMessage.startsWith('No credentials found for')){
             errMessage = "There are no credentials available to login";
-          }
-          else if(errMessage.startsWith('Incorrect PIN')){
+          }else if(errMessage.startsWith('Incorrect PIN')){
             //simply don't change the message, the one from backend is ok
           }else if(errorResp.status === 504 || errorResp.status === 408){
             //504 for nginx Gateway timeout, 408 for backend

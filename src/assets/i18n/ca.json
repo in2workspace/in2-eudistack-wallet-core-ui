@@ -152,6 +152,7 @@
             "validFrom": "Vàlid des de",
             "validUntil": "Vàlid fins a"
         },
+        "credentialEncoded": "Credencial",
         "learCredentialEmployee": {
             "mantadatee": {
                 "title": "Persona delegada",
@@ -186,8 +187,7 @@
                 "serialNumber": "Número de sèrie",
                 "country": "País"
             },
-            "powers": "Poders",
-            "credentialEncoded": "Credencial"
+            "powers": "Poders"            
         },
         "gaia-x-label-credential": {
             "label-info": {

@@ -96,17 +96,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
     this.cdr.detectChanges();
   }
 
-  public openScannerViewAndScanner(): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        showScannerView: true,
-        showScanner: true
-      },
-      queryParamsHandling: 'merge'
-    });
-  }
-
   public openScannerViewWithoutScanner(): void {
     this.router.navigate([], {
       relativeTo: this.route,
@@ -219,15 +208,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       .catch(err => {
           this.handleContentExecutionError(err)
       })
-  }
-
-  public handleOpenScannerButtonKeydown(event: KeyboardEvent, action: string): void {
-    if (event.key === 'Enter' || event.key === ' ') {
-      this.openScannerViewAndScanner();
-      event.preventDefault();
-    }else{
-      console.error('Unrecognized event');
-    }
   }
 
   private async showTempOkMessage(): Promise<void> {

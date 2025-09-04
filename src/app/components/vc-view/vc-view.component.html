@@ -193,12 +193,12 @@
             <div class="section-header">{{ section.section | translate }}</div>
             @for(field of section.fields; track field.label){
               <ion-item lines="none" class="field-item compact-item">
-                @if(field.label !== 'vc-fields.lear-credential-machine.credentialEncoded'){
+                @if(field.label !== 'vc-fields.credentialEncoded'){
                   <ion-label class="field-label" >
                     <strong>{{ field.label | translate }}:</strong> {{ field.value }}
                   </ion-label>
                 }
-              @if(field.label === 'vc-fields.lear-credential-machine.credentialEncoded'){
+              @if(field.label === 'vc-fields.credentialEncoded'){
                 <div class="token-container">
                   <div class="token-value ellipsis-text" [title]="field.value">
                     {{ field.value }}
