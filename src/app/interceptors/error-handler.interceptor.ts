@@ -7,7 +7,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { ToastServiceHandler } from '../services/toast.service';
 import { SERVER_PATH } from '../constants/api.constants';
 import { environment } from 'src/environments/environment';
@@ -25,7 +25,11 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     //todo refactor this handler (conditional structure)
-    return next.handle(request).pipe(
+    return next.handle(request)
+    .pipe(
+      tap(()=>{
+        console.log('request url'),
+        console.log(request.url)}),
       catchError((errorResp: HttpErrorResponse) => {
         
         let errMessage = errorResp.error?.message || errorResp.message || 'Unknown Http error';

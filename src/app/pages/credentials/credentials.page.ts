@@ -303,7 +303,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
 
   }
 
-    private requestPendingSignatures(): void {
+  private requestPendingSignatures(): void {
     if(this.credList.length === 0){
       return;
     }
