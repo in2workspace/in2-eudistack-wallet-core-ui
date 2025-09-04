@@ -28,47 +28,56 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     return next.handle(request)
     .pipe(
       tap(()=>{
-        console.log('request url'),
-        console.log(request.url)}),
+        console.log('request url');
+        console.log(request.url);
+        const urlObj = new URL(request.url);
+        const pathname = urlObj.pathname;
+        console.log('pathname');
+        console.log(pathname);
+      }),
       catchError((errorResp: HttpErrorResponse) => {
-        
+        const urlObj = new URL(request.url);
+        const pathname = urlObj.pathname;
+        console.log('pathname');
+        console.log(pathname);
+
         let errMessage = errorResp.error?.message || errorResp.message || 'Unknown Http error';
         const errStatus = errorResp.status ?? errorResp.error?.status;
         //DONT'T SHOW POPUP CASES
         // get credentials endpoint
         if ( 
           //todo review this handler
-          request.url.endsWith(SERVER_PATH.CREDENTIALS) && errMessage?.startsWith('The credentials list is empty')
+          pathname.endsWith(SERVER_PATH.CREDENTIALS) && errMessage?.startsWith('The credentials list is empty')
         ) {
           this.logHandledSilentlyErrorMsg(errMessage);
           return throwError(() => errorResp);
         }
         // presentation endpoint (login with VC)
-        if(request.url.endsWith(SERVER_PATH.VERIFIABLE_PRESENTATION))
+        if(pathname.endsWith(SERVER_PATH.VERIFIABLE_PRESENTATION))
         {
           this.logHandledSilentlyErrorMsg(errMessage);
           return throwError(() => errorResp);
         } 
         // REQUEST SIGNATURE endpoint
-        if(request.url.endsWith(SERVER_PATH.CREDENTIALS_SIGNED_BY_ID)){
+        if(pathname.endsWith(SERVER_PATH.CREDENTIALS_SIGNED_BY_ID)){
           this.logHandledSilentlyErrorMsg(errMessage);
           return throwError(() => errorResp);    
         }
         // IAM endpoint
-        if(request.url.startsWith(environment.iam_url)) {
+        if(pathname.startsWith(environment.iam_url)) {
           this.logHandledSilentlyErrorMsg(errMessage);
           return throwError(() => errorResp);
         }
         //SHOW POPUP CASES
         //same-device credential offer request
-        if(request.url.endsWith(
+        if(pathname.endsWith(
           SERVER_PATH.REQUEST_CREDENTIAL) 
           && (errStatus === 408 || errStatus === 504)
         ){
           errMessage = "PIN expired"
         } 
         //cross-device 
-        else if (request.url.endsWith(SERVER_PATH.EXECUTE_CONTENT)){
+        else if (pathname.endsWith(SERVER_PATH.EXECUTE_CONTENT)){
           if(errMessage.startsWith('The credentials list is empty')){
             errMessage = "There are no credentials available to login";
           }
