@@ -27,19 +27,9 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     //todo refactor this handler (conditional structure)
     return next.handle(request)
     .pipe(
-      tap(()=>{
-        console.log('request url');
-        console.log(request.url);
-        const urlObj = new URL(request.url);
-        const pathname = urlObj.pathname;
-        console.log('pathname');
-        console.log(pathname);
-      }),
       catchError((errorResp: HttpErrorResponse) => {
         const urlObj = new URL(request.url);
         const pathname = urlObj.pathname;
-        console.log('pathname');
-        console.log(pathname);
 
         let errMessage = errorResp.error?.message || errorResp.message || 'Unknown Http error';
         const errStatus = errorResp.status ?? errorResp.error?.status;
