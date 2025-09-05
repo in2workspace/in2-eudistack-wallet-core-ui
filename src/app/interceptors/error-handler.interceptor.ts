@@ -55,7 +55,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           return throwError(() => errorResp);    
         }
         // IAM endpoint
-        if(pathname.startsWith(environment.iam_url)) {
+        if(urlObj.href.startsWith(environment.iam_url)) {
           this.logHandledSilentlyErrorMsg(errMessage);
           return throwError(() => errorResp);
         }
