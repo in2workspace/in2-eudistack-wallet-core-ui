@@ -90,7 +90,7 @@ export const credentialsListMock: Array<VerifiableCredential> = [
             "mandate": {
                 "id": "",
                 "mandator": {
-                    "id": "did:elsi:VATES-B60645900",
+                    "organizationIdentifier": "did:elsi:VATES-B60645900",
                     "organization": "IN2 INGENIERIA DE LA INFORMACION SOCIEDAD LIMITADA",
                     "country": "ES",
                     "commonName": "Roger mandator",
