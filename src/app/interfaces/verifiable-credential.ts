@@ -74,7 +74,8 @@ export interface Mandatee {
 }
 
 export interface Mandator {
-  id: string;
+  id?: string;
+  organizationIdentifier: string;
   organization: string;
   commonName: string;
   serialNumber: string;

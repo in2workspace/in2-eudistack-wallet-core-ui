@@ -164,7 +164,7 @@
             },
             "mandator": {
                 "title": "Mandant",
-                "id": "ID",
+                "organizationIdentifier": "Identificador d'Organizació",
                 "organization": "Organització",
                 "commonName": "Nom comú",
                 "serialNumber": "Número de sèrie",
@@ -182,6 +182,7 @@
             "mandator": {
                 "title": "Mandant",
                 "id": "ID",
+                "organizationIdentifier": "Identificador d'Organizació",
                 "organization": "Organització",
                 "commonName": "Nom comú",
                 "serialNumber": "Número de sèrie",
