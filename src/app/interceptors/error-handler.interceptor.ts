@@ -7,7 +7,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { ToastServiceHandler } from '../services/toast.service';
 import { SERVER_PATH } from '../constants/api.constants';
 import { environment } from 'src/environments/environment';
