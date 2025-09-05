@@ -110,19 +110,19 @@ describe('HttpErrorInterceptor with HttpClient', () => {
     req.flush({message: errorMessage}, { status: 500, statusText: 'Internal Server Error' });
   });
 
-  it('it should print the correct message if a request to process the QR is made', ()=>{
-    const errorMessage = 'There was a problem processing the QR. It might be invalid or already have been used';
-    const spy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+it('it should print the correct message if a request to process the QR is made', ()=>{
+  const errorMessage = 'There was a problem processing the QR. It might be invalid or already have been used';
+  const spy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
 
-    httpClient.get('/' + SERVER_PATH.EXECUTE_CONTENT).subscribe({
-      error: (error) => {
-        expect(spy).toHaveBeenCalledWith('errorMessage');
-      }
-    });
-
-    const req = httpMock.expectOne('/' + SERVER_PATH.EXECUTE_CONTENT);
-    req.flush({message: 'Random error message'}, { status: 500, statusText: 'AnyText' });
+  httpClient.get('/' + SERVER_PATH.EXECUTE_CONTENT).subscribe({
+    error: () => {
+      expect(spy).toHaveBeenCalledWith(errorMessage);
+    }
   });
+
+  const req = httpMock.expectOne('/' + SERVER_PATH.EXECUTE_CONTENT);
+  req.flush({message: 'Random error message'}, { status: 500, statusText: 'AnyText' });
+});
 
   it('should handle errors silently for verifiable presentation URI', () => {
     const testUrl = SERVER_PATH.VERIFIABLE_PRESENTATION;
@@ -233,6 +233,123 @@ describe('HttpErrorInterceptor with HttpClient', () => {
     const req = httpMock.expectOne('/' + SERVER_PATH.EXECUTE_CONTENT);
     req.flush({ message: 'Gateway Timeout' }, { status: 504, statusText: 'Gateway Timeout' });
   });
+
+  it('should handle silently when CREDENTIALS returns empty list message (no toast)', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const logSpy = jest.spyOn(console, 'error');
+
+  const url = '/' + SERVER_PATH.CREDENTIALS + '?page=1&size=10';
+  httpClient.get(url).subscribe({
+    error: (err) => {
+      expect(err).toBeTruthy();
+      expect(logSpy).toHaveBeenCalledWith('Handled silently:', 'The credentials list is empty');
+      expect(toastSpy).not.toHaveBeenCalled();
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'The credentials list is empty' }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should show toast for CREDENTIALS when message is not the empty list one', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.CREDENTIALS;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Something went wrong');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'Something went wrong' }, { status: 500, statusText: 'Internal Server Error' });
+});
+
+it('should map EXECUTE_CONTENT "No credentials found for" to friendly login message', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('There are no credentials available to login');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'No credentials found for user X' }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should map EXECUTE_CONTENT "The credentials list is empty" to friendly login message', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('There are no credentials available to login');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'The credentials list is empty' }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should keep backend message for EXECUTE_CONTENT when message starts with "Incorrect PIN"', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const backendMsg = 'Incorrect PIN: please try again';
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith(backendMsg);
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: backendMsg }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should map EXECUTE_CONTENT timeout (with query params) to "PIN expired"', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT + '?foo=bar&baz=1';
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('PIN expired');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'Gateway Timeout' }, { status: 504, statusText: 'Gateway Timeout' });
+});
+
+it('should keep backend "The received QR content cannot be processed..." message for EXECUTE_CONTENT', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const backendMsg = 'The received QR content cannot be processed: malformed payload';
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith(backendMsg);
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: backendMsg }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should keep backend message for REQUEST_CREDENTIAL when not a timeout', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.REQUEST_CREDENTIAL;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Bad pin format');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'Bad pin format' }, { status: 400, statusText: 'Bad Request' });
+});
   
   
 });
