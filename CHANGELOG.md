@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Don't close PIN popup on backdrop click.
-- Wallet Test URL configurable.
 - Disable device selector while selected device is being switched.
 
 ### Fixed
