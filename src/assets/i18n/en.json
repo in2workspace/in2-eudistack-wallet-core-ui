@@ -164,7 +164,7 @@
             },
             "mandator": {
                 "title": "Mandator",
-                "id": "ID",
+                "organizationIdentifier": "Organization Identifier",
                 "organization": "Organization",
                 "commonName": "Common Name",
                 "serialNumber": "Serial Number",
@@ -181,7 +181,7 @@
             },
             "mandator": {
                 "title": "Mandator",
-                "id": "ID",
+                "organizationIdentifier": "Organization Identifier",
                 "organization": "Organization",
                 "commonName": "Common Name",
                 "serialNumber": "Serial Number",

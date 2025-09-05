@@ -32,7 +32,7 @@ describe('VcSelectorPage', () => {
     commonName: 'Test Org',
     serialNumber: 'SN123',
     country: 'ES',
-    id: ''
+    organizationIdentifier: ''
   };
 
   const mockPower: Power = {

@@ -73,7 +73,7 @@ describe('WalletService', () => {
             serialNumber: 'serialNumber1',
             organization: 'Organization Name',
             country: 'Country',
-            id: 'mandatorId1'
+            organizationIdentifier: 'mandatorId1'
           },
           mandatee: {
             id: 'personId1',
@@ -193,7 +193,7 @@ describe('WalletService', () => {
               serialNumber: 'serialNumber1',
               organization: 'Organization Name',
               country: 'Country',
-              id: ''
+              organizationIdentifier: ''
             },
             mandatee: {
               id: 'personId1',
@@ -252,7 +252,7 @@ describe('WalletService', () => {
             serialNumber: 'serialNumber1',
             organization: 'Organization Name',
             country: 'Country',
-            id: ''
+            organizationIdentifier: ''
           },
           mandatee: {
             id: 'personId1',

@@ -54,7 +54,7 @@ describe('VcViewComponent', () => {
             serialNumber: '',
             organization: '',
             country: '',
-            id: ''
+            organizationIdentifier: ''
           },
           mandatee: {
             id: 'mandateeId',
