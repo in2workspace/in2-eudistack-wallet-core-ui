@@ -178,6 +178,7 @@
             },
             "mandator": {
                 "title": "Mandante",
+                "id": "ID",
                 "organizationIdentifier": "Identificador de Organización",
                 "organization": "Organización",
                 "commonName": "Nombre común",
