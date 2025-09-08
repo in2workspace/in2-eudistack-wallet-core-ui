@@ -194,7 +194,7 @@
             "label-info": {
                 "title": "Label Info",
                 "id": "Label ID",
-                "lableLevel": "Label Level",
+                "labelLevel": "Label Level",
                 "engineVersion": "Engine Version",
                 "rulesVersion": "Rules Version"
             },

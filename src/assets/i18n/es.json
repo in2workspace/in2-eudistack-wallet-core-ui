@@ -191,7 +191,7 @@
             "label-info": {
                 "title": "Información de la etiqueta",
                 "id": "ID de la etiqueta",
-                "lableLevel": "Nivel de la etiqueta",
+                "labelLevel": "Nivel de la etiqueta",
                 "engineVersion": "Versión del motor",
                 "rulesVersion": "Versión de las reglas"
             },
