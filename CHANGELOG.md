@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v2.0.0](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.0)
 ### Changed
-- Changed VC card view
+- Changed VC card view.
 
 ### Added
 - Credential Status
@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Don't show "Credentials not found" message while loading credentials.
+- Don't show error popup when credential signature request fails.
+- Fix error message when trying to login without credentials.
+
+### Removed
+- Scan button in credentials page.
 
 ## [v1.9.9](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v1.9.9)
 ### Added
