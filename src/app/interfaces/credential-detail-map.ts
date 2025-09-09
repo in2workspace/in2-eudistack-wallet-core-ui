@@ -91,7 +91,10 @@ export const CredentialDetailMap: Record<CredentialType, CredentialDetailMapEntr
       section: 'vc-fields.gaia-x-label-credential.label-info.title',
       fields: [
         { label: 'vc-fields.gaia-x-label-credential.label-info.id', valueGetter: (s) => s.id },
-        { label: 'vc-fields.gaia-x-label-credential.label-info.lableLevel', valueGetter: (s) => s['gx:labelLevel'] },
+        { label: 'vc-fields.gaia-x-label-credential.label-info.labelLevel', valueGetter: (s) => { 
+          const level = s['gx:labelLevel'];
+          return level === 'BL' ? 'Base Line' : level;
+        }},
         { label: 'vc-fields.gaia-x-label-credential.label-info.engineVersion', valueGetter: (s) => s['gx:engineVersion'] },
         { label: 'vc-fields.gaia-x-label-credential.label-info.rulesVersion', valueGetter: (s) => s['gx:rulesVersion'] },
       ],
