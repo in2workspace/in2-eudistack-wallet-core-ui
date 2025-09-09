@@ -25,6 +25,12 @@ ion-alert.custom-alert-error .alert-wrapper {
     color: white !important;
     border-radius: 8px;
   }
+
+  ion-alert.custom-alert-ok-info .alert-wrapper {
+    background-color: var(--custom-alert-ok-info-bg) !important;
+    color: white !important;
+    border-radius: 8px;
+  }
   
   ion-alert.custom-alert-ok .alert-message {
     color: var(--custom-alert-ok-text) !important;

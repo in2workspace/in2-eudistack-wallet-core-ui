@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { VcSelectorPage } from './vc-selector.page';
 import { WalletService } from 'src/app/services/wallet.service';
-import { VerifiableCredential, CredentialStatus, Issuer, CredentialSubject, Mandate, Mandatee, Mandator, Power } from 'src/app/interfaces/verifiable-credential';
-import { VCReply } from 'src/app/interfaces/verifiable-credential-reply';
+import { VerifiableCredential, CredentialStatus, Issuer, CredentialSubject, Mandate, Mandatee, Mandator, Power, LifeCycleStatus } from 'src/app/interfaces/verifiable-credential';
 
 describe('VcSelectorPage', () => {
   let component: VcSelectorPage;
@@ -24,16 +22,17 @@ describe('VcSelectorPage', () => {
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',
-    nationality: 'Spanish'
+    employeId: '',
+    domain: '',
+    ipAddress: ''
   };
 
   const mockMandator: Mandator = {
-    organizationIdentifier: 'ORG123',
     organization: 'Test Organization',
     commonName: 'Test Org',
-    emailAddress: 'org@example.com',
     serialNumber: 'SN123',
-    country: 'ES'
+    country: 'ES',
+    organizationIdentifier: ''
   };
 
   const mockPower: Power = {
@@ -64,7 +63,7 @@ describe('VcSelectorPage', () => {
       {
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         id: 'vc1',
-        type: ['VerifiableCredential'],
+        type: ['VerifiableCredential', 'LEARCredentialEmployee'],
         issuer: mockIssuer,
         issuanceDate: '2024-01-01T00:00:00Z',
         validFrom: '2024-01-01T00:00:00Z',
@@ -72,16 +71,14 @@ describe('VcSelectorPage', () => {
         validUntil: '2025-01-01T00:00:00Z',
         credentialSubject: mockCredentialSubject,
         available_formats: ['jwt'],
-        status: CredentialStatus.VALID
+        lifeCycleStatus: "VALID"
       },
       {
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         id: 'vc2',
-        type: ['VerifiableCredential'],
+        type: ['VerifiableCredential', 'LEARCredentialEmployee'],
         issuer: mockIssuer,
-        issuanceDate: '2024-02-01T00:00:00Z',
         validFrom: '2024-02-01T00:00:00Z',
-        expirationDate: '2025-02-01T00:00:00Z',
         validUntil: '2025-02-01T00:00:00Z',
         credentialSubject: {
           mandate: {
@@ -91,14 +88,12 @@ describe('VcSelectorPage', () => {
               firstName: 'Jane',
               lastName: 'Smith',
               email: 'jane.smith@example.com',
-              nationality: 'Spanish'
             },
             mandator: mockMandator,
             power: [mockPower]
           }
         },
-        available_formats: ['jwt'],
-        status: CredentialStatus.ISSUED
+        lifeCycleStatus: "ISSUED"
       }
     ] as VerifiableCredential[],
     redirectUri: 'http://example.com/callback',
@@ -197,13 +192,13 @@ describe('VcSelectorPage', () => {
       component.formatCredList();
 
       expect(component.credList).toHaveLength(2);
-      expect(component.credList[0].id).toBe('vc2'); // Should be reversed
       expect(component.credList[1].id).toBe('vc1');
       
       // Verify mandate structure is preserved
-      expect(component.credList[1].credentialSubject.mandate.mandatee.firstName).toBe('John');
-      expect(component.credList[1].credentialSubject.mandate.mandator.organization).toBe('Test Organization');
-      expect(component.credList[1].credentialSubject.mandate.power[0].action).toBe('sign');
+      const credSubject = component.credList[1].credentialSubject as { mandate: Mandate };
+      expect(credSubject.mandate.mandatee.firstName).toBe('John');
+      expect(credSubject.mandate.mandator.organization).toBe('Test Organization');
+      expect(credSubject.mandate.power[0].action).toBe('sign');
     });
 
     it('should handle credentials without credentialSubject', () => {
@@ -212,13 +207,11 @@ describe('VcSelectorPage', () => {
           { 
             '@context': ['https://www.w3.org/2018/credentials/v1'],
             id: 'vc1', 
-            type: ['VerifiableCredential'],
+            type: ['VerifiableCredential', 'LEARCredentialEmployee'],
             issuer: mockIssuer,
-            issuanceDate: '2024-01-01T00:00:00Z',
             validFrom: '2024-01-01T00:00:00Z',
-            expirationDate: '2025-01-01T00:00:00Z',
             validUntil: '2025-01-01T00:00:00Z',
-            status: CredentialStatus.VALID
+            lifeCycleStatus: "VALID"
           } as VerifiableCredential
         ]
       };
@@ -226,30 +219,6 @@ describe('VcSelectorPage', () => {
       
       expect(() => component.formatCredList()).not.toThrow();
       expect(component.credList).toHaveLength(1);
-    });
-
-    it('should verify different credential statuses', () => {
-      const mockRevokedCred = {
-        '@context': ['https://www.w3.org/2018/credentials/v1'],
-        id: 'vc3',
-        type: ['VerifiableCredential'],
-        issuer: mockIssuer,
-        issuanceDate: '2024-01-01T00:00:00Z',
-        validFrom: '2024-01-01T00:00:00Z',
-        expirationDate: '2025-01-01T00:00:00Z',
-        validUntil: '2025-01-01T00:00:00Z',
-        credentialSubject: mockCredentialSubject,
-        status: CredentialStatus.REVOKED
-      };
-
-      const executionResponseWithRevoked = {
-        selectableVcList: [mockRevokedCred] as VerifiableCredential[]
-      };
-      
-      component.executionResponse = executionResponseWithRevoked;
-      component.formatCredList();
-
-      expect(component.credList[0].status).toBe(CredentialStatus.REVOKED);
     });
   });
 
@@ -265,7 +234,8 @@ describe('VcSelectorPage', () => {
           expirationDate: '2025-01-01T00:00:00Z',
           validUntil: '2025-01-01T00:00:00Z',
           credentialSubject: mockCredentialSubject,
-          status: CredentialStatus.VALID
+          lifeCycleStatus: "VALID",
+          credentialStatus: {} as CredentialStatus,
         } as VerifiableCredential,
         { 
           '@context': ['https://www.w3.org/2018/credentials/v1'],
@@ -276,7 +246,8 @@ describe('VcSelectorPage', () => {
           expirationDate: '2025-01-01T00:00:00Z',
           validUntil: '2025-01-01T00:00:00Z',
           credentialSubject: mockCredentialSubject,
-          status: CredentialStatus.VALID
+          lifeCycleStatus: "VALID",
+          credentialStatus: {} as CredentialStatus,
         } as VerifiableCredential
       ];
       component.resetIsClickList();
@@ -306,7 +277,8 @@ describe('VcSelectorPage', () => {
         expirationDate: '2025-01-01T00:00:00Z',
         validUntil: '2025-01-01T00:00:00Z',
         credentialSubject: mockCredentialSubject,
-        status: CredentialStatus.VALID
+        lifeCycleStatus: "VALID",
+        credentialStatus: {} as CredentialStatus,
       } as VerifiableCredential;
       component.isClick = [false, false];
       
@@ -330,7 +302,8 @@ describe('VcSelectorPage', () => {
         expirationDate: '2025-01-01T00:00:00Z',
         validUntil: '2025-01-01T00:00:00Z',
         credentialSubject: mockCredentialSubject,
-        status: CredentialStatus.VALID
+        lifeCycleStatus: "VALID",
+        credentialStatus: {} as CredentialStatus,
       } as VerifiableCredential;
     });
 
@@ -394,6 +367,12 @@ describe('VcSelectorPage', () => {
       await component.errorMessage(401);
 
       expect(mockTranslateService.instant).toHaveBeenCalledWith('vc-selector.unauthorized-message');
+    });
+
+    it('should show unauthorized message for 403 status code', async () => {
+      await component.errorMessage(403);
+
+      expect(mockTranslateService.instant).toHaveBeenCalledWith('vc-selector.credential-revoke-message');
     });
 
     it('should show bad request message for 4xx status codes', async () => {

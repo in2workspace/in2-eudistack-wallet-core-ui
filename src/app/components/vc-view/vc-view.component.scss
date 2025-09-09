@@ -23,3 +23,113 @@ ion-modal.stack-modal {
 .request-signature-button img{
   opacity: 0.5;
 }
+
+.modal-toolbar {
+  --background: #ffffff;
+  --color: #000000;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.close-icon {
+  font-size: 20px;
+  color: #333;
+}
+
+.modal-content {
+  --padding-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 20px;
+}
+
+.section {
+  margin-bottom: 16px;
+}
+
+.section-header {
+  color: #666;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  padding: 10px;
+  background-color: whitesmoke;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.modal-footer {
+  padding: 12px 16px;
+  background: #ffffff;
+  border-top: 1px solid #e0e0e0;
+}
+
+.delete-button {
+  float: right;
+}
+
+.compact-item {
+  --inner-padding-end: 0px;
+  --min-height: 36px;
+  margin-bottom: 4px;
+}
+
+.status-ellipse {
+  min-width: 110px;
+  padding: 5px 10px;
+  border-radius: 15px;
+  color: #fff;
+  text-align: center;
+  float: right;
+  margin: 10px 12px 10px auto;
+}
+
+.status-expired {
+  background-color: #f44336; 
+}
+
+.token-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  width: 100%;
+  gap: 12px;
+}
+
+.token-value {
+  flex: 1;
+  min-width: 0;
+}
+
+.token-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ellipsis-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+}

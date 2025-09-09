@@ -1,4 +1,4 @@
-import { Mandatee, Power, CredentialSubject } from './verifiable-credential';
+import { Mandatee, Power, CredentialSubject, CredentialType } from './verifiable-credential';
 
 // Interfaces for the raw JSON of Mandatee and Power
 interface RawMandatee {
@@ -27,11 +27,22 @@ export class VerifiableCredentialSubjectDataNormalizer {
    * Normalizes the complete LearCredentialEmployeeDataDetail object.
    * It applies normalization to the mandatee object and each element of the power array.
    */
-  public normalizeLearCredentialSubject(data: CredentialSubject): CredentialSubject {
+  public normalizeLearCredentialSubject(data: CredentialSubject, type: CredentialType): CredentialSubject {
+    return this.normalizerMapByCredentialType[type](data);
+  }
+
+  private normalizerMapByCredentialType: Record<CredentialType, (s: CredentialSubject) => CredentialSubject> = {
+    'LEARCredentialEmployee': (s: CredentialSubject) => this.normalizeLearCredentialEmployeeSubject(s),
+    'LEARCredentialMachine': (s: CredentialSubject) => s,
+    'gx:LabelCredential': (s: CredentialSubject) => s
+  } as const;
+
+    private normalizeLearCredentialEmployeeSubject(data: CredentialSubject): CredentialSubject {
+
     // Create a copy to avoid modifying the original object
     const normalizedData = { ...data };
 
-    if (normalizedData.mandate) {
+    if ('mandate' in normalizedData && normalizedData.mandate) {
 
       const mandate = normalizedData.mandate;
 
@@ -42,9 +53,10 @@ export class VerifiableCredentialSubjectDataNormalizer {
 
       if (mandate.power && Array.isArray(mandate.power)) {
         // Normalize each power object in the array
-        mandate.power = mandate.power.map(p => this.normalizePower(p));
+        mandate.power = mandate.power.map((p: RawPower) => this.normalizePower(p));
       }
     }
+
     return normalizedData;
   }
 
@@ -55,8 +67,7 @@ private normalizeMandatee(data: RawMandatee): Mandatee {
   return <Mandatee>{
     firstName: data.firstName ?? data.first_name,
     lastName: data.lastName ?? data.last_name,
-    email: data.email,
-    nationality: data.nationality
+    email: data.email
   };
 }
 

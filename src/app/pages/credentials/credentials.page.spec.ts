@@ -9,9 +9,9 @@ import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { CredentialStatus, Mandate } from 'src/app/interfaces/verifiable-credential';
+import { CredentialStatus, LifeCycleStatuses, Mandate, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { TranslateService } from '@ngx-translate/core';
-import { VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
+
 import { LoaderService } from 'src/app/services/loader.service';
 
 describe('CredentialsPage', () => {
@@ -75,7 +75,31 @@ describe('CredentialsPage', () => {
       component.ngOnInit();
       expect(component.sameDeviceVcActivationFlow).not.toHaveBeenCalled();
     });
+
+    
+    it('should set isFirstCredentialLoadCompleted to true after the first successful load', fakeAsync(() => {
+      component.isFirstCredentialLoadCompleted = false;
+      jest.spyOn(component as any, 'loadCredentials').mockReturnValue(of(null));
+
+      component.ngOnInit();
+      flush();
+
+      expect(component.isFirstCredentialLoadCompleted).toBe(true);
+    }));
+
+    it('should set isFirstCredentialLoadCompleted to true even if the first load errors', () => {
+      component.isFirstCredentialLoadCompleted = false;
+      jest.spyOn(component as any, 'loadCredentials')
+          .mockReturnValue(throwError(() => new Error('boomJest')));
+
+      try {
+        component.ngOnInit();
+      } catch (_) {}
+
+      expect(component.isFirstCredentialLoadCompleted).toBe(true);
+    });
   });
+
   describe('ionViewerDidEnter', () => {
     it('should call requestPendingSignatures when refreshing or entering endpoint', fakeAsync(() => {
       const requestPendingSignaturesSpy = jest.spyOn(component as any, 'requestPendingSignatures');
@@ -98,7 +122,7 @@ describe('CredentialsPage', () => {
     });
 
     it('should not take any action if there are no outstanding credentials (ISSUED)', () => {
-      const credential: VerifiableCredential = {status: CredentialStatus.REVOKED} as VerifiableCredential;
+      const credential: VerifiableCredential = {lifeCycleStatus: "REVOKED"} as VerifiableCredential;
       component.credList = [credential]; 
       (component as any).requestPendingSignatures(); 
 
@@ -111,7 +135,7 @@ describe('CredentialsPage', () => {
       } as Mandate
       const pendingCredential = {
         id: '123',
-        status: CredentialStatus.ISSUED,
+        lifeCycleStatus: 'ISSUED',
         '@context': ['https://www.w3.org/ns/credentials/v2'],
         issuer: { id: 'issuer' },
         issuanceDate: new Date().toISOString(),
@@ -120,7 +144,8 @@ describe('CredentialsPage', () => {
         credentialSubject: { mandate:  mockMandate},
         expirationDate: new Date().toISOString(),
         validUntil: new Date().toISOString(),
-      };
+        credentialStatus: {} as CredentialStatus,
+      } as any;
       component.credList = [pendingCredential];
 
       const response: HttpResponse<string> = { status: 204 } as HttpResponse<string>;
@@ -141,7 +166,7 @@ describe('CredentialsPage', () => {
           } as Mandate
           const pendingCredential = {
             id: '456',
-            status: CredentialStatus.ISSUED,
+            lifeCycleStatus: 'ISSUED',
             '@context': ['https://www.w3.org/ns/credentials/v2'],
             issuer: { id: 'issuer' },
             issuanceDate: new Date().toISOString(),
@@ -150,7 +175,9 @@ describe('CredentialsPage', () => {
             credentialSubject: { mandate:  mockMandate},
             expirationDate: new Date().toISOString(),
             validUntil: new Date().toISOString(),
-          };
+            credentialStatus: {} as CredentialStatus,
+
+          } as any;
       component.credList = [pendingCredential];
 
       const errorResponse = new HttpErrorResponse({
@@ -190,27 +217,45 @@ describe('CredentialsPage', () => {
       expect(routerMock.navigate).toHaveBeenCalledWith(['/tabs/credentials']);
       expect(reloadSpy).toHaveBeenCalled();
 
-      window.location = originalLocation;
+      window.location = originalLocation as any;
     });
   });
 
-   it('openScanner hauria de cridar router.navigate amb els queryParams showScannerView i showScanner i merge', () => {
-    component.openScannerViewAndScanner();
 
-    expect(routerMock.navigate).toHaveBeenCalledTimes(1);
-    expect(routerMock.navigate).toHaveBeenCalledWith(
-      [],
-      {
-        relativeTo: activatedRouteMock,
-        queryParams: {
-          showScannerView: true,
-          showScanner: true
-        },
-        queryParamsHandling: 'merge'
-      }
-    );
-  });
+   it('should navigate to show scanner view without activating scanner', fakeAsync(() => {
+    component.openScannerViewWithoutScanner();
+    flush();
 
+    expect(routerMock.navigate).toHaveBeenCalledWith([], {
+      relativeTo: activatedRouteMock,
+      queryParams: { showScannerView: true },
+      queryParamsHandling: 'merge'
+    });
+  }));
+
+  it('should navigate to close scanner view and scanner', fakeAsync(() => {
+    component.closeScannerViewAndScanner();
+    flush();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith([], {
+      relativeTo: activatedRouteMock,
+      queryParams: { showScannerView: false, showScanner: false },
+      queryParamsHandling: 'merge'
+    });
+  }));
+
+  it('should navigate to close scanner only', fakeAsync(() => {
+    component.closeScanner();
+    flush();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith([], {
+      relativeTo: activatedRouteMock,
+      queryParams: { showScanner: false },
+      queryParamsHandling: 'merge'
+    });
+  }));
+
+   
    it('should navigate to show scanner view without activating scanner', fakeAsync(() => {
     component.openScannerViewWithoutScanner();
     flush();

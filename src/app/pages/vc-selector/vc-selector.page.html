@@ -1,13 +1,13 @@
 <ion-content [fullscreen]="true" class="vc-selector-content">
   <div class="select-text">{{ "vc-selector.select-cred" | translate}}</div>
   <ion-grid >
-  @for (cred of credList; track cred) {
     <ion-row class="ion-justify-content-center">
-      <ion-card (click)="sendCred(cred)" class="vc-selector-card">
-        <app-vc-view [credentialInput]="cred"></app-vc-view>
-      </ion-card>
+      @for (cred of credList; track cred) {
+        <ion-card (click)="sendCred(cred)" (keydown)="sendCred(cred)" class="vc-selector-card">
+            <app-vc-view [isDetailViewActive]="false" [credentialInput$]="cred"></app-vc-view>
+        </ion-card>
+      }
     </ion-row>
-  }
   </ion-grid>
 </ion-content>
 <ion-footer [translucent]="false"></ion-footer>

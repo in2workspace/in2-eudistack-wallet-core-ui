@@ -10,7 +10,7 @@ import { VcViewComponent } from '../../components/vc-view/vc-view.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { VerifiableCredential, CredentialStatus } from 'src/app/interfaces/verifiable-credential';
+import { VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { VerifiableCredentialSubjectDataNormalizer } from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
 import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,6 +19,7 @@ import { ToastServiceHandler } from 'src/app/services/toast.service';
 import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
 
 // TODO separate scan in another component/ page
@@ -36,15 +37,18 @@ import { LoaderService } from 'src/app/services/loader.service';
     QRCodeModule,
     VcViewComponent,
     TranslateModule,
-    BarcodeScannerComponent,
-  ],
+    BarcodeScannerComponent
+  ]
 })
+
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class CredentialsPage implements OnInit, ViewWillLeave {
   public credList: Array<VerifiableCredential> = [];
   public showScannerView = false;
   public showScanner = false;
+  public isFirstCredentialLoadCompleted = false;
   public credentialOfferUri = '';
+
 
   private readonly alertController = inject(AlertController);
   private readonly cameraLogsService = inject(CameraLogsService);
@@ -70,7 +74,9 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
   }
 
   public ngOnInit(): void {
-    this.loadCredentials().subscribe();
+    this.loadCredentials()
+    .pipe(finalize(() => this.isFirstCredentialLoadCompleted = true))
+    .subscribe();
 
     if (this.credentialOfferUri) {
       this.sameDeviceVcActivationFlow();
@@ -88,17 +94,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
     this.showScannerView = false;
     this.showScanner = false;
     this.cdr.detectChanges();
-  }
-
-  public openScannerViewAndScanner(): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        showScannerView: true,
-        showScanner: true
-      },
-      queryParamsHandling: 'merge'
-    });
   }
 
   public openScannerViewWithoutScanner(): void {
@@ -215,15 +210,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       })
   }
 
-  public handleOpenScannerButtonKeydown(event: KeyboardEvent, action: string): void {
-    if (event.key === 'Enter' || event.key === ' ') {
-      this.openScannerViewAndScanner();
-      event.preventDefault();
-    }else{
-      console.error('Unrecognized event');
-    }
-  }
-
   private async showTempOkMessage(): Promise<void> {
     const alert = await this.alertController.create({
       message: `
@@ -267,11 +253,15 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       tap((credentialListResponse: VerifiableCredential[]) => {
         // Iterate over the list and normalize each credentialSubject
         this.credList = credentialListResponse.slice().reverse().map(cred => {
-          if (cred.credentialSubject) {
-            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject);
+          if (cred.credentialSubject && cred.type) {
+            const credType = getExtendedCredentialType(cred);
+            if(isValidCredentialType(credType)){
+              cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+            }
           }
           return cred;
         });
+        // todo avoid this
         this.cdr.detectChanges();
         if(!isScannerOpen){
           this.loader.removeLoadingProcess();
@@ -293,12 +283,12 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
 
   }
 
-    private requestPendingSignatures(): void {
+  private requestPendingSignatures(): void {
     if(this.credList.length === 0){
       return;
     }
     const pendingCredentials = this.credList.filter(
-      (credential) => credential.status === CredentialStatus.ISSUED
+      (credential) => credential.lifeCycleStatus === 'ISSUED'
     );
     
     if (pendingCredentials.length === 0) {

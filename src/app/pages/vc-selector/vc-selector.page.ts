@@ -9,10 +9,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VcViewComponent } from '../../components/vc-view/vc-view.component';
 import { VCReply } from 'src/app/interfaces/verifiable-credential-reply';
 import { VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
-import {VerifiableCredentialSubjectDataNormalizer} from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
+import { VerifiableCredentialSubjectDataNormalizer } from 'src/app/interfaces/verifiable-credential-subject-data-normalizer';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoaderService } from 'src/app/services/loader.service';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
 // todo: show only VCs with powers to login
 // todo: if user has only one VC, use this directly
@@ -84,12 +85,15 @@ export class VcSelectorPage {
     try{
       this.credList = [...unNormalizedCredList].reverse().map(cred => {
         if (cred.credentialSubject) {
-          cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject);
-        }
+          const credType = getExtendedCredentialType(cred);
+          if(isValidCredentialType(credType)){
+            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+          }
+          }
         return cred;
       });
     }catch(err){
-      console.error('Error normalizing credential list.')
+      console.error('Error normalizing credential list.');
       console.error(err);
       this.toastService.showErrorAlertByTranslateLabel("errors.loading-VCs");
     }finally{
@@ -168,6 +172,9 @@ private async handleError(err: any) {
     } else if (statusCode === 401) {
       // Handle unauthorized errors (401)
       messageText = 'vc-selector.unauthorized-message';
+    } else if (statusCode === 403) {
+      // Handle client errors (403x)
+      messageText = 'vc-selector.credential-revoke-message';
     } else if (statusCode >= 400) {
       // Handle client errors (40x)
       messageText = 'vc-selector.bad-request-error-message';
@@ -175,12 +182,13 @@ private async handleError(err: any) {
       // Handle other types of errors
       messageText = 'vc-selector.generic-error-message';
     }
+    const translatedMessage = this.translate.instant(messageText);
 
     const alert = await this.alertController.create({
       message: `
         <div style="display: flex; align-items: center; gap: 50px;">
           <ion-icon name="alert-circle-outline"></ion-icon>
-          <span>${this.translate.instant(messageText)}</span>
+          <span>${translatedMessage}</span>
         </div>
       `,
       buttons: [
@@ -205,7 +213,7 @@ private async handleError(err: any) {
           <span>${this.translate.instant('vc-selector.ok-header')}</span>
         </div>
       `,
-      cssClass: 'custom-alert-ok',
+      cssClass: 'custom-alert-ok-info',
     });
 
     await alert.present();

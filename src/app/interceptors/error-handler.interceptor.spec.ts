@@ -16,6 +16,13 @@ describe('HttpErrorInterceptor with HttpClient', () => {
   let httpMock: HttpTestingController;
   let mockToastServiceHandler: MockToastServiceHandler;
 
+  beforeAll(() => {
+    Object.defineProperty(window, 'location', {
+      value: { origin: 'http://localhost' },
+      writable: true,
+  });
+});
+
   beforeEach(() => {
     mockToastServiceHandler = new MockToastServiceHandler();
 
@@ -42,18 +49,141 @@ describe('HttpErrorInterceptor with HttpClient', () => {
     httpMock.verify();
   });
 
-  it('should log and show a toast on a 404 Not Found response', () => {
-    const spy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  it('CREDENTIALS empty-list → handled silently (TRUE branch)', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const logSpy = jest.spyOn(console, 'error');
 
-    httpClient.get('/test404').subscribe({
-      error: (error) => {
-        expect(spy).toHaveBeenCalledWith('Resource not found message from backend');
-      }
+  const url = `http://localhost/${SERVER_PATH.CREDENTIALS}?page=1`;
+  httpClient.get(url).subscribe({
+    error: (e) => {
+      expect(e).toBeTruthy();
+      expect(logSpy).toHaveBeenCalledWith('Handled silently:', 'The credentials list is empty');
+      expect(toastSpy).not.toHaveBeenCalled();
+    },
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'The credentials list is empty' }, { status: 400, statusText: 'Bad Request' });
+});
+
+  it('CREDENTIALS empty-list but different path → NOT matched (FALSE branch), shows toast', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+    const url = `http://localhost/api/not-credentials`; // NO acaba amb CREDENTIALS
+
+    httpClient.get(url).subscribe({ error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('The credentials list is empty'); // cau a flux genèric
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'The credentials list is empty' }, { status: 500, statusText: 'Internal Server Error' });
+  });
+
+  it('VERIFIABLE_PRESENTATION → handled silently (TRUE branch)', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+    const logSpy = jest.spyOn(console, 'error');
+
+    const url = `http://localhost/${SERVER_PATH.VERIFIABLE_PRESENTATION}?x=1`;
+    httpClient.get(url).subscribe({ error: (e) => {
+      expect(e).toBeTruthy();
+      expect(logSpy).toHaveBeenCalledWith('Handled silently:', 'Test error message');
+      expect(toastSpy).not.toHaveBeenCalled();
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'Test error message' }, { status: 400, statusText: 'Bad Request' });
+  });
+
+  it('NOT VERIFIABLE_PRESENTATION (FALSE branch) → shows toast', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+
+    const url = `http://localhost/other-endpoint`;
+    httpClient.get(url).subscribe({ error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Test error message');
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'Test error message' }, { status: 400, statusText: 'Bad Request' });
+  });
+
+  it('CREDENTIALS_SIGNED_BY_ID → handled silently (TRUE branch)', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+    const logSpy = jest.spyOn(console, 'error');
+
+    const url = `http://localhost/${SERVER_PATH.CREDENTIALS_SIGNED_BY_ID}?id=123`;
+    httpClient.get(url).subscribe({ error: (e) => {
+      expect(e).toBeTruthy();
+      expect(logSpy).toHaveBeenCalledWith('Handled silently:', 'Test error message');
+      expect(toastSpy).not.toHaveBeenCalled();
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'Test error message' }, { status: 400, statusText: 'Bad Request' });
+  });
+
+  it('NOT CREDENTIALS_SIGNED_BY_ID (FALSE branch) → shows toast', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+
+    const url = `http://localhost/credentials/something-else`;
+    httpClient.get(url).subscribe({ error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Oops');
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'Oops' }, { status: 500, statusText: 'Internal Server Error' });
+  });
+
+  it('Timeout but NOT REQUEST_CREDENTIAL (FALSE branch) → keeps backend message', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+
+    const url = `http://localhost/another-endpoint`;
+    httpClient.get(url).subscribe({ error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Gateway Timeout');
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'Gateway Timeout' }, { status: 504, statusText: 'Gateway Timeout' });
+  });
+
+
+
+    it('should log and show a toast on a 404 Not Found response', () => {
+      const spy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+
+      httpClient.get('/test404').subscribe({
+        error: (error) => {
+          expect(spy).toHaveBeenCalledWith('Resource not found message from backend');
+        }
+      });
+
+      const req = httpMock.expectOne('/test404');
+      req.flush({message: 'Resource not found message from backend'}, { status: 404, statusText: 'Not Found' });
     });
 
-    const req = httpMock.expectOne('/test404');
-    req.flush({message: 'Resource not found message from backend'}, { status: 404, statusText: 'Not Found' });
+    it('NOT EXECUTE_CONTENT (FALSE branch) → falls back to generic flow', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+
+    const url = `http://localhost/not-execute-content`;
+    httpClient.get(url).subscribe({ error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Some backend error');
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'Some backend error' }, { status: 400, statusText: 'Bad Request' });
   });
+
+  it('EXECUTE_CONTENT + 408 (with query) → "PIN expired" (TRUE branch)', () => {
+    const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+
+    const url = `http://localhost/${SERVER_PATH.EXECUTE_CONTENT}?a=1`;
+    httpClient.get(url).subscribe({ error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('PIN expired');
+    }});
+
+    const req = httpMock.expectOne(url);
+    req.flush({ message: 'Request Timeout' }, { status: 408, statusText: 'Request Timeout' });
+  });
+
+
 
   it('should show error toast on 422 Unprocessable Entity response', () => {
     const expectedMessage = 'Unprocessable Entity';
@@ -110,22 +240,40 @@ describe('HttpErrorInterceptor with HttpClient', () => {
     req.flush({message: errorMessage}, { status: 500, statusText: 'Internal Server Error' });
   });
 
-  it('it should print the correct message if a request to process the QR is made', ()=>{
-    const errorMessage = 'There was a problem processing the QR. It might be invalid or already have been used';
-    const spy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+it('it should print the correct message if a request to process the QR is made', ()=>{
+  const errorMessage = 'There was a problem processing the QR. It might be invalid or already have been used';
+  const spy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
 
-    httpClient.get('/' + SERVER_PATH.EXECUTE_CONTENT).subscribe({
-      error: (error) => {
-        expect(spy).toHaveBeenCalledWith('errorMessage');
-      }
-    });
-
-    const req = httpMock.expectOne('/' + SERVER_PATH.EXECUTE_CONTENT);
-    req.flush({message: 'Random error message'}, { status: 500, statusText: 'AnyText' });
+  httpClient.get('/' + SERVER_PATH.EXECUTE_CONTENT).subscribe({
+    error: () => {
+      expect(spy).toHaveBeenCalledWith(errorMessage);
+    }
   });
+
+  const req = httpMock.expectOne('/' + SERVER_PATH.EXECUTE_CONTENT);
+  req.flush({message: 'Random error message'}, { status: 500, statusText: 'AnyText' });
+});
 
   it('should handle errors silently for verifiable presentation URI', () => {
     const testUrl = SERVER_PATH.VERIFIABLE_PRESENTATION;
+    const spy = jest.spyOn(console, 'error');
+
+    httpClient.get(testUrl).subscribe({
+      error: (error) => {
+        expect(spy).toHaveBeenCalledWith('Handled silently:', 'Test error message');
+        expect(error).toBeTruthy();
+      },
+    });
+
+    const req = httpMock.expectOne(testUrl);
+    req.flush(
+      { message: 'Test error message' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+  });
+
+    it('should handle errors silently for request signature URI', () => {
+    const testUrl = SERVER_PATH.CREDENTIALS_SIGNED_BY_ID;
     const spy = jest.spyOn(console, 'error');
 
     httpClient.get(testUrl).subscribe({
@@ -215,6 +363,123 @@ describe('HttpErrorInterceptor with HttpClient', () => {
     const req = httpMock.expectOne('/' + SERVER_PATH.EXECUTE_CONTENT);
     req.flush({ message: 'Gateway Timeout' }, { status: 504, statusText: 'Gateway Timeout' });
   });
+
+  it('should handle silently when CREDENTIALS returns empty list message (no toast)', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const logSpy = jest.spyOn(console, 'error');
+
+  const url = '/' + SERVER_PATH.CREDENTIALS + '?page=1&size=10';
+  httpClient.get(url).subscribe({
+    error: (err) => {
+      expect(err).toBeTruthy();
+      expect(logSpy).toHaveBeenCalledWith('Handled silently:', 'The credentials list is empty');
+      expect(toastSpy).not.toHaveBeenCalled();
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'The credentials list is empty' }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should show toast for CREDENTIALS when message is not the empty list one', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.CREDENTIALS;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Something went wrong');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'Something went wrong' }, { status: 500, statusText: 'Internal Server Error' });
+});
+
+it('should map EXECUTE_CONTENT "No credentials found for" to friendly login message', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('There are no credentials available to login');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'No credentials found for user X' }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should map EXECUTE_CONTENT "The credentials list is empty" to friendly login message', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('There are no credentials available to login');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'The credentials list is empty' }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should keep backend message for EXECUTE_CONTENT when message starts with "Incorrect PIN"', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const backendMsg = 'Incorrect PIN: please try again';
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith(backendMsg);
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: backendMsg }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should map EXECUTE_CONTENT timeout (with query params) to "PIN expired"', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT + '?foo=bar&baz=1';
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('PIN expired');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'Gateway Timeout' }, { status: 504, statusText: 'Gateway Timeout' });
+});
+
+it('should keep backend "The received QR content cannot be processed..." message for EXECUTE_CONTENT', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const backendMsg = 'The received QR content cannot be processed: malformed payload';
+  const url = '/' + SERVER_PATH.EXECUTE_CONTENT;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith(backendMsg);
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: backendMsg }, { status: 400, statusText: 'Bad Request' });
+});
+
+it('should keep backend message for REQUEST_CREDENTIAL when not a timeout', () => {
+  const toastSpy = jest.spyOn(mockToastServiceHandler, 'showErrorAlert');
+  const url = '/' + SERVER_PATH.REQUEST_CREDENTIAL;
+
+  httpClient.get(url).subscribe({
+    error: () => {
+      expect(toastSpy).toHaveBeenCalledWith('Bad pin format');
+    }
+  });
+
+  const req = httpMock.expectOne(url);
+  req.flush({ message: 'Bad pin format' }, { status: 400, statusText: 'Bad Request' });
+});
   
   
 });

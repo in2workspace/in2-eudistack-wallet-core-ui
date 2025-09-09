@@ -1,22 +1,30 @@
+@let credentialInput = credentialInput$();
+
+<!-- VC CARD VIEW -->
 <ion-card
+  (click)="openDetailModal()"
+  tabindex="0"
+  (keydown)="handleButtonKeydown($event, 'detail')"
   style="
-    background-color: white;
-    width: 200px;
-    height: 285px;
+    background-color:  whitesmoke;
+    width: 300px;
+    height: 200px;
     border-radius: 20px;
+    border: 1px solid lightgrey;
+    align-content: center;
   "
 >
-@if(isCredentialIssuedAndNotExpired()){
+@if(credentialInput.lifeCycleStatus == "ISSUED"){
   <button
-      (click)="unsignedInfo()"
-      (keydown)="handleButtonKeydown($event, 'info')"
-      class="request-signature-button"
-    >
-      <img
-        src="../../../assets/icons/question_mark_black.png"
-        alt="info"
-        style="width: 18px; height: 18px"
-      />
+    (click)="unsignedInfo($event)"
+    (keydown)="handleButtonKeydown($event, 'info')"
+    class="request-signature-button"
+  >
+    <img
+      src="../../../assets/icons/exclamation_mark_black.png"
+      alt="info"
+      style="width: 19px; height: 16px"
+    />
   </button>
 }
 
@@ -27,70 +35,33 @@
       right: 10;
       width: 50%;
       height: 50%;
-      background-color: #ffffff;
+      background-color: whitesmoke;
       border-radius: 0% 0% 75% 75%;
       transform: translateX(85%) translateY(-90%);
       z-index: 1;
     "
   ></div>
-  <ion-card-header
-    style="background-color: var(--ion-color-primary); padding: 12px"
-  >
-  </ion-card-header>
   <div style="height: 2%"></div>
   <ion-col>
     <ion-col style="margin-inline: 20px">
-      <img
-        width="70"
-        height="70"
-        margin-left="20px"
-        alt
-        src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"
-      />
-    </ion-col>
+      @if(iconUrl){
+        <img [src]="iconUrl" alt width="50" height="50" style="margin: 10px auto" />
+      }
+      @if(credentialInput.lifeCycleStatus == "EXPIRED") {
+        <span class="status-ellipse status-expired">{{ "credentials.expiration" | translate }}</span>
+      }
+      @if(credentialInput.lifeCycleStatus == "REVOKED") {
+        <span class="status-ellipse status-expired">{{ "vc-view.revoked" | translate }}</span>
+      }
+      </ion-col>
     <ion-col>
       <ion-col size="12">
         <ion-card-header
-          style="padding: 0% !important; margin-inline: 20px; height: 28%"
+          style="margin-top:5px; padding: 0% !important; margin-inline: 20px; height: 28%"
         >
           <ion-row>
             <ion-card-title
               style="
-                color: grey;
-                font-size: 12px;
-                font-weight: bold;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-            >
-              {{
-                credentialInput.type === undefined
-                  ? ""
-                  : credentialInput.type[1]
-              }}
-            </ion-card-title>
-          </ion-row>
-          <ion-row>
-            <ion-card-title
-              style="
-                color: grey;
-                font-size: 12px;
-                font-weight: bold;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-            >
-              {{
-                credentialInput.credentialSubject.mandate.mandator
-                  .organization
-              }}
-            </ion-card-title>
-          </ion-row>
-          <ion-row>
-            <ion-card-title
-              style="
                 color: black;
                 font-size: 12px;
                 font-weight: bold;
@@ -100,26 +71,18 @@
               "
             >
               {{
-                credentialInput.credentialSubject.mandate.mandatee.firstName
+                credentialType
               }}
             </ion-card-title>
           </ion-row>
-          <ion-row>
-            <ion-card-title
-              style="
-                color: black;
-                font-size: 12px;
-                font-weight: bold;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-            >
-              {{
-                credentialInput.credentialSubject.mandate.mandatee.lastName
-              }}
-            </ion-card-title>
-          </ion-row>
+          @for(field of cardViewFields$(); track field) {
+            <ion-row>
+              <ion-card-title style="color: grey; font-size: 12px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ field.value }}
+              </ion-card-title>
+            </ion-row>       
+          }
+             
         </ion-card-header>
       </ion-col>
 
@@ -135,56 +98,6 @@
         />
         }
 
-        @if(isExpired && credentialInput.status !== credentialStatus.ISSUED) {
-        <span
-          style="
-            color: red;
-            font-size: 18px;
-            font-weight: bold;
-          "
-        >
-          {{ "credentials.expiration" | translate }}
-        </span>
-      }
-
-        <!-- todo FIXME add '&& !isExpired', removed only temporarily -->
-         @if(credentialInput.status === credentialStatus.ISSUED){
-           <span
-             style="
-               color: red;
-               font-size: 18px;
-               font-weight: bold;
-             "
-           >
-             {{ "vc-view.unsigned" | translate }}
-           </span>
-         }
-
-         @if(credentialInput.status === credentialStatus.REVOKED){
-          <span
-            style="
-              color: red;
-              font-size: 18px;
-              font-weight: bold;
-            "
-          >
-            {{ "vc-view.revoked" | translate }}
-        </span>
-         }
-
-        <ion-row style="justify-content: end; align-items: center; gap:5px" class="button-row">
-          <ion-button
-          (click)="deleteVC()"
-          (keydown)="handleButtonKeydown($event, 'delete')"
-          color="secondary"
-          class="vc-view-button"
-          size="small"
-          style="padding: 0%"
-        >
-          <ion-icon name="trash-outline"></ion-icon>
-        </ion-button>
-
-        </ion-row>
       </ion-col>
     </ion-col>
   </ion-col>
@@ -257,16 +170,57 @@
     [message]="'vc-view.unsigned-message' | translate"
     [buttons]="unsignedButtons"
   ></ion-alert>
-
-  <ion-row
-    style="
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background-color: var(--ion-color-primary);
-      padding: 4px;
-    "
-  >
-    <ion-col></ion-col>
-  </ion-row>
 </ion-card>
+
+<!-- DETAILS MODAL VIEW -->
+<ion-modal [isOpen]="isDetailModalOpen" (didDismiss)="closeDetailModal()" class="credential-detail-modal">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-toolbar">
+        <ion-title class="modal-title">{{ "vc-fields.modal-title" | translate }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" (keydown)="closeDetailModal()" (click)="closeDetailModal()">
+            <ion-icon name="close-outline" class="close-icon"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding modal-content">
+      <ion-list>
+        @for(section of detailViewSections; track section.section){
+          <div class="section">
+            <div class="section-header">{{ section.section | translate }}</div>
+            @for(field of section.fields; track field.label){
+              <ion-item lines="none" class="field-item compact-item">
+                @if(field.label !== 'vc-fields.credentialEncoded'){
+                  <ion-label class="field-label" >
+                    <strong>{{ field.label | translate }}:</strong> {{ field.value }}
+                  </ion-label>
+                }
+              @if(field.label === 'vc-fields.credentialEncoded'){
+                <div class="token-container">
+                  <div class="token-value ellipsis-text" [title]="field.value">
+                    {{ field.value }}
+                  </div>
+                  <div class="token-actions">
+                    <ion-button fill="clear" size="small" (click)="copyToClipboard(field.value)" (keydown)="copyToClipboard(field.value)">
+                      <ion-icon name="copy-outline"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+              }
+              </ion-item>
+          }
+          </div>
+        }
+      </ion-list>
+    </ion-content>
+
+    <ion-footer class="modal-footer">
+      <ion-button color="primary" class="delete-button" (keydown)="deleteVC()" (click)="deleteVC()">
+        {{ "vc-fields.delete" | translate }}
+      </ion-button>
+    </ion-footer>
+  </ng-template>
+</ion-modal>

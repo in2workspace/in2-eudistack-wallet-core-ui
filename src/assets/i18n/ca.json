@@ -112,7 +112,8 @@
         "ok-message":"Login correcte",
         "ko-header":"Error",
         "ko-message":"El login ha fallat",
-        "close": "Tancar"
+        "close": "Tancar",
+        "credential-revoke-message":"La credencial proporcionada no és vàlida, ha estat revocada o no és vàlida per a aquesta operació"
     },
     "vc-view":{
         "warning-header": "Credencial",
@@ -131,6 +132,75 @@
     },
     "scanner":{
         "initializing": "Inicialitzant escàner..."
+    },
+    "vc-fields": {
+        "delete": "Eliminar",
+        "copy-success": "S'ha copiat al porta-retalls",
+        "modal-title": "Detalls de credencial",
+        "title": "Informació de credencials",
+        "credentialInfo": {
+            "context": "Context",
+            "type": "Tipus",
+            "id": "ID",
+            "name": "Nom",
+            "description": "Descripció",
+            "issuerId": "ID de l'emissor",
+            "issuerOrganization": "Organització de l'emissor",
+            "issuerCountry": "País de l'emissor",
+            "issuerCommonName": "Nom comú de l'emissor",
+            "issuerSerialNumber": "Número de sèrie de l'emissor",
+            "validFrom": "Vàlid des de",
+            "validUntil": "Vàlid fins a"
+        },
+        "credentialEncoded": "Credencial",
+        "learCredentialEmployee": {
+            "mantadatee": {
+                "title": "Persona delegada",
+                "id": "ID",
+                "firstName": "Nom",
+                "lastName": "Cognom",
+                "email": "Correu electrònic",
+                "nationality": "Nacionalitat"
+            },
+            "mandator": {
+                "title": "Mandant",
+                "organizationIdentifier": "Identificador d'Organizació",
+                "organization": "Organització",
+                "commonName": "Nom comú",
+                "serialNumber": "Número de sèrie",
+                "country": "País"
+            },
+            "powers": "Poders"
+        },
+        "lear-credential-machine": {
+            "mantadatee": {
+                "title": "Informació de la màquina",
+                "id": "ID",
+                "domain": "Domini",
+                "ipAddress": "Adreça IP"
+            },
+            "mandator": {
+                "title": "Mandant",
+                "id": "ID",
+                "organizationIdentifier": "Identificador d'Organizació",
+                "organization": "Organització",
+                "commonName": "Nom comú",
+                "serialNumber": "Número de sèrie",
+                "country": "País"
+            },
+            "powers": "Poders"            
+        },
+        "gaia-x-label-credential": {
+            "label-info": {
+                "title": "Informació de l'etiqueta",
+                "id": "ID de l'etiqueta",
+                "labelLevel": "Nivell de l'etiqueta",
+                "engineVersion": "Versió del motor",
+                "rulesVersion": "Versió de les regles"
+            },
+            "compliantCredentials": "Credencials compatibles",
+            "validatedCriteria": "Criteris validats"
+        }
     },
     "errors":{
         "default":"Error inesperat. Si el problema persisteix, contacteu <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>l'equip de suport</a>",

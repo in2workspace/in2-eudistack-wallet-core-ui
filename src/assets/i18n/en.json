@@ -114,6 +114,7 @@
         "ko-message":"Failed to Login",
         "unauthorized-message":"The credential provided is invalid",
         "bad-request-error-message":"Error sending the credential",
+        "credential-revoke-message":"The credential provided is invalid, it has been revoked or is not valid for this operation",
         "server-error-message":"We couldn't process your request.<br>Please try again later.",
         "generic-error-message": "Unknown error",
         "close": "Close"
@@ -131,6 +132,76 @@
         "unsigned-header": "Unsigned Credential",
         "unsigned-message": "Your credential has not yet been signed and cannot be used. Wait for the issuer to complete the signing process.",
         "revoked": "Revoked"
+    },
+    "vc-fields":{
+        "delete": "Delete",
+        "copy-success": "Copied to clipboard",
+        "modal-title": "Credential Details",
+        "title": "Credential Info",
+        "credentialInfo": {
+            "context": "Context",
+            "type": "Type",
+            "id": "ID",
+            "name": "Name",
+            "description": "Description",
+            "issuerId": "Issuer ID",
+            "issuerOrganization": "Issuer Organization",
+            "issuerCountry": "Issuer Country",
+            "issuerCommonName": "Issuer Common Name",
+            "issuerSerialNumber": "Issuer Serial Number",
+            "validFrom": "Valid From",
+            "validUntil": "Valid Until"
+        },
+        "credentialEncoded": "Credential",
+        "learCredentialEmployee":{
+            "mantadatee": {
+                "title": "Mandatee",
+                "id": "ID",
+                "firstName": "First Name",
+                "lastName": "Last Name",
+                "email": "Email",
+                "nationality": "Nationality"
+            },
+            "mandator": {
+                "title": "Mandator",
+                "organizationIdentifier": "Organization Identifier",
+                "organization": "Organization",
+                "commonName": "Common Name",
+                "serialNumber": "Serial Number",
+                "country": "Country"
+            },
+            "powers": "Powers"
+        },
+        "lear-credential-machine":{
+            "mantadatee": {
+                "title": "Machine Info",
+                "id": "ID",
+                "domain": "Domain",
+                "ipAddress": "IP Address"
+            },
+            "mandator": {
+                "title": "Mandator",
+                "id": "ID",
+                "organizationIdentifier": "Organization Identifier",
+                "organization": "Organization",
+                "commonName": "Common Name",
+                "serialNumber": "Serial Number",
+                "country": "Country"
+            },
+            "powers": "Powers"
+        },
+        "gaia-x-label-credential":{
+            "label-info": {
+                "title": "Label Info",
+                "id": "Label ID",
+                "labelLevel": "Label Level",
+                "engineVersion": "Engine Version",
+                "rulesVersion": "Rules Version"
+            },
+            "compliantCredentials": "Compliant Credentials",
+            "validatedCriteria": "Validated Criteria"
+        }
+
     },
     "errors":{
         "default": "Unexpected error. If the problem persists, contact the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",

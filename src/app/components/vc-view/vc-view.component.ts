@@ -4,18 +4,30 @@ import {
   Input,
   OnInit,
   Output,
+  computed,
   inject,
+  input
 } from '@angular/core';
 import { QRCodeModule } from 'angularx-qrcode';
 import { WalletService } from 'src/app/services/wallet.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  CredentialStatus,
-  VerifiableCredential,
-} from 'src/app/interfaces/verifiable-credential';
+import { ExtendedCredentialType, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { IonicModule } from '@ionic/angular';
+import { CredentialMapConfig, CredentialTypeMap } from 'src/app/interfaces/credential-type-map';
+import { CredentialDetailMap, EvaluatedField, EvaluatedSection } from 'src/app/interfaces/credential-detail-map';
+import * as dayjs from 'dayjs';
+import { ToastServiceHandler } from 'src/app/services/toast.service';
+import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
 
+
+
+/**
+ * This component displays two types of "details VC view":
+ * 1. cardViewFields: the summary data displayed in the VC card.
+ * 2. detailViewSections: the comprehensive details shown in the modal that opens
+ * when clicking on the VC card.
+ */
 @Component({
   selector: 'app-vc-view',
   templateUrl: './vc-view.component.html',
@@ -24,20 +36,32 @@ import { IonicModule } from '@ionic/angular';
   imports: [IonicModule, QRCodeModule, TranslateModule, CommonModule],
 })
 export class VcViewComponent implements OnInit {
-  @Input() public credentialInput!: VerifiableCredential;
+  public credentialInput$ = input.required<VerifiableCredential>();
+  public cardViewFields$ = computed<EvaluatedField[]>(() => {
+    const subject = this.credentialInput$().credentialSubject;
+    const evaluatedFields: EvaluatedField[] = this.cardViewConfigByCredentialType?.fields.map(f => {
+      return {
+      label: f.label,
+      value: f.valueGetter(subject),
+    }
+    }) ?? [];
+    return evaluatedFields;
+  });
+
+  @Input() public isDetailViewActive = false;
   @Output() public vcEmit: EventEmitter<VerifiableCredential> =
     new EventEmitter();
+
+  credentialType!: ExtendedCredentialType;
 
   public cred_cbor = '';
   public isAlertOpenNotFound = false;
   public isAlertExpirationOpenNotFound = false;
   public isAlertOpenDeleteNotFound = false;
-  public isExpired = false;
   public isModalOpen = false;
   public isModalDeleteOpen = false;
   public isModalUnsignedOpen = false;
   public showChip = false;
-  public credentialStatus = CredentialStatus;
   public handlerMessage = '';
   public alertButtons = [
     {
@@ -63,7 +87,7 @@ export class VcViewComponent implements OnInit {
       role: 'confirm',
       handler: () => {
         this.isModalDeleteOpen = true;
-        this.vcEmit.emit(this.credentialInput);
+        this.vcEmit.emit(this.credentialInput$());
       },
     },
   ];
@@ -76,21 +100,41 @@ export class VcViewComponent implements OnInit {
     },
   },
   ];
-  private walletService = inject(WalletService);
+  private readonly walletService = inject(WalletService);
+  private readonly toastService = inject(ToastServiceHandler);
+
+  public isDetailModalOpen = false;
+  public detailViewSections!: EvaluatedSection[];
+
+  public openDetailModal(): void {
+    if(this.isDetailViewActive){
+      this.isDetailModalOpen = true;
+      this.getStructuredFields();
+    }
+  }
+
+  public closeDetailModal(): void {
+    this.isDetailModalOpen = false;
+  }
 
   public ngOnInit(): void {
-    this.checkExpirationVC();
-    this.checkAvailableFormats();
+    this.credentialType = getExtendedCredentialType(this.credentialInput$());
   }
 
-  public checkAvailableFormats(): void {
-    this.showChip =
-      this.credentialInput.available_formats?.includes('cwt_vc') ?? false;
+
+  public async copyToClipboard(text: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+      this.toastService.showToast('vc-fields.copy-success');
+    } catch (err) {
+      console.error('Error al copiar', err);
+    }
   }
+
 
   public qrView(): void {
-    if (!this.isExpired) {
-      this.walletService.getVCinCBOR(this.credentialInput).subscribe({
+    if (this.credentialInput$().lifeCycleStatus !== "EXPIRED") {
+      this.walletService.getVCinCBOR(this.credentialInput$()).subscribe({
         next: (value: string) => {
           this.cred_cbor = value;
           this.isAlertOpenNotFound = false;
@@ -107,26 +151,16 @@ export class VcViewComponent implements OnInit {
 
   public deleteVC(): void {
     this.isModalDeleteOpen = true;
+    this.isDetailModalOpen = false;
   }
 
-  public unsignedInfo(): void {
+  public unsignedInfo(event: Event): void {
+    event.stopPropagation();
     this.isModalUnsignedOpen = true;
   }
 
   public setOpen(isOpen: boolean): void {
     this.isModalOpen = isOpen;
-  }
-
-  public checkExpirationVC(): void {
-    if (this.credentialInput.status !== CredentialStatus.ISSUED) {
-      const validUntil: Date = new Date(
-        this.credentialInput.validUntil
-      );
-      const currentDate: Date = new Date();
-      this.isExpired = validUntil < currentDate;
-    } else {
-      this.isExpired = false;
-    }
   }
 
   public setOpenNotFound(isOpen: boolean): void {
@@ -139,13 +173,6 @@ export class VcViewComponent implements OnInit {
 
   public setOpenExpirationNotFound(isOpen: boolean): void {
     this.isAlertExpirationOpenNotFound = isOpen;
-  }
-
-  public isCredentialIssuedAndNotExpired(): boolean {
-    return (
-      this.credentialInput.status === CredentialStatus.ISSUED
-      && !this.isExpired
-    );
   }
 
   public handleKeydown(event: KeyboardEvent, action = 'request') {
@@ -164,9 +191,85 @@ export class VcViewComponent implements OnInit {
       } else if (action === 'close') {
         this.setOpen(false);
       } else if (action === 'info') {
-        this.unsignedInfo();
+        this.unsignedInfo(event);
+      } else if (action === 'detail') {
+        this.openDetailModal();
       }
       event.preventDefault();
     }
   }
+
+  get cardViewConfigByCredentialType(): CredentialMapConfig | undefined {
+    const credType = this.credentialType;
+    return isValidCredentialType(credType) ? CredentialTypeMap[credType] : undefined;
+  }
+
+  get iconUrl(): string | undefined {
+    return this.cardViewConfigByCredentialType?.icon;
+  }
+
+  public getStructuredFields(): void {
+    const cs = this.credentialInput$().credentialSubject;
+    const vc = this.credentialInput$();
+
+    const credentialInfo: EvaluatedSection = {
+      section: 'vc-fields.title',
+      fields: [
+        { label: 'vc-fields.credentialInfo.context', value: Array.isArray(vc['@context']) ? vc['@context'].join(', ') : (vc['@context'] ?? '') },
+        { label: 'vc-fields.credentialInfo.id', value: vc.id },
+        { label: 'vc-fields.credentialInfo.type', value: Array.isArray(vc.type) ? vc.type.join(', ') : (vc.type ?? '') },
+        { label: 'vc-fields.credentialInfo.name', value: vc.name ?? '' },
+        { label: 'vc-fields.credentialInfo.description', value: vc.description ?? '' },
+        { label: 'vc-fields.credentialInfo.issuerId', value: vc.issuer.id },
+        { label: 'vc-fields.credentialInfo.issuerOrganization', value: vc.issuer.organization ?? '' },
+        { label: 'vc-fields.credentialInfo.issuerCountry', value: vc.issuer.country ?? '' },
+        { label: 'vc-fields.credentialInfo.issuerCommonName', value: vc.issuer.commonName ?? '' },
+        { label: 'vc-fields.credentialInfo.issuerSerialNumber', value: vc.issuer?.serialNumber ?? '' },
+        { label: 'vc-fields.credentialInfo.validFrom', value: this.formatDate(vc.validFrom) },
+        { label: 'vc-fields.credentialInfo.validUntil', value: this.formatDate(vc.validUntil) }
+      ].filter(field => !!field.value && field.value !== ''),
+    };
+
+    const entry = isValidCredentialType(this.credentialType) ? CredentialDetailMap[this.credentialType] : undefined;
+    const evaluatedDetailedSections: EvaluatedSection[] = typeof entry === 'function'
+      ? entry(cs, vc).map(section => ({
+          section: section.section,
+          fields: section.fields
+            .map(f => ({
+              label: f.label,
+              value: f.valueGetter(cs, vc),
+            }))
+            .filter(f => !!f.value && f.value !== ''),
+        }))
+      : (entry ?? []).map(section => ({
+          section: section.section,
+          fields: section.fields
+            .map(f => ({
+              label: f.label,
+              value: f.valueGetter(cs, vc),
+            }))
+            .filter(f => !!f.value && f.value !== ''),
+        }));
+
+    if((this.credentialType == 'LEARCredentialMachine' || this.credentialType == 'gx:LabelCredential') && vc.credentialEncoded) {
+      evaluatedDetailedSections.push({
+        section: 'vc-fields.credentialEncoded',
+        fields: [
+          { label: 'vc-fields.credentialEncoded', value: vc.credentialEncoded ?? '' }
+        ]
+      });
+
+    }
+    
+    this.detailViewSections = [credentialInfo, ...evaluatedDetailedSections].filter(section => section.fields.length > 0);
+  }
+
+  private formatDate(date: string | undefined): string {
+    if (!date) {
+      return ''; 
+    }
+    return dayjs(date).format('DD/MM/YYYY');
+  }
+
+
 }

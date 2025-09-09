@@ -1,4 +1,4 @@
-import { flush, TestBed } from '@angular/core/testing';
+import { flush, flushMicrotasks, TestBed } from '@angular/core/testing';
 import { ToastServiceHandler } from './toast.service';
 import { AlertController, IonicModule } from '@ionic/angular';
 import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -301,5 +301,35 @@ describe('ToastServiceHandler', () => {
       expect(toast.dismiss).toHaveBeenCalled()
     }, TIME_IN_MS);
   });
-  
+
+  it('should create, present, and dismiss a toast after duration', fakeAsync(async () => {
+    const duration = 1500;
+    const messageKey = 'toast.success';
+
+    const presentMock = jest.fn().mockResolvedValue(undefined);
+    const dismissMock = jest.fn().mockResolvedValue(undefined);
+
+    const alertMock = {
+      present: presentMock,
+      dismiss: dismissMock,
+    };
+
+    alertCtrl.create.mockResolvedValueOnce(alertMock as any);
+
+    service.showToast(messageKey, duration);
+
+    tick();
+
+    expect(alertCtrl.create).toHaveBeenCalledWith(expect.objectContaining({
+      message: expect.stringContaining(messageKey),
+      cssClass: 'custom-alert-ok',
+    }));
+
+    expect(presentMock).toHaveBeenCalled();
+
+    tick(duration);
+    expect(dismissMock).toHaveBeenCalled();
+  }));
+
+
 });
