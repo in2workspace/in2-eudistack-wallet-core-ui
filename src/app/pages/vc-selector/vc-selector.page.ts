@@ -81,6 +81,7 @@ export class VcSelectorPage {
 
     console.log('[VC-selector: Formatting credentials list...');
     const unNormalizedCredList: VerifiableCredential[] = this.executionResponse['selectableVcList'];
+    console.log(unNormalizedCredList);
     const normalizer = new VerifiableCredentialSubjectDataNormalizer();
     try{
       this.credList = [...unNormalizedCredList]
@@ -95,6 +96,8 @@ export class VcSelectorPage {
           }
           return cred;
         });
+        console.log('Filtered list: ');
+        console.log(this.credList);
     }catch(err){
       console.error('Error normalizing credential list.');
       console.error(err);
