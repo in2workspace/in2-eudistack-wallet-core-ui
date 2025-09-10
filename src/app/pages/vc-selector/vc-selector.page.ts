@@ -83,15 +83,18 @@ export class VcSelectorPage {
     const unNormalizedCredList: VerifiableCredential[] = this.executionResponse['selectableVcList'];
     const normalizer = new VerifiableCredentialSubjectDataNormalizer();
     try{
-      this.credList = [...unNormalizedCredList].reverse().map(cred => {
-        if (cred.credentialSubject) {
-          const credType = getExtendedCredentialType(cred);
-          if(isValidCredentialType(credType)){
-            cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+      this.credList = [...unNormalizedCredList]
+        .reverse()
+        .filter(cred => cred.lifeCycleStatus === 'VALID')
+        .map(cred => {
+          if (cred.credentialSubject) {
+            const credType = getExtendedCredentialType(cred);
+            if(isValidCredentialType(credType)){
+              cred.credentialSubject = normalizer.normalizeLearCredentialSubject(cred.credentialSubject, credType);
+            }
           }
-          }
-        return cred;
-      });
+          return cred;
+        });
     }catch(err){
       console.error('Error normalizing credential list.');
       console.error(err);
