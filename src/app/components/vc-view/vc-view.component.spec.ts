@@ -455,4 +455,26 @@ describe('VcViewComponent', () => {
     }
   });
 
+  it('getStructuredFields should use issuer string when issuer is a plain string', () => {
+    const current = component.credentialInput$();
+    componentRef.setInput('credentialInput$', {
+      ...current,
+      issuer: 'did:example:issuer'
+    });
+    fixture.detectChanges();
+
+    component.getStructuredFields();
+
+    const credentialInfoSection = component.detailViewSections.find(
+      s => s.section === 'vc-fields.title'
+    );
+    expect(credentialInfoSection).toBeTruthy();
+
+    const issuerIdField = credentialInfoSection!.fields.find(
+      f => f.label === 'vc-fields.credentialInfo.issuerId'
+    );
+    expect(issuerIdField).toBeTruthy();
+    expect(issuerIdField!.value).toBe('did:example:issuer');
+  });
+
 });
