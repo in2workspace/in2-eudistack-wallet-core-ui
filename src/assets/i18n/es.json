@@ -151,7 +151,7 @@
         
         "credentialEncoded": "Credencial",
         "learCredentialEmployee": {
-            "mantadatee": {
+            "mandatee": {
                 "title": "Persona mandatada",
                 "id": "ID",
                 "firstName": "Nombre",
@@ -170,7 +170,7 @@
             "powers": "Poderes"
         },
         "lear-credential-machine": {
-            "mantadatee": {
+            "mandatee": {
                 "title": "Información de la máquina",
                 "id": "ID",
                 "domain": "Dominio",
