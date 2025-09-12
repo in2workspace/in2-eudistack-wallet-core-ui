@@ -28,13 +28,13 @@ export type CredentialDetailMapEntry =
 export const CredentialDetailMap: Record<CredentialType, CredentialDetailMapEntry> = {
   LEARCredentialEmployee: (s) => [
     {
-      section: 'vc-fields.learCredentialEmployee.mantadatee.title',
+      section: 'vc-fields.learCredentialEmployee.mandatee.title',
       fields: [
-        { label: 'vc-fields.learCredentialEmployee.mantadatee.id', valueGetter: () => s.mandate?.mandatee?.id ?? '' },
-        { label: 'vc-fields.learCredentialEmployee.mantadatee.firstName', valueGetter: () => s.mandate?.mandatee?.firstName ?? '' },
-        { label: 'vc-fields.learCredentialEmployee.mantadatee.lastName', valueGetter: () => s.mandate?.mandatee?.lastName ?? '' },
-        { label: 'vc-fields.learCredentialEmployee.mantadatee.email', valueGetter: () => s.mandate?.mandatee?.email ?? '' },
-        { label: 'vc-fields.learCredentialEmployee.mantadatee.nationality', valueGetter: () => s.mandate?.mandatee?.nationality ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandatee.id', valueGetter: () => s.mandate?.mandatee?.id ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandatee.firstName', valueGetter: () => s.mandate?.mandatee?.firstName ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandatee.lastName', valueGetter: () => s.mandate?.mandatee?.lastName ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandatee.email', valueGetter: () => s.mandate?.mandatee?.email ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandatee.nationality', valueGetter: () => s.mandate?.mandatee?.nationality ?? '' },
       ],
     },
     {
@@ -59,10 +59,10 @@ export const CredentialDetailMap: Record<CredentialType, CredentialDetailMapEntr
 
   LEARCredentialMachine: (s) => [
     {
-      section: 'vc-fields.lear-credential-machine.mantadatee.title',
+      section: 'vc-fields.lear-credential-machine.mandatee.title',
       fields: [
-        { label: 'vc-fields.lear-credential-machine.mantadatee.domain', valueGetter: () => s.mandate?.mandatee?.domain ?? '' },
-        { label: 'vc-fields.lear-credential-machine.mantadatee.ipAddress', valueGetter: () => s.mandate?.mandatee?.ipAddress ?? '' },
+        { label: 'vc-fields.lear-credential-machine.mandatee.domain', valueGetter: () => s.mandate?.mandatee?.domain ?? '' },
+        { label: 'vc-fields.lear-credential-machine.mandatee.ipAddress', valueGetter: () => s.mandate?.mandatee?.ipAddress ?? '' },
       ],
     },
     {

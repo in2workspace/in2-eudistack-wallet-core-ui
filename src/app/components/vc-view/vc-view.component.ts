@@ -98,8 +98,8 @@ export class VcViewComponent implements OnInit {
     handler: () => {
       this.isModalUnsignedOpen = false;
     },
-  },
-  ];
+  }];
+
   private readonly walletService = inject(WalletService);
   private readonly toastService = inject(ToastServiceHandler);
 
@@ -209,8 +209,8 @@ export class VcViewComponent implements OnInit {
   }
 
   public getStructuredFields(): void {
-    const cs = this.credentialInput$().credentialSubject;
     const vc = this.credentialInput$();
+    const cs = vc.credentialSubject;
 
     const credentialInfo: EvaluatedSection = {
       section: 'vc-fields.title',
