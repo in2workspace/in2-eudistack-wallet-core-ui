@@ -209,7 +209,7 @@
         "invalid-qr":"The presented QR code is not valid",
         "no-credentials-available": "There are no credentials available to login",
         "expired-credentialOffer":"The credential offer is expired or already used. Please refresh and try again later, or contact your company's LEAR to get a new credential.",
-        "invalid-credentialOffer":"Credential offer is invalid",
+        "invalid-credentialOffer":"Credential offer is invalid.",
         "invalid-issuerMetadata":"Issuer metadata is incorrect",
         "cannot-get-VC":"Issuer credential could not be obtained",
         "cannot-save-VC":"The credential could not be saved successfully",
