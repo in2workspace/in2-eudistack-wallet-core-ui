@@ -152,6 +152,7 @@
         "credentialEncoded": "Credencial",
         "learCredentialEmployee": {
             "mandatee": {
+                "employeeId": "ID de empleado",
                 "title": "Persona mandatada",
                 "id": "ID",
                 "firstName": "Nombre",
@@ -160,6 +161,7 @@
                 "nationality": "Nacionalidad"
             },
             "mandator": {
+                "id": "ID",
                 "title": "Mandante",
                 "organizationIdentifier": "Identificador de Organización",
                 "organization": "Organización",

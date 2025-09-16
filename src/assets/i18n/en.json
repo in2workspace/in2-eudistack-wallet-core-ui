@@ -156,6 +156,7 @@
         "learCredentialEmployee":{
             "mandatee": {
                 "title": "Mandatee",
+                "employeeId": "Employee ID",
                 "id": "ID",
                 "firstName": "First Name",
                 "lastName": "Last Name",
@@ -163,6 +164,7 @@
                 "nationality": "Nationality"
             },
             "mandator": {
+                "id": "ID",
                 "title": "Mandator",
                 "organizationIdentifier": "Organization Identifier",
                 "organization": "Organization",

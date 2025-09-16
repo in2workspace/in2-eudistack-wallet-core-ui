@@ -174,14 +174,15 @@
         },
         "lear-credential-machine": {
             "mandatee": {
+                "employeeId": "ID d'e'mpleat",
                 "title": "Informació de la màquina",
                 "id": "ID",
                 "domain": "Domini",
                 "ipAddress": "Adreça IP"
             },
             "mandator": {
-                "title": "Mandant",
                 "id": "ID",
+                "title": "Mandant",
                 "organizationIdentifier": "Identificador d'Organizació",
                 "organization": "Organització",
                 "commonName": "Nom comú",
