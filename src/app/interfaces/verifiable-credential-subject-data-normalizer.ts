@@ -65,6 +65,7 @@ export class VerifiableCredentialSubjectDataNormalizer {
  */
 private normalizeMandatee(data: RawMandatee): Mandatee {
   return <Mandatee>{
+    ...data,
     firstName: data.firstName ?? data.first_name,
     lastName: data.lastName ?? data.last_name,
     email: data.email
