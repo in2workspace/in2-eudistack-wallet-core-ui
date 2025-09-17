@@ -14,7 +14,6 @@ export const CredentialTypeMap: Record<CredentialType, CredentialMapConfig> = {
   LEARCredentialEmployee: {
     icon: 'assets/icons/LearCredentialEmployee.png',
     fields: [
-      { label: 'Employee Id', valueGetter: (s) => s.mandate.mandatee.employeeId },
       { label: 'First Name', valueGetter: (s) => s.mandate.mandatee.firstName },
       { label: 'Last Name', valueGetter: (s) => s.mandate.mandatee.lastName },
       { label: 'Organization', valueGetter: (s) => s.mandate.mandator.organization }
