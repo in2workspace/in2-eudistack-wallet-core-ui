@@ -186,7 +186,8 @@
                 "organization": "Organización",
                 "commonName": "Nombre común",
                 "serialNumber": "Número de serie",
-                "country": "País"
+                "country": "País",
+                "email": "Correo electrónico"
             },
             "powers": "Poderes"
         },

@@ -189,7 +189,8 @@
                 "organization": "Organization",
                 "commonName": "Common Name",
                 "serialNumber": "Serial Number",
-                "country": "Country"
+                "country": "Country",
+                "email": "Email"
             },
             "powers": "Powers"
         },

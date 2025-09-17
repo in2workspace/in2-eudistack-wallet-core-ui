@@ -188,7 +188,8 @@
                 "organization": "Organització",
                 "commonName": "Nom comú",
                 "serialNumber": "Número de sèrie",
-                "country": "País"
+                "country": "País",
+                "email":"Correu electrònic"
             },
             "powers": "Poders"            
         },
