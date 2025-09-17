@@ -146,6 +146,7 @@
             "description": "Descripció",
             "issuerId": "ID de l'emissor",
             "issuerOrganization": "Organització de l'emissor",
+            "issuerOrganizationIdentifier": "ID d'organització de l'emissor",
             "issuerCountry": "País de l'emissor",
             "issuerCommonName": "Nom comú de l'emissor",
             "issuerSerialNumber": "Número de sèrie de l'emissor",

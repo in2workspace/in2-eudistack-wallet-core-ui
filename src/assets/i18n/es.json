@@ -142,6 +142,7 @@
             "description": "Descripción",
             "issuerId": "ID del emisor",
             "issuerOrganization": "Organización del emisor",
+            "issuerOrganizationIdentifier": "ID de organización del emisor",
             "issuerCountry": "País del emisor",
             "issuerCommonName": "Nombre común del emisor",
             "issuerSerialNumber": "Número de serie del emisor",

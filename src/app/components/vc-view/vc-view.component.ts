@@ -222,6 +222,7 @@ export class VcViewComponent implements OnInit {
         { label: 'vc-fields.credentialInfo.description', value: vc.description ?? '' },
         { label: 'vc-fields.credentialInfo.issuerId', value: vc.issuer.id ?? vc.issuer }, //issuer may be json or string
         { label: 'vc-fields.credentialInfo.issuerOrganization', value: vc.issuer.organization ?? '' },
+        { label: 'vc-fields.credentialInfo.issuerOrganizationIdentifier', value: vc.issuer.organizationIdentifier ?? '' },
         { label: 'vc-fields.credentialInfo.issuerCountry', value: vc.issuer.country ?? '' },
         { label: 'vc-fields.credentialInfo.issuerCommonName', value: vc.issuer.commonName ?? '' },
         { label: 'vc-fields.credentialInfo.issuerSerialNumber', value: vc.issuer?.serialNumber ?? '' },

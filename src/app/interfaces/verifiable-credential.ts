@@ -22,6 +22,7 @@ export type ExtendedCredentialType =  'VerifiableCredential' | CredentialType;
 export interface Issuer {
   id: string;
   organization?: string;
+  organizationIdentifier?: string;
   country?: string;
   commonName?: string;
   serialNumber?: string;

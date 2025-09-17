@@ -146,6 +146,7 @@
             "description": "Description",
             "issuerId": "Issuer ID",
             "issuerOrganization": "Issuer Organization",
+            "issuerOrganizationIdentifier": "Issuer Organization ID",
             "issuerCountry": "Issuer Country",
             "issuerCommonName": "Issuer Common Name",
             "issuerSerialNumber": "Issuer Serial Number",
