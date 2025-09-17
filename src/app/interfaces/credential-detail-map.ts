@@ -41,10 +41,11 @@ export const CredentialDetailMap: Record<CredentialType, CredentialDetailMapEntr
       section: 'vc-fields.learCredentialEmployee.mandator.title',
       fields: [
         { label: 'vc-fields.learCredentialEmployee.mandator.id', valueGetter: () => s.mandate?.mandator?.id ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandator.commonName', valueGetter: () => s.mandate?.mandator?.commonName ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandator.email', valueGetter: () => s.mandate?.mandator?.email ?? '' },
+        { label: 'vc-fields.learCredentialEmployee.mandator.serialNumber', valueGetter: () => s.mandate?.mandator?.serialNumber ?? '' },
         { label: 'vc-fields.learCredentialEmployee.mandator.organizationIdentifier', valueGetter: () => s.mandate?.mandator?.organizationIdentifier ?? '' },
         { label: 'vc-fields.learCredentialEmployee.mandator.organization', valueGetter: () => s.mandate?.mandator?.organization ?? '' },
-        { label: 'vc-fields.learCredentialEmployee.mandator.commonName', valueGetter: () => s.mandate?.mandator?.commonName ?? '' },
-        { label: 'vc-fields.learCredentialEmployee.mandator.serialNumber', valueGetter: () => s.mandate?.mandator?.serialNumber ?? '' },
         { label: 'vc-fields.learCredentialEmployee.mandator.country', valueGetter: () => s.mandate?.mandator?.country ?? '' }
       ],
     },
@@ -72,8 +73,8 @@ export const CredentialDetailMap: Record<CredentialType, CredentialDetailMapEntr
       fields: [
         { label: 'vc-fields.lear-credential-machine.mandator.id', valueGetter: () => s.mandate?.mandator?.id ?? '' },
         { label: 'vc-fields.lear-credential-machine.mandator.commonName', valueGetter: () => s.mandate?.mandator?.commonName ?? '' },
-        { label: 'vc-fields.lear-credential-machine.mandator.serialNumber', valueGetter: () => s.mandate?.mandator?.serialNumber ?? '' },
         { label: 'vc-fields.lear-credential-machine.mandator.email', valueGetter: () => s.mandate?.mandator?.email ?? '' },
+        { label: 'vc-fields.lear-credential-machine.mandator.serialNumber', valueGetter: () => s.mandate?.mandator?.serialNumber ?? '' },
         { label: 'vc-fields.lear-credential-machine.mandator.organization', valueGetter: () => s.mandate?.mandator?.organization ?? '' },
         { label: 'vc-fields.lear-credential-machine.mandator.organizationIdentifier', valueGetter: () => s.mandate?.mandator?.organizationIdentifier ?? '' },
         { label: 'vc-fields.lear-credential-machine.mandator.country', valueGetter: () => s.mandate?.mandator?.country ?? '' },

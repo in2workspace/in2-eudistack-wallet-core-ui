@@ -165,12 +165,14 @@
                 "nationality": "Nacionalitat"
             },
             "mandator": {
+                "id": "ID",
                 "title": "Mandant",
                 "organizationIdentifier": "Identificador d'Organizació",
                 "organization": "Organització",
                 "commonName": "Nom comú",
                 "serialNumber": "Número de sèrie",
-                "country": "País"
+                "country": "País",
+                "email": "Email"
             },
             "powers": "Poders"
         },

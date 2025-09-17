@@ -171,7 +171,8 @@
                 "organization": "Organization",
                 "commonName": "Common Name",
                 "serialNumber": "Serial Number",
-                "country": "Country"
+                "country": "Country",
+                "email": "Email"
             },
             "powers": "Powers"
         },
@@ -183,8 +184,8 @@
                 "ipAddress": "IP Address"
             },
             "mandator": {
-                "title": "Mandator",
                 "id": "ID",
+                "title": "Mandator",
                 "organizationIdentifier": "Organization Identifier",
                 "organization": "Organization",
                 "commonName": "Common Name",
