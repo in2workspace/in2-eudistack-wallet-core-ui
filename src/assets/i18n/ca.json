@@ -156,6 +156,7 @@
         "learCredentialEmployee": {
             "mandatee": {
                 "title": "Persona delegada",
+                "employeeId": "ID d'empleat",
                 "id": "ID",
                 "firstName": "Nom",
                 "lastName": "Cognom",
@@ -174,7 +175,6 @@
         },
         "lear-credential-machine": {
             "mandatee": {
-                "employeeId": "ID d'e'mpleat",
                 "title": "Informació de la màquina",
                 "id": "ID",
                 "domain": "Domini",
