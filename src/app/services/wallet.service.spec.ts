@@ -80,7 +80,7 @@ describe('WalletService', () => {
             firstName: 'John',
             lastName: 'Doe',
             email: 'test@example.com',
-            employeId: '',
+            employeeId: '',
             domain: '',
             ipAddress: ''
           },
@@ -200,7 +200,7 @@ describe('WalletService', () => {
               firstName: 'Jane',
               lastName: 'Doe',
               email: 'example@test.com',
-              employeId: '',
+              employeeId: '',
               domain: '',
               ipAddress: ''
             },
@@ -259,7 +259,7 @@ describe('WalletService', () => {
             firstName: 'Single',
             lastName: 'Credential',
             email: 'single@test.com',
-            employeId: '',
+            employeeId: '',
             domain: '',
             ipAddress: ''
           },

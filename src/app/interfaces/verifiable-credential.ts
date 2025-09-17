@@ -65,7 +65,7 @@ export interface Mandate {
 
 export interface Mandatee {
   id: string;
-  employeId?: string;
+  employeeId?: string;
   firstName?: string;
   lastName?: string;
   email?: string;

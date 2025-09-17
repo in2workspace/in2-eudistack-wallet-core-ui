@@ -61,7 +61,7 @@ describe('VcViewComponent', () => {
             firstName: '',
             lastName: '',
             email: '',
-            employeId: '',
+            employeeId: '',
             domain: '',
             ipAddress: ''
           },
@@ -319,7 +319,7 @@ describe('VcViewComponent', () => {
   //           firstName: '',
   //           lastName: '',
   //           email: '',
-  //           employeId: '',
+  //           employeeId: '',
   //           domain: '',
   //           ipAddress: ''
   //         },
