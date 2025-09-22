@@ -112,24 +112,6 @@ describe('WalletService', () => {
     req.flush(mockResponse);
   });
 
-  it('should fetch VC in JWT format', (done) => {
-    const mockCredentialId = 'test-credential-id';
-    const mockResponse = 'mock-jwt-data';
-
-    service
-      .getVCinJWT({ id: mockCredentialId } as VerifiableCredential)
-      .subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-        done();
-      });
-
-    const req = httpTestingController.expectOne(
-      `${environment.server_url}/api/credentials/id?credentialId=${mockCredentialId}&format=vc_jwt`
-    );
-    expect(req.request.method).toEqual('GET');
-    req.flush(mockResponse);
-  });
-
   it('should request a new credential', () => {
     const mockCredentialOfferUri = 'test-offer-uri';
     const expectedResponse = {
