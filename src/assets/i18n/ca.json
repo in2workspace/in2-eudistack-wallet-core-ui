@@ -209,7 +209,7 @@
     },
     "errors":{
         "default":"Error inesperat. Si el problema persisteix, contacteu <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>l'equip de suport</a>",
-        "failed-qr-process": "Hi ha hagut un problema en processar el QR. Pot ser que sigui invàlid o que ja hagi estat utilitzat abans. Refresqueu l'oferta de credencial. Si el problema persisteix, contacteu <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>l'equip de suport</a>",
+        "failed-qr-process": "Hi ha hagut un problema en processar el QR. Pot ser que sigui invàlid o que ja hagi estat utilitzat abans. Refresqueu-lo. Si el problema persisteix, contacteu <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>l'equip de suport</a>",
         "invalid-qr":"El QR presentat és invàlid",
         "no-credentials-available": "No hi ha cap credencial disponible per al login",
         "expired-credentialOffer":"La oferta de credencial està expirada o ja utilitzada",

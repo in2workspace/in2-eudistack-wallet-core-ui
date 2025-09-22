@@ -206,7 +206,7 @@
     },
     "errors":{
         "default":"Error no reconocido. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>",
-        "failed-qr-process": "Ha habido un error al procesar QR. Puede que sea inválido o que ya haya sido usado antes. Refresque la oferta de credencial, por favor. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>",
+        "failed-qr-process": "Ha habido un error al procesar QR. Puede que sea inválido o que ya haya sido usado antes. Refrésquelo, por favor. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>",
         "invalid-qr":"El QR presentado es inválido",
         "no-credentials-available": "No hay ninguna credencial disponible para el login",
         "expired-credentialOffer":"La oferta de credencial está expirada o ya utilizada",

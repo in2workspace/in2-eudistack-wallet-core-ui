@@ -210,7 +210,7 @@
     },
     "errors":{
         "default": "Unexpected error. If the problem persists, contact the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
-        "failed-qr-process": "We couldn't process the QR code.<br>It might be invalid or already used. Please refresh the credential offer. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
+        "failed-qr-process": "We couldn't process the QR code.<br>It might be invalid or already used. Please refresh it. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
         "invalid-qr":"The presented QR code is not valid",
         "no-credentials-available": "There are no credentials available to login",
         "expired-credentialOffer":"The credential offer is expired or already used. Please refresh and try again later, or contact your company's LEAR to get a new credential.",
