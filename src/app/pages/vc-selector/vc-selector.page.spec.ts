@@ -22,7 +22,7 @@ describe('VcSelectorPage', () => {
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',
-    employeId: '',
+    employeeId: '',
     domain: '',
     ipAddress: ''
   };

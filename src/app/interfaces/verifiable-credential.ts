@@ -22,6 +22,7 @@ export type ExtendedCredentialType =  'VerifiableCredential' | CredentialType;
 export interface Issuer {
   id: string;
   organization?: string;
+  organizationIdentifier?: string;
   country?: string;
   commonName?: string;
   serialNumber?: string;
@@ -65,7 +66,7 @@ export interface Mandate {
 
 export interface Mandatee {
   id: string;
-  employeId?: string;
+  employeeId?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
