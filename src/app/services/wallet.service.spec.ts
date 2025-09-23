@@ -80,7 +80,7 @@ describe('WalletService', () => {
             firstName: 'John',
             lastName: 'Doe',
             email: 'test@example.com',
-            employeId: '',
+            employeeId: '',
             domain: '',
             ipAddress: ''
           },
@@ -109,24 +109,6 @@ describe('WalletService', () => {
       `${environment.server_url}/api/v1/vp/cbor`
     );
     expect(req.request.method).toEqual('POST');
-    req.flush(mockResponse);
-  });
-
-  it('should fetch VC in JWT format', (done) => {
-    const mockCredentialId = 'test-credential-id';
-    const mockResponse = 'mock-jwt-data';
-
-    service
-      .getVCinJWT({ id: mockCredentialId } as VerifiableCredential)
-      .subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-        done();
-      });
-
-    const req = httpTestingController.expectOne(
-      `${environment.server_url}/api/credentials/id?credentialId=${mockCredentialId}&format=vc_jwt`
-    );
-    expect(req.request.method).toEqual('GET');
     req.flush(mockResponse);
   });
 
@@ -200,7 +182,7 @@ describe('WalletService', () => {
               firstName: 'Jane',
               lastName: 'Doe',
               email: 'example@test.com',
-              employeId: '',
+              employeeId: '',
               domain: '',
               ipAddress: ''
             },
@@ -259,7 +241,7 @@ describe('WalletService', () => {
             firstName: 'Single',
             lastName: 'Credential',
             email: 'single@test.com',
-            employeId: '',
+            employeeId: '',
             domain: '',
             ipAddress: ''
           },

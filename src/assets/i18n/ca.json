@@ -146,6 +146,7 @@
             "description": "Descripció",
             "issuerId": "ID de l'emissor",
             "issuerOrganization": "Organització de l'emissor",
+            "issuerOrganizationIdentifier": "ID d'organització de l'emissor",
             "issuerCountry": "País de l'emissor",
             "issuerCommonName": "Nom comú de l'emissor",
             "issuerSerialNumber": "Número de sèrie de l'emissor",
@@ -156,6 +157,7 @@
         "learCredentialEmployee": {
             "mandatee": {
                 "title": "Persona delegada",
+                "employeeId": "ID d'empleat",
                 "id": "ID",
                 "firstName": "Nom",
                 "lastName": "Cognom",
@@ -163,12 +165,14 @@
                 "nationality": "Nacionalitat"
             },
             "mandator": {
+                "id": "ID",
                 "title": "Mandant",
                 "organizationIdentifier": "Identificador d'Organizació",
                 "organization": "Organització",
                 "commonName": "Nom comú",
                 "serialNumber": "Número de sèrie",
-                "country": "País"
+                "country": "País",
+                "email": "Email"
             },
             "powers": "Poders"
         },
@@ -180,13 +184,14 @@
                 "ipAddress": "Adreça IP"
             },
             "mandator": {
-                "title": "Mandant",
                 "id": "ID",
+                "title": "Mandant",
                 "organizationIdentifier": "Identificador d'Organizació",
                 "organization": "Organització",
                 "commonName": "Nom comú",
                 "serialNumber": "Número de sèrie",
-                "country": "País"
+                "country": "País",
+                "email":"Correu electrònic"
             },
             "powers": "Poders"            
         },
@@ -204,7 +209,7 @@
     },
     "errors":{
         "default":"Error inesperat. Si el problema persisteix, contacteu <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>l'equip de suport</a>",
-        "failed-qr-process": "Hi ha hagut un problema en processar el QR. Pot ser que sigui invàlid o que ja hagi estat utilitzat abans. Refresqueu l'oferta de credencial. Si el problema persisteix, contacteu <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>l'equip de suport</a>",
+        "failed-qr-process": "Hi ha hagut un problema en processar el QR. Pot ser que sigui invàlid o que ja hagi estat utilitzat abans. Refresqueu-lo. Si el problema persisteix, contacteu <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>l'equip de suport</a>",
         "invalid-qr":"El QR presentat és invàlid",
         "no-credentials-available": "No hi ha cap credencial disponible per al login",
         "expired-credentialOffer":"La oferta de credencial està expirada o ja utilitzada",

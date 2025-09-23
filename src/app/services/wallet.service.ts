@@ -41,20 +41,6 @@ export class WalletService {
       options
     );
   }
-  public getVCinJWT(credential: VerifiableCredential): Observable<string> {
-    const options = {
-      headers: headers,
-      redirect: 'follow',
-      responseType: 'text' as const,
-    };
-    return this.http.get(
-      environment.server_url +
-        '/api/credentials/id?credentialId=' +
-        credential.id +
-        '&format=vc_jwt',
-      options
-    );
-  }
 
   public requestOpenidCredentialOffer(credentialOfferUri: string): Observable<JSON> {
     const params = new HttpParams().set('credentialOfferUri', credentialOfferUri);
@@ -96,11 +82,11 @@ export class WalletService {
   }
 
   // Delete the selected Verifiable Credential from the Wallet Data
-  public deleteVC(VC: string) {
+  public deleteVC(credentialId: string) {
     return this.http.delete<string>(
       environment.server_url +
       SERVER_PATH.CREDENTIALS + '/' +
-        VC,
+        credentialId,
       options
     );
   }

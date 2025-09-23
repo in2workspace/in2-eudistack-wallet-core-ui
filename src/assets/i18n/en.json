@@ -146,6 +146,7 @@
             "description": "Description",
             "issuerId": "Issuer ID",
             "issuerOrganization": "Issuer Organization",
+            "issuerOrganizationIdentifier": "Issuer Organization ID",
             "issuerCountry": "Issuer Country",
             "issuerCommonName": "Issuer Common Name",
             "issuerSerialNumber": "Issuer Serial Number",
@@ -156,6 +157,7 @@
         "learCredentialEmployee":{
             "mandatee": {
                 "title": "Mandatee",
+                "employeeId": "Employee ID",
                 "id": "ID",
                 "firstName": "First Name",
                 "lastName": "Last Name",
@@ -163,12 +165,14 @@
                 "nationality": "Nationality"
             },
             "mandator": {
+                "id": "ID",
                 "title": "Mandator",
                 "organizationIdentifier": "Organization Identifier",
                 "organization": "Organization",
                 "commonName": "Common Name",
                 "serialNumber": "Serial Number",
-                "country": "Country"
+                "country": "Country",
+                "email": "Email"
             },
             "powers": "Powers"
         },
@@ -180,13 +184,14 @@
                 "ipAddress": "IP Address"
             },
             "mandator": {
-                "title": "Mandator",
                 "id": "ID",
+                "title": "Mandator",
                 "organizationIdentifier": "Organization Identifier",
                 "organization": "Organization",
                 "commonName": "Common Name",
                 "serialNumber": "Serial Number",
-                "country": "Country"
+                "country": "Country",
+                "email": "Email"
             },
             "powers": "Powers"
         },
@@ -205,11 +210,11 @@
     },
     "errors":{
         "default": "Unexpected error. If the problem persists, contact the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
-        "failed-qr-process": "We couldn't process the QR code.<br>It might be invalid or already used. Please refresh the credential offer. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
+        "failed-qr-process": "We couldn't process the QR code.<br>It might be invalid or already used. Please refresh it. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
         "invalid-qr":"The presented QR code is not valid",
         "no-credentials-available": "There are no credentials available to login",
         "expired-credentialOffer":"The credential offer is expired or already used. Please refresh and try again later, or contact your company's LEAR to get a new credential.",
-        "invalid-credentialOffer":"Credential offer is invalid",
+        "invalid-credentialOffer":"Credential offer is invalid.",
         "invalid-issuerMetadata":"Issuer metadata is incorrect",
         "cannot-get-VC":"Issuer credential could not be obtained",
         "cannot-save-VC":"The credential could not be saved successfully",
