@@ -10,6 +10,6 @@
   window["env"]["primary_contrast"] = "#ffffff";
   window["env"]["secondary"] = "#50c8ff";
   window["env"]["secondary_contrast"] = "#000000";
-  window["env"]["logo_src"] =  ""
+  window["env"]["logo_src"] =  "";
   window["env"]["favicon_src"] =  "assets/icons/dome-favicon.png"
 })(this);
