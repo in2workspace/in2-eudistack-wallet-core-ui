@@ -42,6 +42,16 @@ app-tabs ion-tab-button {
   --color-selected: var(--primary-custom-color);
 }
 
+ion-button {
+  --box-shadow: 3px 3px 5px 1px #203d76;
+  --background: var(--primary-custom-color);
+}
+
+ion-radio{
+  --color: var(--primary-custom-color);
+  --color-checked: var(--primary-custom-color);
+}
+
 .no-scroll {
   overscroll-behavior: none;
   touch-action: none;
