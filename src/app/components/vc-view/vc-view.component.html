@@ -205,7 +205,7 @@
                   </div>
                   <div class="token-actions">
                     <ion-button fill="clear" size="small" (click)="copyToClipboard(field.value)" (keydown)="copyToClipboard(field.value)">
-                      <ion-icon name="copy-outline"></ion-icon>
+                      <ion-icon class="copy-icon" name="copy-outline"></ion-icon>
                     </ion-button>
                   </div>
                 </div>
@@ -218,7 +218,7 @@
     </ion-content>
 
     <ion-footer class="modal-footer">
-      <ion-button color="primary" class="delete-button" (keydown)="deleteVC()" (click)="deleteVC()">
+      <ion-button class="delete-button" (keydown)="deleteVC()" (click)="deleteVC()">
         {{ "vc-fields.delete" | translate }}
       </ion-button>
     </ion-footer>
