@@ -220,7 +220,7 @@ export class VcViewComponent implements OnInit {
         { label: 'vc-fields.credentialInfo.type', value: Array.isArray(vc.type) ? vc.type.join(', ') : (vc.type ?? '') },
         { label: 'vc-fields.credentialInfo.name', value: vc.name ?? '' },
         { label: 'vc-fields.credentialInfo.description', value: vc.description ?? '' },
-        { label: 'vc-fields.credentialInfo.issuerId', value: vc.issuer?.id ?? vc.issuer ?? ''}, //issuer may be json or string
+        { label: 'vc-fields.credentialInfo.issuerId', value: typeof vc.issuer === 'string' ? vc.issuer : (vc.issuer?.id ?? '')}, //issuer may be json or string
         { label: 'vc-fields.credentialInfo.issuerOrganization', value: vc.issuer?.organization ?? '' },
         { label: 'vc-fields.credentialInfo.issuerOrganizationIdentifier', value: vc.issuer?.organizationIdentifier ?? '' },
         { label: 'vc-fields.credentialInfo.issuerCountry', value: vc.issuer?.country ?? '' },
