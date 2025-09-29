@@ -7,12 +7,12 @@ export const environment = {
   logs_enabled: false,
   customizations:{
     colors:{ 
-      primary:'#1b3891 ',
-      primary_contrast:'#40a2d0',
-      secondary:'#40a2d0',
-      secondary_contrast:'#444444'
+      primary:'#B88EFF',
+      primary_contrast:'#000000',
+      secondary:'#76F276',
+      secondary_contrast:'#F9F3E7'
     },
-    logo_src: "assets/logos/altia-logo.png",
-    favicon_src: "assets/icons/altia-favicon.ico"
+    logo_src: "assets/logos/isbe-logo.svg",
+    favicon_src: "assets/icons/isbe-favicon.svg"
   }
 };
