@@ -1,7 +1,7 @@
 
 {
     "menu":{
-        "home":"Home",
+        "scan":"QR Scan",
         "credentials":"Credentials",
         "dids":"Dids",
         "camera-selector":"Camera Selector",
@@ -57,14 +57,6 @@
         "unsucces": "Unsuccesfull",
         "already-saved": "VC already saved",
         "no-credential": "No stored valid credential",
-        "ebsi-popup": {
-          "info": "In order to fulfill the prerequisites of EBSI credential issue, copy this DID and Credential Offer Endpoint.",
-          "did": "DID: ",
-          "credential-offer": "Credential Offer Endpoint: ",
-          "endpoint": "test-openid-credential-offer://",
-          "next": "Next"
-        },
-        "error-ebsi": "The did could not be returned.",
         "copy": "Copy to clipboard"
     },
     "language-selector":{
@@ -75,13 +67,11 @@
         "send": "Send logs",
         "camera": "Camera logs"
     },
-    "camera-logs-selector": {
-        "title": "Camera logs"
+    "camera-logs": {
+        "title": "Camera logs",
+        "no-more-logs": "No more camera logs to load."
     },
-    "mailto_permission_alert": "Please ensure that you have the necessary permissions to send emails using your default mail application. If the mail service does not open, it is likely due to permission restrictions.",
-    "ebsi": {
-      "title": "EBSI"
-    },
+    "mailto_permission_alert": "Si us plau, assegura't que tens els permisos necessaris per enviar correus electrònics amb la teva aplicació de correu predeterminada. Si el servei de correu no s’obre, és probable que sigui a causa de restriccions de permisos.",
     "login":{
         "title":"Login",
         "login":"Login",

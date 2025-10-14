@@ -1,7 +1,7 @@
 
 {
     "menu":{
-        "home":"Inicio",
+        "scan":"Escáner QR",
         "credentials":"Credenciales",
         "dids":"Dids",
         "camera-selector":"Selector de Cámara",
@@ -55,18 +55,7 @@
         "unsucces": "Sin éxito",
         "already-saved": "VC ya guardado",
         "no-credential": "No hay credencial válida almacenada",
-        "ebsi-popup": {
-          "info": "Copia este DID y este Credential Offer Endpoint para completar los prerrequisitos de la emisión de la credencial EBSI.",
-          "did": "DID: ",
-          "credential-offer": "Credential Offer Endpoint: ",
-          "endpoint": "test-openid-credential-offer://",
-          "next": "Siguiente"
-        },
-        "error-ebsi": "No se ha podido retornar el did.",
         "copy": "Copiar al portapapeles"
-    },
-    "ebsi": {
-      "title": "EBSI"
     },
     "language-selector":{
         "title":"Selector de idioma"
@@ -76,9 +65,11 @@
         "send": "Enviar logs",
         "camera": "Logs de cámara"
     },
-    "camera-logs-selector": {
-        "title": "Logs de cámara"
+    "camera-logs": {
+        "title": "Logs de cámara",
+        "no-more-logs": "No hay más logs de cámara para mostrar."
     },
+    "mailto_permission_alert": "Por favor, asegúrate de que tienes los permisos necesarios para enviar correos electrónicos con tu aplicación de correo predeterminada. Si el servicio de correo no se abre, es probable que se deba a restricciones de permisos.",
     "login":{
         "title":"Login",
         "login":"Login",

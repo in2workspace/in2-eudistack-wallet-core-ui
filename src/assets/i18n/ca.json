@@ -1,7 +1,7 @@
 
 {
     "menu":{
-        "home":"Home",
+        "scan":"Escàner QR",
         "credentials":"Credencials",
         "dids":"Dids",
         "camera-selector":"Selector de Camara",
@@ -55,14 +55,6 @@
         "unsucces": "Sense èxit",
         "already-saved": "VC ja guardat",
         "no-credential": "No hi ha credencial vàlida emmagatzemada",
-        "ebsi-popup": {
-          "info": "Copia aquest DID i aquest Credential Offer Endpoint per completar els prerequisits de l'emissió de la credencial EBSI.",
-          "did": "DID: ",
-          "credential-offer": "Credential Offer Endpoint: ",
-          "endpoint": "test-openid-credential-offer://",
-          "next": "Següent"
-        },
-        "error-ebsi": "No s'ha pogut retornar el did.",
         "copy": "Copiar al porta-retalls"
     },
     "language-selector":{
@@ -73,14 +65,12 @@
         "send": "Enviar logs",
         "camera": "Logs de càmera"
     },
-    "camera-logs-selector": {
-        "title": "Logs de càmera"
+    "camera-logs": {
+        "title": "Logs de càmera",
+        "no-more-logs": "No hi ha més logs de càmera per mostrar."
     },
     "send-logs": {
         "mailto_permission_alert": "Assegureu-vos que teniu els permisos necessaris per enviar correus electrònics amb la vostra aplicació de correu predeterminada. Si el servei de correu no s'obre, probablement és a causa de restriccions de permisos."
-    },
-    "ebsi": {
-      "title": "EBSI"
     },
     "login":{
         "title":"Login",
@@ -127,7 +117,7 @@
         "unsigned": "Sense signar",
          "loading-VCs": "S'ha produït un error en carregar les credencials. Torni a intentar-ho més tard. Si el problema persisteix, posi's en contacte amb l'<a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equip de suport</a>.",
         "unsigned-header": "Credencial sense signar",
-        "unsigned-message": "La seva credencial encara no ha estat signada i no pot ser utilitzada. Espere que l' emissor completi el procés de signatura.",
+        "unsigned-message": "La seva credencial encara no ha estat signada i no pot ser utilitzada. Esperi que l'emissor completi el procés de signatura.",
         "revoked": "Revocada"
     },
     "scanner":{
