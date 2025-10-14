@@ -47,17 +47,7 @@
     },
     "home":{
         "title":"Home",
-        "hello":"Welcome to IN2Wallet",
-        "scan":"Scan QR",
-        "add-credential": "Add a credential",
-        "access":"Access",
-        "get-cred":"Get Credential",
-        "ok-header": "Congratulations",
-        "ok-msg": "Credential added",
-        "unsucces": "Unsuccesfull",
-        "already-saved": "VC already saved",
-        "no-credential": "No stored valid credential",
-        "copy": "Copy to clipboard"
+        "ok-msg": "Credential added"
     },
     "language-selector":{
         "title":"Select language"
@@ -81,13 +71,6 @@
     "privacy-policy":{
         "title":"Privacy Policy"
     },
-    "register":{
-        "title":"Register",
-        "register":"Register",
-        "login":"Go to Login",
-        "error": "There was an error",
-        "email-error":"Invalid email"
-    },
     "settings":{
         "title":"Settings"
     },
@@ -100,13 +83,11 @@
         "send-cred":"Send Credential",
         "ok-header": "Credential sent successfully",
         "ok-message":"Log in completed",
-        "ko-header":"Error",
-        "ko-message":"Failed to Login",
         "unauthorized-message":"The credential provided is invalid",
         "bad-request-error-message":"Error sending the credential",
-        "credential-revoke-message":"The credential provided is invalid, it has been revoked or is not valid for this operation",
         "server-error-message":"We couldn't process your request.<br>Please try again later.",
         "generic-error-message": "Unknown error",
+        "credential-revoke-message":"The credential provided is invalid, it has been revoked or is not valid for this operation",
         "close": "Close"
     },
     "vc-view":{

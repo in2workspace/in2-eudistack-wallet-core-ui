@@ -45,17 +45,7 @@
     },
     "home":{
         "title":"Home",
-        "hello":"Bienvenido a IN2Wallet",
-        "scan":"Escanea el QR",
-        "add-credential": "Añadir una credencial",
-        "access":"Accede a un espacio",
-        "get-cred":"Obtener Credencial",
-        "ok-header": "Enhorabuena",
-        "ok-msg": "Credencial agregada",
-        "unsucces": "Sin éxito",
-        "already-saved": "VC ya guardado",
-        "no-credential": "No hay credencial válida almacenada",
-        "copy": "Copiar al portapapeles"
+        "ok-msg": "Credencial agregada"
     },
     "language-selector":{
         "title":"Selector de idioma"
@@ -79,13 +69,6 @@
     "privacy-policy":{
         "title":"Politica de Privacidad"
     },
-    "register":{
-        "title":"Registrate",
-        "register":"Registrate",
-        "login":"Ves a Login",
-        "error": "Se ha producido algun error",
-        "email-error": "Correo electrónico no válido"
-    },
     "settings":{
         "title":"Configuración"
     },
@@ -98,8 +81,10 @@
         "send-cred":"Envia Credencial",
         "ok-header": "Enhorabuena",
         "ok-message":"Login correcto",
-        "ko-header":"Error",
-        "ko-message":"El login ha fallado",
+        "unauthorized-message":"La credencial enviada no es válida.",
+        "bad-request-error-message":"Error al enviar la credencial",
+        "server-error-message":"No se ha podido procesar la solicitud.<br>Vuelva a intentarlo más tarde.",
+        "generic-error-message": "Error desconocido",
         "close": "Cerrar",
         "credential-revoke-message":"La credencial proporcionada no es válida, ha sido revocada o no es válida para esta operación"
     },
