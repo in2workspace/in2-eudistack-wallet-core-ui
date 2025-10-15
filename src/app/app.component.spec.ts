@@ -10,6 +10,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { environment } from '../environments/environment';
 import { LoaderService } from './services/loader.service';
 import { MenuComponent } from './components/menu/menu.component';
+import { LanguageService } from './services/language.service';
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -20,7 +21,7 @@ describe('AppComponent', () => {
   let authenticationServiceMock: jest.Mocked<AuthenticationService>;
   let storageServiceMock: jest.Mocked<StorageService>;
   let routerEventsSubject: Subject<Event>;
-  let isLoadingSubject: Subject<boolean>;
+  let languageService: jest.Mocked<any>;
 
   const activatedRouteMock: Partial<ActivatedRoute> = {
     snapshot: {
@@ -75,6 +76,9 @@ describe('AppComponent', () => {
   beforeEach(async () => {
     routerEventsSubject = new Subject<Event>();
 
+    languageService = {
+      setLanguages: jest.fn()
+    }
     translateServiceMock = {
       addLangs: jest.fn(),
       getLangs: jest.fn().mockReturnValue(['en', 'es', 'ca']),
@@ -119,6 +123,7 @@ describe('AppComponent', () => {
         { provide: StorageService, useValue: storageServiceMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: NavController, useValue: navControllerMock },
+        { provide: LanguageService, useValue: languageService }
       ],
     })
       .overrideComponent(AppComponent, {
@@ -128,97 +133,17 @@ describe('AppComponent', () => {
       })
       .compileComponents();
 
-    jest.spyOn(AppComponent.prototype as any, 'setLanguages');
-    jest.spyOn(AppComponent.prototype as any, 'setStoredLanguage');
-    jest.spyOn(AppComponent.prototype as any, 'setCustomStyles');
-
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create the app component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call setLanguages, setCustomStyles and alert on ngOnInit', async () => {
-    const alertSpy = jest.spyOn(component as any, 'alertIncompatibleDevice');
-
-    await component.ngOnInit();
-
-    expect((component as any).setLanguages).toHaveBeenCalled();
-    expect((component as any).setCustomStyles).toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalled();
-  });
-
-  it('should always add available languages on init', async () => {
-    translateServiceMock.addLangs.mockClear();
-
-    await component.ngOnInit();
-
-    expect(translateServiceMock.addLangs).toHaveBeenCalledWith(['en', 'es', 'ca']);
-  });
-
-  it('should fall back to default when no stored and no browser match', async () => {
-    // no stored
-    storageServiceMock.get.mockResolvedValueOnce('');
-    // navegador sense match
-    const snap = saveNavigator();
-    mockNavigator(['fr-FR'], 'fr-FR');
-
-    translateServiceMock.setDefaultLang.mockClear();
-    translateServiceMock.use.mockClear();
-
-    await component.ngOnInit();
-
-    expect(translateServiceMock.setDefaultLang).toHaveBeenCalledWith('en');
-    expect(translateServiceMock.use).toHaveBeenCalledWith('en');
-
-    restoreNavigator(snap);
-  });
-
-  it('should use stored language if supported', async () => {
-    translateServiceMock.use.mockClear();
-    storageServiceMock.get.mockResolvedValueOnce('ca');
-    translateServiceMock.getLangs.mockReturnValue(['en', 'es', 'ca']);
-
-    await component.ngOnInit();
-
-    expect(translateServiceMock.use).toHaveBeenCalledWith('ca');
-  });
-
-  it('should ignore invalid stored language, remove it, and use browser language if it matches', async () => {
-    translateServiceMock.use.mockClear();
-    storageServiceMock.get.mockResolvedValueOnce('fr'); // invàlid
-    translateServiceMock.getLangs.mockReturnValue(['en', 'es', 'ca']);
-
-    const snap = saveNavigator();
-    mockNavigator(['es-ES', 'en-US'], 'es-ES');
-
-    await component.ngOnInit();
-
-    // si vols verificar que es neteja:
-    expect(storageServiceMock.remove).toHaveBeenCalledWith('language');
-
-    expect(translateServiceMock.use).toHaveBeenCalledWith('es');
-
-    restoreNavigator(snap);
-  });
-
-  it('should ignore invalid stored language and fall back to default when browser has no match', async () => {
-    translateServiceMock.use.mockClear();
-    translateServiceMock.setDefaultLang.mockClear();
-    storageServiceMock.get.mockResolvedValueOnce('fr'); // invàlid
-    translateServiceMock.getLangs.mockReturnValue(['en', 'es', 'ca']);
-
-    const snap = saveNavigator();
-    mockNavigator(['it-IT'], 'it-IT');
-
-    await component.ngOnInit();
-
-    expect(translateServiceMock.setDefaultLang).toHaveBeenCalledWith('en');
-    expect(translateServiceMock.use).toHaveBeenCalledWith('en');
-
-    restoreNavigator(snap);
+  it('should set languages', () => {
+    expect(languageService.setLanguages).toHaveBeenCalled();
   });
 
   it('should set CSS variables from environment', () => {
