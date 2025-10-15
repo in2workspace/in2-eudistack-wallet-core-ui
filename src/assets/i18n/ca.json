@@ -3,7 +3,6 @@
     "menu":{
         "scan":"Escàner QR",
         "credentials":"Credencials",
-        "dids":"Dids",
         "camera-selector":"Selector de Camara",
         "language-selector":"Selector d'Idioma",
         "terms-of-user":"Termes d'Us",
@@ -13,13 +12,13 @@
         "logout":"Tancar sessió"
     },
     "camera-selector":{
-        "title":"Càmera seleccionada",
+        "title": "Càmera seleccionada",
         "settings": "Configuració de la càmera",
         "no-device": "Sense dispositiu",
         "changing-device": "Canviant de càmera..."
     },
     "credential-offer":{
-        "title":"Oferta de Credencial",
+        "title": "Oferta de Credencial",
         "generate":"Crear Credencial",
         "ok-header": "Enhorabona",
         "vc-saved":"Credencial emmagatzemada"
@@ -37,14 +36,10 @@
         "addVC":"Afegeix la credencial",
         "identify": "Identifica't"
     },
-    "dids":{
-        "title":"Dids"
-    },
     "faqs":{
         "title":"Faqs"
     },
     "home":{
-        "title":"Home",
         "ok-msg": "S'ha afegit la credencial",
         "scan": "Escanejar QR"
     },

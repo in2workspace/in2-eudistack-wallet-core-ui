@@ -3,7 +3,6 @@
     "menu":{
         "scan":"Escáner QR",
         "credentials":"Credenciales",
-        "dids":"Dids",
         "camera-selector":"Selector de Cámara",
         "language-selector":"Selector de Idioma",
         "terms-of-user":"Terminos de Uso",
@@ -37,14 +36,10 @@
         "addVC":"Añade la credencial",
         "identify": "Identifícate"
     },
-    "dids":{
-        "title":"Dids"
-    },
     "faqs":{
         "title":"Faqs"
     },
     "home":{
-        "title":"Home",
         "ok-msg": "Credencial agregada",
         "scan": "Escanear QR"
     },

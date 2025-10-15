@@ -3,7 +3,6 @@
     "menu":{
         "scan":"QR Scan",
         "credentials":"Credentials",
-        "dids":"Dids",
         "camera-selector":"Camera Selector",
         "language-selector":"Language Selector",
         "terms-of-user":"Terms of User",
@@ -39,14 +38,10 @@
         "confirmationMessage":"Do you want to choose this credential?",
         "addVC":"Add Credential",
         "identify": "Identify yourself"    },
-    "dids":{
-        "title":"Dids"
-    },
     "faqs":{
         "title":"Faqs"
     },
     "home":{
-        "title":"Home",
         "ok-msg": "Credential added",
         "scan": "Scan QR"
     },
