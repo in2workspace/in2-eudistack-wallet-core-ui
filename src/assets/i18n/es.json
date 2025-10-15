@@ -45,7 +45,8 @@
     },
     "home":{
         "title":"Home",
-        "ok-msg": "Credencial agregada"
+        "ok-msg": "Credencial agregada",
+        "scan": "Escanear QR"
     },
     "language-selector":{
         "title":"Selector de idioma"

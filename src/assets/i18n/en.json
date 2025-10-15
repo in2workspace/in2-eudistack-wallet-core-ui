@@ -47,7 +47,8 @@
     },
     "home":{
         "title":"Home",
-        "ok-msg": "Credential added"
+        "ok-msg": "Credential added",
+        "scan": "Scan QR"
     },
     "language-selector":{
         "title":"Select language"

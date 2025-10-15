@@ -45,7 +45,8 @@
     },
     "home":{
         "title":"Home",
-        "ok-msg": "S'ha afegit la credencial"
+        "ok-msg": "S'ha afegit la credencial",
+        "scan": "Escanejar QR"
     },
     "language-selector":{
         "title":"Selector d'idioma"
