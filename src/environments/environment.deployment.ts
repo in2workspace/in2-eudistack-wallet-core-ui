@@ -15,5 +15,6 @@ export const environment = {
     },
     logo_src: window["env"]["logo_src"], // REQUIRED
     favicon_src: window["env"]["favicon_src"] || "assets/icons/dome-favicon.png" // OPTIONAL with fallback
+    default_lang: window["env"]["default_lang"] || "en" // OPTIONAL with fallback
   }
 };
