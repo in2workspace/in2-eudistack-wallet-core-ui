@@ -55,10 +55,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isLoading$ = this.loader.isLoading$;
   }
 
-  public async ngOnInit() {
+  public ngOnInit() {
     this.setCustomStyles();
     this.setFavicon();
-    await this.setLanguages();
+    this.setLanguages();
     this.alertIncompatibleDevice();
   }
 
