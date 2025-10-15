@@ -31,12 +31,14 @@ export class LanguageService {
 
   private setDefaultLanguage(){
     const defaultLang = this.getDefaultLang();
+    console.log("setDefaultLanguage: " + defaultLang);
     this.translate.setDefaultLang(defaultLang);
     this.translate.use(defaultLang);
   }
 
   private getDefaultLang(): string{
     const defaultLangFromEnv = environment.customizations.default_lang;
+    console.log("default language from env: " + defaultLangFromEnv);
     if(this.availableLanguages.includes(defaultLangFromEnv)){
       return defaultLangFromEnv;
     }else{
@@ -51,6 +53,9 @@ private setBrowserLanguage(): string | undefined {
   const browserLanguages = navigator.languages?.length
     ? navigator.languages
     : [navigator.language];
+  
+  console.log("Languages from browser: ");
+  console.log(browserLanguages);
 
   for (const lang of browserLanguages) {
     const shortLang = lang.split('-')[0];
@@ -60,7 +65,7 @@ private setBrowserLanguage(): string | undefined {
       return shortLang;
     }
   }
-
+  console.log("Couldn't find any available browser language.");
   return undefined;
 }
 
@@ -70,10 +75,11 @@ private async setStoredLanguage(): Promise<string | undefined> {
   const availableLangs = this.translate.getLangs();
 
   if (storedLang && availableLangs.includes(storedLang)) {
+    console.log("Set stored language: " + storedLang);
     this.translate.use(storedLang);
     return storedLang;
   } else if (storedLang) {
-    console.error('Stored language is not available.');
+    console.error('Stored language is not available:  ' + storedLang);
     this.storageService.remove('language');
   }
 
