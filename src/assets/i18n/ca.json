@@ -210,6 +210,8 @@
         "header":"Enviar credencial?",
         "ok":"Ok",
         "cancel":"Cancel·lar",
-        "pin":"Introdueix PIN"
+        "pin":"Introdueix el PIN",
+        "send": "Enviar",
+        "messageHtml": "{{description}}<br><small class=\"counter\">Temps restant: {{counter}} segundos</small>"
     }
 }

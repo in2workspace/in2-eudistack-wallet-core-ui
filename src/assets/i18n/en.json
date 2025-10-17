@@ -208,7 +208,9 @@
         "header":"Send credential?",
         "ok":"Ok",
         "cancel":"Cancel",
-        "pin":"Enter PIN"
+        "pin":"Enter PIN",
+        "send": "send",
+        "messageHtml": "{{description}}<br><small class=\"counter\">Time remaining: {{counter}} seconds</small>"
     }
 
 }
