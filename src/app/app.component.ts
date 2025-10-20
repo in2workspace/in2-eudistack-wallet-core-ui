@@ -5,12 +5,12 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthenticationService } from './services/authentication.service';
 import { MenuComponent } from './components/menu/menu.component';
-import { StorageService } from './services/storage.service';
 import { Subject, map } from 'rxjs';
 import { CameraService } from './services/camera.service';
 import { environment } from 'src/environments/environment';
 import { LoaderService } from './services/loader.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { LanguageService } from './services/language.service';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +27,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 export class AppComponent implements OnInit, OnDestroy {
   private readonly authenticationService = inject(AuthenticationService);
   private readonly document = inject(DOCUMENT);
+  private readonly languageService = inject(LanguageService);
   private readonly loader = inject(LoaderService);
   private readonly router = inject(Router)
 
@@ -45,18 +46,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private readonly cameraService = inject(CameraService);
   private readonly popoverController = inject(PopoverController);
-  private readonly storageService = inject(StorageService);
   public readonly translate = inject(TranslateService);
 
   public constructor() {
-    this.setDefaultLanguages();
-    this.setStoredLanguage();
-    this.setCustomStyles();
-    this.setFavicon();
     this.isLoading$ = this.loader.isLoading$;
   }
 
   public ngOnInit() {
+    this.setCustomStyles();
+    this.setFavicon();
+    this.languageService.setLanguages();
     this.alertIncompatibleDevice();
   }
 
@@ -99,24 +98,6 @@ export class AppComponent implements OnInit, OnDestroy {
     appleFaviconLink.href = faviconUrl;
     
     this.document.head.appendChild(appleFaviconLink);
-  }
-
-  private setDefaultLanguages(): void{
-    this.translate.addLangs(['en', 'es', 'ca']);
-    this.translate.setDefaultLang('en');
-    this.translate.use('en');
-  }
-
-  private setStoredLanguage(): void {
-    this.storageService.get('language').then((res: string) => {
-      const availableLangs = this.translate.getLangs();
-      
-      if (availableLangs.includes(res)) {
-        this.translate.use(res);
-      } else {
-        this.storageService.set('language', 'en');
-      }
-    });
   }
 
   //alert for IOs below 14.3

@@ -12,4 +12,5 @@
   window["env"]["secondary_contrast"] = "#000000";
   window["env"]["logo_src"] =  ""
   window["env"]["favicon_src"] =  "assets/icons/dome-favicon.png"
+  window["env"]["default_lang"] =  "en"
 })(this);

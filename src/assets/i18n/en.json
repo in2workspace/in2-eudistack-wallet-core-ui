@@ -1,9 +1,8 @@
 
 {
     "menu":{
-        "home":"Home",
+        "scan":"QR Scan",
         "credentials":"Credentials",
-        "dids":"Dids",
         "camera-selector":"Camera Selector",
         "language-selector":"Language Selector",
         "terms-of-user":"Terms of User",
@@ -39,33 +38,12 @@
         "confirmationMessage":"Do you want to choose this credential?",
         "addVC":"Add Credential",
         "identify": "Identify yourself"    },
-    "dids":{
-        "title":"Dids"
-    },
     "faqs":{
         "title":"Faqs"
     },
     "home":{
-        "title":"Home",
-        "hello":"Welcome to IN2Wallet",
-        "scan":"Scan QR",
-        "add-credential": "Add a credential",
-        "access":"Access",
-        "get-cred":"Get Credential",
-        "ok-header": "Congratulations",
         "ok-msg": "Credential added",
-        "unsucces": "Unsuccesfull",
-        "already-saved": "VC already saved",
-        "no-credential": "No stored valid credential",
-        "ebsi-popup": {
-          "info": "In order to fulfill the prerequisites of EBSI credential issue, copy this DID and Credential Offer Endpoint.",
-          "did": "DID: ",
-          "credential-offer": "Credential Offer Endpoint: ",
-          "endpoint": "test-openid-credential-offer://",
-          "next": "Next"
-        },
-        "error-ebsi": "The did could not be returned.",
-        "copy": "Copy to clipboard"
+        "scan": "Scan QR"
     },
     "language-selector":{
         "title":"Select language"
@@ -75,13 +53,11 @@
         "send": "Send logs",
         "camera": "Camera logs"
     },
-    "camera-logs-selector": {
-        "title": "Camera logs"
+    "camera-logs": {
+        "title": "Camera logs",
+        "no-more-logs": "No more camera logs to load."
     },
-    "mailto_permission_alert": "Please ensure that you have the necessary permissions to send emails using your default mail application. If the mail service does not open, it is likely due to permission restrictions.",
-    "ebsi": {
-      "title": "EBSI"
-    },
+    "mailto_permission_alert": "Si us plau, assegura't que tens els permisos necessaris per enviar correus electrònics amb la teva aplicació de correu predeterminada. Si el servei de correu no s’obre, és probable que sigui a causa de restriccions de permisos.",
     "login":{
         "title":"Login",
         "login":"Login",
@@ -90,13 +66,6 @@
     },
     "privacy-policy":{
         "title":"Privacy Policy"
-    },
-    "register":{
-        "title":"Register",
-        "register":"Register",
-        "login":"Go to Login",
-        "error": "There was an error",
-        "email-error":"Invalid email"
     },
     "settings":{
         "title":"Settings"
@@ -110,13 +79,11 @@
         "send-cred":"Send Credential",
         "ok-header": "Credential sent successfully",
         "ok-message":"Log in completed",
-        "ko-header":"Error",
-        "ko-message":"Failed to Login",
         "unauthorized-message":"The credential provided is invalid",
         "bad-request-error-message":"Error sending the credential",
-        "credential-revoke-message":"The credential provided is invalid, it has been revoked or is not valid for this operation",
         "server-error-message":"We couldn't process your request.<br>Please try again later.",
         "generic-error-message": "Unknown error",
+        "credential-revoke-message":"The credential provided is invalid, it has been revoked or is not valid for this operation",
         "close": "Close"
     },
     "vc-view":{
@@ -241,7 +208,9 @@
         "header":"Send credential?",
         "ok":"Ok",
         "cancel":"Cancel",
-        "pin":"Enter PIN"
+        "pin":"Enter PIN",
+        "send": "send",
+        "messageHtml": "{{description}}<br><small class=\"counter\">Time remaining: {{counter}} seconds</small>"
     }
 
 }
