@@ -95,6 +95,7 @@
         "delete-message": "If you delete the credential from the app and need to recover it, you will need to request a new one.",
         "delete-confirm": "Yes, delete",
         "delete-cancel": "Cancel",
+        "delete-close": "Close",
         "unsigned": "Unsigned",
         "unsigned-header": "Unsigned Credential",
         "unsigned-message": "Your credential has not yet been signed and cannot be used. Wait for the issuer to complete the signing process.",
@@ -209,6 +210,7 @@
         "ok":"Ok",
         "cancel":"Cancel",
         "pin":"Enter PIN",
+        "description": "A PIN has been sent to your email. Check your inbox. Enter your PIN Code.",
         "send": "send",
         "messageHtml": "{{description}}<br><small class=\"counter\">Time remaining: {{counter}} seconds</small>"
     }

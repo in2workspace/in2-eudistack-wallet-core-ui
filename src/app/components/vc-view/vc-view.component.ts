@@ -11,7 +11,7 @@ import {
 import { QRCodeModule } from 'angularx-qrcode';
 import { WalletService } from 'src/app/services/wallet.service';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ExtendedCredentialType, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { IonicModule } from '@ionic/angular';
 import { CredentialMapConfig, CredentialTypeMap } from 'src/app/interfaces/credential-type-map';
@@ -36,6 +36,10 @@ import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helper
   imports: [IonicModule, QRCodeModule, TranslateModule, CommonModule],
 })
 export class VcViewComponent implements OnInit {
+  private readonly translate = inject(TranslateService);
+  private readonly walletService = inject(WalletService);
+  private readonly toastService = inject(ToastServiceHandler);
+
   public credentialInput$ = input.required<VerifiableCredential>();
   public cardViewFields$ = computed<EvaluatedField[]>(() => {
     const subject = this.credentialInput$().credentialSubject;
@@ -76,14 +80,14 @@ export class VcViewComponent implements OnInit {
 
   public deleteButtons = [
     {
-      text: 'Cancel',
+      text: this.translate.instant("vc-view.delete-cancel"),
       role: 'cancel',
       handler: () => {
         this.isModalDeleteOpen = false;
       },
     },
     {
-      text: 'Yes, delete it',
+      text: this.translate.instant("vc-view.delete-confirm"),
       role: 'confirm',
       handler: () => {
         this.isModalDeleteOpen = true;
@@ -93,15 +97,12 @@ export class VcViewComponent implements OnInit {
   ];
 
   public unsignedButtons = [{
-    text: 'Close',
+    text: this.translate.instant("vc-view.delete-close"),
     role: 'close',
     handler: () => {
       this.isModalUnsignedOpen = false;
     },
   }];
-
-  private readonly walletService = inject(WalletService);
-  private readonly toastService = inject(ToastServiceHandler);
 
   public isDetailModalOpen = false;
   public detailViewSections!: EvaluatedSection[];

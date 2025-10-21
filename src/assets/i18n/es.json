@@ -28,7 +28,7 @@
         "add":"Añade",
         "nocred":"No tienes ninguna credencial cargada",
         "expiration":"Caducado",
-        "expiredCredential":"Credencial caducado",
+        "expiredCredential":"Credencial caducada",
         "expiredText":"Esta credencial está caducada y ya no puedes utilizarla.",
         "close":"Cerrar",
         "confirmation":"Confirmación",
@@ -75,7 +75,7 @@
         "title":"Selector de VC",
         "select-cred":"Selecciona una Credencial",
         "send-cred":"Envia Credencial",
-        "ok-header": "Enhorabuena",
+        "ok-header": "Credencial enviada correctamente.",
         "ok-message":"Login correcto",
         "unauthorized-message":"La credencial enviada no es válida.",
         "bad-request-error-message":"Error al enviar la credencial",
@@ -93,10 +93,11 @@
         "delete-message": "Si eliminas la credencial de la aplicación y necesitas recuperarla tendrás que pedir una nueva.",
         "delete-confirm": "Sí, elimínala",
         "delete-cancel": "Cancela",
+        "delete-close": "Cerrar",
         "unsigned": "Sin firmar",
         "unsigned-header": "Credencial sin firmar",
         "unsigned-message": "Su credencial aún no ha sido firmada y no puede ser utilizada. Espere a que el emisor complete el proceso de firma.",
-        "revoked": "Revocada"
+        "revoked": "Revocado"
     },
     "scanner":{
         "initializing": "Inicializando escáner..."
@@ -210,6 +211,7 @@
         "ok":"Ok",
         "cancel":"Cancelar",
         "pin":"Introduce el PIN",
+        "description": "Se ha enviado un código PIN a tu email. Revísalo e introduce el PIN.",
         "send": "Enviar",
         "messageHtml": "{{description}}<br><small class=\"counter\">Tiempo restante: {{counter}} segundos</small>"
     }
