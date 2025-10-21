@@ -20,14 +20,14 @@
     "credential-offer":{
         "title": "Oferta de Credencial",
         "generate":"Crear Credencial",
-        "ok-header": "Enhorabona",
+        "ok-header": "Enhorabona.",
         "vc-saved":"Credencial emmagatzemada"
     },
     "credentials":{
         "title":"Credencials",
         "add":"Afegeix",
         "nocred":"No tens cap credencial carregada",
-        "expiration":"Caducada",
+        "expiration":"Caducat",
         "expiredCredential":"Credencial caducada",
         "expiredText":"Aquesta credencial està caducada i ja no la pots fer servir.",
         "close":"Tancar",
@@ -77,7 +77,7 @@
         "title":"Selector de VC",
         "select-cred":"Selecciona una Credencial",
         "send-cred":"Envia Credencial",
-        "ok-header": "Enhorabona",
+        "ok-header": "Credencial enviada correctament",
         "ok-message":"Login correcte",
         "unauthorized-message":"La credencial enviada no es vàlida.",
         "bad-request-error-message":"Error en enviar la credencial",
@@ -95,10 +95,11 @@
         "delete-message": "Si elimines la credencial de l'aplicació i necessites recuperar-la hauràs de demanar-ne una de nova.",
         "delete-confirm": "Sí, elimina-la",
         "delete-cancel": "Cancel·la",
+        "delete-close": "Tancar",
         "unsigned": "Sense signar",
         "unsigned-header": "Credencial sense signar",
         "unsigned-message": "La seva credencial encara no ha estat signada i no pot ser utilitzada. Esperi que l'emissor completi el procés de signatura.",
-        "revoked": "Revocada"
+        "revoked": "Revocat"
     },
     "scanner":{
         "initializing": "Inicialitzant escàner..."
