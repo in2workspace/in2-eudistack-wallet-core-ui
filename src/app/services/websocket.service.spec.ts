@@ -35,6 +35,8 @@ const translateMock = {
         return 'Cancel';
       case 'confirmation.send':
         return 'Send';
+      case 'confirmation.description':
+        return 'A PIN has been sent';
       case 'confirmation.messageHtml':
         return `${params?.description ?? ''}<br><small class="counter">Time remaining: ${params?.counter ?? 0} seconds</small>`;
       default:
@@ -140,10 +142,9 @@ describe('WebsocketService', () => {
 
   it('should create and display an alert on receiving a message', fakeAsync(async () => {
     const createAlertSpy = jest.spyOn(service['alertController'], 'create');
-    const description = 'Test description';
     const timeout = 120;
     const messageEvent = new MessageEvent('message', {
-      data: JSON.stringify({ tx_code: { description }, timeout }),
+      data: JSON.stringify({ tx_code: { }, timeout }),
     });
   
     service.connect();
@@ -154,7 +155,7 @@ describe('WebsocketService', () => {
     expect(createAlertSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         header: service['translate'].instant('confirmation.pin'),
-        message: `${description}<br><small class="counter">Time remaining: ${timeout} seconds</small>`,
+        message: `A PIN has been sent<br><small class="counter">Time remaining: ${timeout} seconds</small>`,
         inputs: [
           {
             name: 'pin',
