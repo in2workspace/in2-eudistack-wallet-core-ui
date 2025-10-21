@@ -49,7 +49,7 @@ export class WebsocketService {
         console.log('Message received:', event.data);
         const data = JSON.parse(event.data);
     
-        let description = data.tx_code?.description || '';
+        let description = this.translate.instant('confirmation.description');
         let counter = data.timeout || 60;
     
         const cancelHandler = () => {

@@ -210,6 +210,7 @@
         "ok":"Ok",
         "cancel":"Cancelar",
         "pin":"Introduce el PIN",
+        "description": "Se ha enviado un código PIN a tu email. Revísalo e introduce el PIN.",
         "send": "Enviar",
         "messageHtml": "{{description}}<br><small class=\"counter\">Tiempo restante: {{counter}} segundos</small>"
     }

@@ -211,6 +211,7 @@
         "ok":"Ok",
         "cancel":"Cancel·lar",
         "pin":"Introdueix el PIN",
+        "description": "S'ha enviat un codi PIN al teu email. Revisa'l i introdueix el PIN.",
         "send": "Enviar",
         "messageHtml": "{{description}}<br><small class=\"counter\">Temps restant: {{counter}} segundos</small>"
     }

@@ -209,6 +209,7 @@
         "ok":"Ok",
         "cancel":"Cancel",
         "pin":"Enter PIN",
+        "description": "A PIN has been sent to your email. Check your inbox. Enter your PIN Code.",
         "send": "send",
         "messageHtml": "{{description}}<br><small class=\"counter\">Time remaining: {{counter}} seconds</small>"
     }
