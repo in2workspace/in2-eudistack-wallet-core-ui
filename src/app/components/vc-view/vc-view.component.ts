@@ -287,10 +287,10 @@ private translatePowerSections(
       const p = csPowers[idx];
       if (!p) return field;
 
-      const translatedFunction = this.translate.instant(`vc-fields.power.${p.function}`);
+      const translatedFunction = this.translate.instant(`vc-fields.power.${p.function.toLocaleLowerCase()}`);
       const actions = Array.isArray(p.action) ? p.action : [p.action];
       const translatedActions = actions
-        .map((a: string) => this.translate.instant(`vc-fields.power.${a}`))
+        .map((a: string) => this.translate.instant(`vc-fields.power.${a.toLocaleLowerCase()}`))
         .join(', ');
 
       return {
@@ -308,7 +308,7 @@ private hasMandate(
   subject: CredentialSubject
 ): subject is EmployeeCredentialSubject
    | MachineCredentialSubject {
-  return typeof (subject as any)?.mandate !== 'undefined';
+  return (subject as any)?.mandate !== undefined;
 }
 
 

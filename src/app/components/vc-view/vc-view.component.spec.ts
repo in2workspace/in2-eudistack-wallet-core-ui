@@ -512,8 +512,8 @@ describe('VcViewComponent', () => {
 
   const field = powersSection!.fields[0];
   // TranslateModule.forRoot() sense loader retorna la clau tal qual
-  expect(field.label).toBe('vc-fields.power.ADMIN (user)');
-  expect(field.value).toBe('vc-fields.power.CREATE, vc-fields.power.DELETE');
+  expect(field.label).toBe('vc-fields.power.admin (user)');
+  expect(field.value).toBe('vc-fields.power.create, vc-fields.power.delete');
 });
 
 it('translatePowerSections should be a no-op when subject has no mandate', () => {

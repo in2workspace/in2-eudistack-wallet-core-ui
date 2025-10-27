@@ -177,15 +177,15 @@
             "validatedCriteria": "Criterios validados"
         },
         "power": {
-            "Onboarding": "Alta",
-            "Certification": "Certificación",
-            "ProductOffering": "Oferta de producto",
-            "Execute": "Ejecución",
-            "Create": "Crear",
-            "Update": "Actualizar",
-            "Delete": "Eliminar",
-            "Attest": "Acreditar",
-            "Upload": "Subir"
+            "onboarding": "Alta",
+            "certification": "Certificación",
+            "productOffering": "Oferta de producto",
+            "execute": "Ejecución",
+            "create": "Crear",
+            "update": "Actualizar",
+            "delete": "Eliminar",
+            "attest": "Acreditar",
+            "upload": "Subir"
         }
     },
     "errors":{

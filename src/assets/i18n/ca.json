@@ -207,15 +207,15 @@
             "default": "Error inesperat. Comprova els permisos del teu navegador i assegura't que cap altra aplicació estigui utilitzant la càmera. Intenta refrescar la pàgina."
         },
         "power": {
-            "Onboarding": "Alta",
-            "Certification": "Certificació",
-            "ProductOffering": "Oferta de producte",
-            "Execute": "Execució",
-            "Create": "Crear",
-            "Update": "Actualitzar",
-            "Delete": "Eliminar",
-            "Attest": "Acreditar",
-            "Upload": "Pujar"
+            "onboarding": "Alta",
+            "certification": "Certificació",
+            "productOffering": "Oferta de producte",
+            "execute": "Execució",
+            "create": "Crear",
+            "un": "Actualitzar",
+            "delete": "Eliminar",
+            "attest": "Acreditar",
+            "upload": "Pujar"
         }
     },
     "confirmation":{

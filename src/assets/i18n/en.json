@@ -175,15 +175,15 @@
             "validatedCriteria": "Validated Criteria"
         },
         "power": {
-            "Onboarding": "Onboarding",
-            "Certification": "Certification",
-            "ProductOffering": "Product Offering",
-            "Execute": "Execute",
-            "Create": "Create",
-            "Update": "Update",
-            "Delete": "Delete",
-            "Attest": "Attest",
-            "Upload": "Upload"
+            "onboarding": "Onboarding",
+            "certification": "Certification",
+            "productOffering": "Product Offering",
+            "execute": "Execute",
+            "create": "Create",
+            "update": "Update",
+            "delete": "Delete",
+            "attest": "Attest",
+            "upload": "Upload"
         }
 
     },
