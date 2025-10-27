@@ -142,7 +142,7 @@
                 "commonName": "Nombre común",
                 "serialNumber": "Número de serie",
                 "country": "País",
-                "email": "Email"
+                "email": "Correo electrónico"
             },
             "powers": "Poderes"
         },
@@ -175,6 +175,17 @@
             },
             "compliantCredentials": "Credenciales compatibles",
             "validatedCriteria": "Criterios validados"
+        },
+        "power": {
+            "Onboarding": "Alta",
+            "Certification": "Certificación",
+            "ProductOffering": "Oferta de producto",
+            "Execute": "Ejecución",
+            "Create": "Crear",
+            "Update": "Actualizar",
+            "Delete": "Eliminar",
+            "Attest": "Acreditar",
+            "Upload": "Subir"
         }
     },
     "errors":{

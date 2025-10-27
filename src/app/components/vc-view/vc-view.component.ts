@@ -12,7 +12,7 @@ import { QRCodeModule } from 'angularx-qrcode';
 import { WalletService } from 'src/app/services/wallet.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ExtendedCredentialType, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
+import { CredentialSubject, EmployeeCredentialSubject, ExtendedCredentialType, MachineCredentialSubject, VerifiableCredential } from 'src/app/interfaces/verifiable-credential';
 import { IonicModule } from '@ionic/angular';
 import { CredentialMapConfig, CredentialTypeMap } from 'src/app/interfaces/credential-type-map';
 import { CredentialDetailMap, EvaluatedField, EvaluatedSection } from 'src/app/interfaces/credential-detail-map';
@@ -209,37 +209,41 @@ export class VcViewComponent implements OnInit {
     return this.cardViewConfigByCredentialType?.icon;
   }
 
-  public getStructuredFields(): void {
-    const vc = this.credentialInput$();
-    const cs = vc.credentialSubject;
+public getStructuredFields(): void {
+  const vc = this.credentialInput$();
+  const cs = vc.credentialSubject;
 
-    const credentialInfo: EvaluatedSection = {
-      section: 'vc-fields.title',
-      fields: [
-        { label: 'vc-fields.credentialInfo.context', value: Array.isArray(vc['@context']) ? vc['@context'].join(', ') : (vc['@context'] ?? '') },
-        { label: 'vc-fields.credentialInfo.id', value: vc.id },
-        { label: 'vc-fields.credentialInfo.type', value: Array.isArray(vc.type) ? vc.type.join(', ') : (vc.type ?? '') },
-        { label: 'vc-fields.credentialInfo.name', value: vc.name ?? '' },
-        { label: 'vc-fields.credentialInfo.description', value: vc.description ?? '' },
-        { label: 'vc-fields.credentialInfo.issuerId', value: typeof vc.issuer === 'string' ? vc.issuer : (vc.issuer?.id ?? '')}, //issuer may be json or string
-        { label: 'vc-fields.credentialInfo.issuerOrganization', value: vc.issuer?.organization ?? '' },
-        { label: 'vc-fields.credentialInfo.issuerOrganizationIdentifier', value: vc.issuer?.organizationIdentifier ?? '' },
-        { label: 'vc-fields.credentialInfo.issuerCountry', value: vc.issuer?.country ?? '' },
-        { label: 'vc-fields.credentialInfo.issuerCommonName', value: vc.issuer?.commonName ?? '' },
-        { label: 'vc-fields.credentialInfo.issuerSerialNumber', value: vc.issuer?.serialNumber ?? '' },
-        { label: 'vc-fields.credentialInfo.validFrom', value: this.formatDate(vc.validFrom) },
-        { label: 'vc-fields.credentialInfo.validUntil', value: this.formatDate(vc.validUntil) }
-      ].filter(field => !!field.value && field.value !== ''),
-    };
+  const credentialInfo: EvaluatedSection = {
+    section: 'vc-fields.title',
+    fields: [
+      { label: 'vc-fields.credentialInfo.context', value: Array.isArray(vc['@context']) ? vc['@context'].join(', ') : (vc['@context'] ?? '') },
+      { label: 'vc-fields.credentialInfo.id', value: vc.id },
+      { label: 'vc-fields.credentialInfo.type', value: Array.isArray(vc.type) ? vc.type.join(', ') : (vc.type ?? '') },
+      { label: 'vc-fields.credentialInfo.name', value: vc.name ?? '' },
+      { label: 'vc-fields.credentialInfo.description', value: vc.description ?? '' },
+      { label: 'vc-fields.credentialInfo.issuerId', value: typeof vc.issuer === 'string' ? vc.issuer : (vc.issuer?.id ?? '') }, // issuer may be json or string
+      { label: 'vc-fields.credentialInfo.issuerOrganization', value: vc.issuer?.organization ?? '' },
+      { label: 'vc-fields.credentialInfo.issuerOrganizationIdentifier', value: vc.issuer?.organizationIdentifier ?? '' },
+      { label: 'vc-fields.credentialInfo.issuerCountry', value: vc.issuer?.country ?? '' },
+      { label: 'vc-fields.credentialInfo.issuerCommonName', value: vc.issuer?.commonName ?? '' },
+      { label: 'vc-fields.credentialInfo.issuerSerialNumber', value: vc.issuer?.serialNumber ?? '' },
+      { label: 'vc-fields.credentialInfo.validFrom', value: this.formatDate(vc.validFrom) },
+      { label: 'vc-fields.credentialInfo.validUntil', value: this.formatDate(vc.validUntil) }
+    ].filter(field => !!field.value && field.value !== ''),
+  };
 
-    const entry = isValidCredentialType(this.credentialType) ? CredentialDetailMap[this.credentialType] : undefined;
-    const evaluatedDetailedSections: EvaluatedSection[] = typeof entry === 'function'
-      ? entry(cs, vc).map(section => ({
+  const entry = isValidCredentialType(this.credentialType)
+    ? CredentialDetailMap[this.credentialType]
+    : undefined;
+
+  const evaluatedDetailedSections: EvaluatedSection[] =
+    typeof entry === 'function'
+      ? entry(cs as any, vc as any).map(section => ({
           section: section.section,
           fields: section.fields
             .map(f => ({
               label: f.label,
-              value: f.valueGetter(cs, vc),
+              value: f.valueGetter(cs as any, vc as any),
             }))
             .filter(f => !!f.value && f.value !== ''),
         }))
@@ -248,23 +252,65 @@ export class VcViewComponent implements OnInit {
           fields: section.fields
             .map(f => ({
               label: f.label,
-              value: f.valueGetter(cs, vc),
+              value: f.valueGetter(cs as any, vc as any),
             }))
             .filter(f => !!f.value && f.value !== ''),
         }));
 
-    if((this.credentialType == 'LEARCredentialMachine' || this.credentialType == 'gx:LabelCredential') && vc.credentialEncoded) {
-      evaluatedDetailedSections.push({
-        section: 'vc-fields.credentialEncoded',
-        fields: [
-          { label: 'vc-fields.credentialEncoded', value: vc.credentialEncoded ?? '' }
-        ]
-      });
-
-    }
-    
-    this.detailViewSections = [credentialInfo, ...evaluatedDetailedSections].filter(section => section.fields.length > 0);
+  // Optionally append encoded credential section
+  if ((this.credentialType === 'LEARCredentialMachine' || this.credentialType === 'gx:LabelCredential') && vc.credentialEncoded) {
+    evaluatedDetailedSections.push({
+      section: 'vc-fields.credentialEncoded',
+      fields: [{ label: 'vc-fields.credentialEncoded', value: vc.credentialEncoded ?? '' }]
+    });
   }
+
+  // Translate "powers" sections (function + action values)
+  const translatedDetailedSections = this.translatePowerSections(evaluatedDetailedSections, cs);
+
+  this.detailViewSections = [credentialInfo, ...translatedDetailedSections]
+    .filter(section => section.fields.length > 0);
+}
+
+private translatePowerSections(
+  sections: EvaluatedSection[],
+  subject: import('src/app/interfaces/verifiable-credential').CredentialSubject
+): EvaluatedSection[] {
+  const csPowers = this.hasMandate(subject) && Array.isArray(subject.mandate.power)
+    ? subject.mandate.power
+    : [];
+
+  return sections.map(section => {
+    if (!section.section.endsWith('.powers')) return section;
+
+    const translatedFields = section.fields.map((field, idx) => {
+      const p = csPowers[idx];
+      if (!p) return field;
+
+      const translatedFunction = this.translate.instant(`vc-fields.power.${p.function}`);
+      const actions = Array.isArray(p.action) ? p.action : [p.action];
+      const translatedActions = actions
+        .map((a: string) => this.translate.instant(`vc-fields.power.${a}`))
+        .join(', ');
+
+      return {
+        label: `${translatedFunction} (${p.domain})`,
+        value: translatedActions,
+      };
+    });
+
+    return { ...section, fields: translatedFields.filter(f => !!f.value && f.value !== '') };
+  });
+}
+
+/** Type guard: subject has a mandate (employee or machine) */
+private hasMandate(
+  subject: CredentialSubject
+): subject is EmployeeCredentialSubject
+   | MachineCredentialSubject {
+  return typeof (subject as any)?.mandate !== 'undefined';
+}
+
 
   private formatDate(date: string | undefined): string {
     if (!date) {

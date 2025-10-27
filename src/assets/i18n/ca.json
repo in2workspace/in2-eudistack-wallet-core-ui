@@ -143,7 +143,7 @@
                 "commonName": "Nom comú",
                 "serialNumber": "Número de sèrie",
                 "country": "País",
-                "email": "Email"
+                "email": "Correu electrònic"
             },
             "powers": "Poders"
         },
@@ -205,6 +205,17 @@
             "type": "Error de configuració: la sol·licitud de la càmera no és vàlida. Intenta refrescar la pàgina o comprovar la configuració de la càmera.",
             "not-supported": "El teu navegador no admet l'accés a la càmera. Considera utilitzar un navegador diferent.",
             "default": "Error inesperat. Comprova els permisos del teu navegador i assegura't que cap altra aplicació estigui utilitzant la càmera. Intenta refrescar la pàgina."
+        },
+        "power": {
+            "Onboarding": "Alta",
+            "Certification": "Certificació",
+            "ProductOffering": "Oferta de producte",
+            "Execute": "Execució",
+            "Create": "Crear",
+            "Update": "Actualitzar",
+            "Delete": "Eliminar",
+            "Attest": "Acreditar",
+            "Upload": "Pujar"
         }
     },
     "confirmation":{

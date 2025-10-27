@@ -173,6 +173,17 @@
             },
             "compliantCredentials": "Compliant Credentials",
             "validatedCriteria": "Validated Criteria"
+        },
+        "power": {
+            "Onboarding": "Onboarding",
+            "Certification": "Certification",
+            "ProductOffering": "Product Offering",
+            "Execute": "Execute",
+            "Create": "Create",
+            "Update": "Update",
+            "Delete": "Delete",
+            "Attest": "Attest",
+            "Upload": "Upload"
         }
 
     },
