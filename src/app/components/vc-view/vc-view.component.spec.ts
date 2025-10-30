@@ -477,4 +477,68 @@ describe('VcViewComponent', () => {
     expect(issuerIdField!.value).toBe('did:example:issuer');
   });
 
+  it('translatePowerSections should translate function and all actions in powers section', () => {
+  component.credentialType = 'LEARCredentialEmployee';
+
+  const current = component.credentialInput$() as any;
+  componentRef.setInput('credentialInput$', {
+    ...current,
+    type: ['LEARCredentialEmployee'],
+    credentialSubject: {
+      mandate: {
+        ...current.credentialSubject.mandate,
+        power: [
+          {
+            id: '',
+            type: '',
+            domain: 'user',
+            function: 'ADMIN',
+            action: ['CREATE', 'DELETE'],
+          },
+        ],
+        mandator: current.credentialSubject.mandate.mandator,
+        mandatee: current.credentialSubject.mandate.mandatee,
+        id: current.credentialSubject.mandate.id,
+      },
+    },
+  } as any);
+
+  fixture.detectChanges();
+
+  component.getStructuredFields();
+
+  const powersSection = component.detailViewSections.find(s => s.section.endsWith('.powers'));
+  expect(powersSection).toBeTruthy();
+
+  const field = powersSection!.fields[0];
+  // TranslateModule.forRoot() sense loader retorna la clau tal qual
+  expect(field.label).toBe('vc-fields.power.admin (user)');
+  expect(field.value).toBe('vc-fields.power.create, vc-fields.power.delete');
+});
+
+it('translatePowerSections should be a no-op when subject has no mandate', () => {
+  component.credentialType = 'gx:LabelCredential';
+
+  const current = component.credentialInput$();
+  componentRef.setInput('credentialInput$', {
+    ...current,
+    type: ['gx:LabelCredential'],
+    credentialSubject: {
+      id: 'label-1',
+      'gx:labelLevel': 'BL',
+      'gx:engineVersion': '1.0.0',
+      'gx:rulesVersion': '1.0.0',
+      'gx:compliantCredentials': [],
+      'gx:validatedCriteria': [],
+    } as any,
+  });
+
+  fixture.detectChanges();
+
+  expect(() => component.getStructuredFields()).not.toThrow();
+  // I no ha d'existir cap secció que acabi amb ".powers"
+  const anyPowers = component.detailViewSections.some(s => s.section.endsWith('.powers'));
+  expect(anyPowers).toBeFalsy();
+});
+
 });
