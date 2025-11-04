@@ -238,7 +238,7 @@ public getStructuredFields(): void {
 
   const evaluatedDetailedSections: EvaluatedSection[] =
     typeof entry === 'function'
-      ? entry(cs as any, vc as any).map(section => ({
+      ? entry(cs, vc).map(section => ({
           section: section.section,
           fields: section.fields
             .map(f => ({
@@ -257,7 +257,6 @@ public getStructuredFields(): void {
             .filter(f => !!f.value && f.value !== ''),
         }));
 
-  // Optionally append encoded credential section
   if ((this.credentialType === 'LEARCredentialMachine' || this.credentialType === 'gx:LabelCredential') && vc.credentialEncoded) {
     evaluatedDetailedSections.push({
       section: 'vc-fields.credentialEncoded',
