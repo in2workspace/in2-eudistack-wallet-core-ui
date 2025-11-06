@@ -209,8 +209,8 @@
         "power": {
             "onboarding": "Alta",
             "certification": "Certificació",
-            "productOffering": "Oferta de producte",
-            "execute": "Execució",
+            "productoffering": "Oferta de producte",
+            "execute": "Executar",
             "create": "Crear",
             "un": "Actualitzar",
             "delete": "Eliminar",
