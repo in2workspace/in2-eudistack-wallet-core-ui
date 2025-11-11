@@ -176,6 +176,17 @@
             },
             "compliantCredentials": "Credencials compatibles",
             "validatedCriteria": "Criteris validats"
+        },
+        "power": {
+            "onboarding": "Alta",
+            "certification": "Certificació",
+            "productOffering": "Oferta de producte",
+            "execute": "Execució",
+            "create": "Crear",
+            "un": "Actualitzar",
+            "delete": "Eliminar",
+            "attest": "Acreditar",
+            "upload": "Pujar"
         }
     },
     "errors":{
@@ -205,17 +216,6 @@
             "type": "Error de configuració: la sol·licitud de la càmera no és vàlida. Intenta refrescar la pàgina o comprovar la configuració de la càmera.",
             "not-supported": "El teu navegador no admet l'accés a la càmera. Considera utilitzar un navegador diferent.",
             "default": "Error inesperat. Comprova els permisos del teu navegador i assegura't que cap altra aplicació estigui utilitzant la càmera. Intenta refrescar la pàgina."
-        },
-        "power": {
-            "onboarding": "Alta",
-            "certification": "Certificació",
-            "productOffering": "Oferta de producte",
-            "execute": "Execució",
-            "create": "Crear",
-            "un": "Actualitzar",
-            "delete": "Eliminar",
-            "attest": "Acreditar",
-            "upload": "Pujar"
         }
     },
     "confirmation":{
