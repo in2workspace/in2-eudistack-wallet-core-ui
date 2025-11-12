@@ -13,6 +13,7 @@ export const environment = {
       secondary_contrast:'#F9F3E7'
     },
     logo_src: "assets/logos/isbe-logo.svg",
-    favicon_src: "assets/icons/isbe-favicon.svg"
+    favicon_src: "assets/icons/isbe-favicon.svg",
+    default_lang: "en"
   }
 };

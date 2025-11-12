@@ -4,7 +4,7 @@ import { AuthenticationService } from './authentication.service';
 import { AlertController } from '@ionic/angular';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { environment } from 'src/environments/environment';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
 
@@ -25,6 +25,25 @@ class MockAlertController {
     });
   }
 }
+
+const translateMock = {
+  instant: jest.fn((key: string, params?: any) => {
+    switch (key) {
+      case 'confirmation.pin':
+        return 'confirmation.pin'; 
+      case 'confirmation.cancel':
+        return 'Cancel';
+      case 'confirmation.send':
+        return 'Send';
+      case 'confirmation.description':
+        return 'A PIN has been sent';
+      case 'confirmation.messageHtml':
+        return `${params?.description ?? ''}<br><small class="counter">Time remaining: ${params?.counter ?? 0} seconds</small>`;
+      default:
+        return key;
+    }
+  }),
+};
 
 describe('WebsocketService', () => {
   let mockAuthService: any;
@@ -52,7 +71,8 @@ describe('WebsocketService', () => {
         WebsocketService,
         LoaderService,
         { provide: AuthenticationService, useValue: mockAuthService },
-        { provide: AlertController, useValue: alertControllerMock }
+        { provide: AlertController, useValue: alertControllerMock },
+        { provide: TranslateService, useValue: translateMock }
       ],
     });
 
@@ -122,10 +142,9 @@ describe('WebsocketService', () => {
 
   it('should create and display an alert on receiving a message', fakeAsync(async () => {
     const createAlertSpy = jest.spyOn(service['alertController'], 'create');
-    const description = 'Test description';
     const timeout = 120;
     const messageEvent = new MessageEvent('message', {
-      data: JSON.stringify({ tx_code: { description }, timeout }),
+      data: JSON.stringify({ tx_code: { }, timeout }),
     });
   
     service.connect();
@@ -136,7 +155,7 @@ describe('WebsocketService', () => {
     expect(createAlertSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         header: service['translate'].instant('confirmation.pin'),
-        message: `${description}<br><small class="counter">Time remaining: ${timeout} seconds</small>`,
+        message: `A PIN has been sent<br><small class="counter">Time remaining: ${timeout} seconds</small>`,
         inputs: [
           {
             name: 'pin',

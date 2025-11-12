@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true" class="background-content">
   <ion-grid class="settings-pages-grid">
   <b class="settings-pages-title">
-    {{"camera-logs-selector.title"|translate}}
+    {{"camera-logs.title"|translate}}
   </b>
   <ion-list class="logs-pages-list">
     @for(log of displayedLogs; track $index){
@@ -21,7 +21,7 @@
       </ion-item>
       <ion-item-divider></ion-item-divider>
     }@empty {
-      <div>No camera logs to show.</div>
+      <div>{{"camera-logs.no-more-logs"|translate}}</div>
     }
     @if(cameraLogs.length === displayedLogs.length && cameraLogs.length>0){
       <ng-container>

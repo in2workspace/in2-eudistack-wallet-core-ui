@@ -12,6 +12,7 @@ interface Window {
       secondary_contrast: string;
       logo_src: string;
       favicon_src: string;
+      default_lang: string;
     };
   }
   

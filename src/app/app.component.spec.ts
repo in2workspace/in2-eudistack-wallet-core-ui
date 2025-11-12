@@ -8,19 +8,20 @@ import { AuthenticationService } from './services/authentication.service';
 import { StorageService } from './services/storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { environment } from '../environments/environment';
-import { WebsocketService } from './services/websocket.service';
 import { LoaderService } from './services/loader.service';
 import { MenuComponent } from './components/menu/menu.component';
+import { LanguageService } from './services/language.service';
+
 describe('AppComponent', () => {
   let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
   let translateServiceMock: jest.Mocked<TranslateService>;
   let popoverControllerMock: jest.Mocked<PopoverController>;
   let routerMock: jest.Mocked<Router>;
   let authenticationServiceMock: jest.Mocked<AuthenticationService>;
   let storageServiceMock: jest.Mocked<StorageService>;
-  let routerEventsSubject = new Subject<Event>();
-  let websocketServiceMock: Partial<WebsocketService>;
-  let isLoadingSubject: Subject<boolean>;
+  let routerEventsSubject: Subject<Event>;
+  let languageService: jest.Mocked<any>;
 
   const activatedRouteMock: Partial<ActivatedRoute> = {
     snapshot: {
@@ -58,12 +59,26 @@ describe('AppComponent', () => {
     setDirection: jest.fn(),
   } as unknown as jest.Mocked<NavController>;
 
+  const saveNavigator = () => ({ languages: navigator.languages, language: navigator.language } as any);
+  const mockNavigator = (langs: string[], lang: string) => {
+    Object.defineProperty(window.navigator, 'languages', { value: langs, configurable: true });
+    Object.defineProperty(window.navigator, 'language', { value: lang, configurable: true });
+  };
+  const restoreNavigator = (snapshot: any) => {
+    Object.defineProperty(window.navigator, 'languages', { value: snapshot.languages, configurable: true });
+    Object.defineProperty(window.navigator, 'language', { value: snapshot.language, configurable: true });
+  };
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   beforeEach(async () => {
+    routerEventsSubject = new Subject<Event>();
 
+    languageService = {
+      setLanguages: jest.fn()
+    }
     translateServiceMock = {
       addLangs: jest.fn(),
       getLangs: jest.fn().mockReturnValue(['en', 'es', 'ca']),
@@ -79,7 +94,7 @@ describe('AppComponent', () => {
 
     routerMock = {
       navigate: jest.fn(),
-      events: routerEventsSubject, 
+      events: routerEventsSubject as any,
       url: '/callback?test=true',
     } as unknown as jest.Mocked<Router>;
 
@@ -90,13 +105,14 @@ describe('AppComponent', () => {
     storageServiceMock = {
       get: jest.fn().mockResolvedValue('en'),
       set: jest.fn(),
+      remove: jest.fn(),
     } as unknown as jest.Mocked<StorageService>;
 
     await TestBed.configureTestingModule({
       imports: [
         AppComponent,
-        IonicModule.forRoot(), 
-        RouterTestingModule, 
+        IonicModule.forRoot(),
+        RouterTestingModule,
       ],
       providers: [
         LoaderService,
@@ -107,93 +123,32 @@ describe('AppComponent', () => {
         { provide: StorageService, useValue: storageServiceMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: NavController, useValue: navControllerMock },
+        { provide: LanguageService, useValue: languageService }
       ],
-    }).overrideComponent(AppComponent, {
-    add: {
-      providers: [
-        { provide: PopoverController, useValue: popoverControllerMock }
-      ]
-    }
-  })
-  .compileComponents();
+    })
+      .overrideComponent(AppComponent, {
+        add: {
+          providers: [{ provide: PopoverController, useValue: popoverControllerMock }]
+        }
+      })
+      .compileComponents();
 
-    jest.spyOn(AppComponent.prototype as any, 'setDefaultLanguages');
-    jest.spyOn(AppComponent.prototype as any, 'setStoredLanguage');
-    jest.spyOn(AppComponent.prototype as any, 'setCustomStyles');
-
-    const fixture = TestBed.createComponent(AppComponent);
+    fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-
+    fixture.detectChanges();
   });
 
   it('should create the app component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initiliaze default languages, stored language and custom styles', ()=>{
-    expect((component as any).setDefaultLanguages).toHaveBeenCalled();
-    expect((component as any).setStoredLanguage).toHaveBeenCalled();
-    expect((component as any).setCustomStyles).toHaveBeenCalled();
+  it('should set languages', () => {
+    expect(languageService.setLanguages).toHaveBeenCalled();
   });
 
-  it('should set up route listeners, handle no cache and show alert for incompatible device', ()=>{
-    jest.spyOn((component as any), 'alertIncompatibleDevice');
-
-    component.ngOnInit();
-
-    expect((component as any).alertIncompatibleDevice).toHaveBeenCalled();
-  });
-
-  it('should emit and complete destroy subject', ()=>{
-    const nextSpy = jest.spyOn(component['destroy$'], 'next');
-    const completeSpy = jest.spyOn(component['destroy$'], 'complete');
-
-    component['ngOnDestroy']();
-
-    expect(nextSpy).toHaveBeenCalledTimes(1);
-    expect(completeSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('should add available languages', () => {
-    (component as any).setDefaultLanguages();
-    expect(translateServiceMock.addLangs).toHaveBeenCalledWith(['en', 'es', 'ca']);
-    expect(translateServiceMock.setDefaultLang).toHaveBeenCalledWith('en');
-    expect(translateServiceMock.use).toHaveBeenCalledWith('en');
-  });
-
-  it('should set default language to "en" if no stored language is found', fakeAsync(() => {
-    translateServiceMock.use.mockClear();
-    storageServiceMock.get.mockResolvedValueOnce('');
-    translateServiceMock.getLangs.mockReturnValue(['en', 'es', 'ca']);
-    (component as any).setStoredLanguage();
-    tick();
-    expect(translateServiceMock.use).not.toHaveBeenCalled();
-    expect(storageServiceMock.set).toHaveBeenCalledWith('language', 'en');
-  }));
-
-  it('should set stored language if it is in the supported languages', fakeAsync(() => {
-    translateServiceMock.use.mockClear();
-    storageServiceMock.get.mockResolvedValueOnce('ca');
-    translateServiceMock.getLangs.mockReturnValue(['en', 'es', 'ca']);
-    (component as any).setStoredLanguage();
-    tick();
-    expect(translateServiceMock.use).toHaveBeenCalledWith('ca');
-    expect(storageServiceMock.set).not.toHaveBeenCalled();
-  }));
-  
-  it('should not use stored language if it is not in the supported languages', fakeAsync(() => {
-    translateServiceMock.use.mockClear();
-    storageServiceMock.get.mockResolvedValueOnce('fr');
-    translateServiceMock.getLangs.mockReturnValue(['en', 'es', 'ca']);
-    (component as any).setStoredLanguage();
-    tick();
-    expect(translateServiceMock.use).not.toHaveBeenCalled();
-    expect(storageServiceMock.set).toHaveBeenCalledWith('language', 'en');
-  }));
-
-  it('should set CSS variables from environment in the constructor', () => {
+  it('should set CSS variables from environment', () => {
     component.setCustomStyles();
-    
+
     const cssVarMap = {
       '--primary-custom-color': environment.customizations.colors.primary,
       '--primary-contrast-custom-color': environment.customizations.colors.primary_contrast,
@@ -207,52 +162,47 @@ describe('AppComponent', () => {
     });
   });
 
-
-  it('should show an alert if the device is an iOS version lower than 14.3 and not using Safari', () => {
+  it('should show an alert if the device is iOS < 14.3 and not Safari', () => {
     const isIOSVersionLowerThanSpy = jest
       .spyOn(component['cameraService'], 'isIOSVersionLowerThan')
       .mockReturnValue(true);
     const isNotSafariSpy = jest
       .spyOn(component['cameraService'], 'isNotSafari')
       .mockReturnValue(true);
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {}); 
-  
-    (component as any).alertIncompatibleDevice(); // Crida explícita a la funció
-  
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    (component as any).alertIncompatibleDevice();
+
     expect(isIOSVersionLowerThanSpy).toHaveBeenCalledWith(14.3);
     expect(isNotSafariSpy).toHaveBeenCalled();
     expect(alertSpy).toHaveBeenCalledWith(
       'This application scanner is probably not supported on this device with this browser. If you have issues, use Safari browser.'
     );
-  
+
     jest.restoreAllMocks();
   });
-  
-  it('should NOT show an alert if the device is an iOS version 14.3 or higher', () => {
-    jest
-      .spyOn(component['cameraService'], 'isIOSVersionLowerThan')
-      .mockReturnValue(false);
+
+  it('should NOT show an alert if iOS version is >= 14.3', () => {
+    jest.spyOn(component['cameraService'], 'isIOSVersionLowerThan').mockReturnValue(false);
     jest.spyOn(component['cameraService'], 'isNotSafari').mockReturnValue(true);
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {}); 
-  
-    (component as any).alertIncompatibleDevice(); // Crida explícita a la funció
-  
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    (component as any).alertIncompatibleDevice();
+
     expect(alertSpy).not.toHaveBeenCalled();
-  
+
     jest.restoreAllMocks();
   });
-  
-  it('should NOT show an alert if the browser is Safari', () => {
-    jest
-      .spyOn(component['cameraService'], 'isIOSVersionLowerThan')
-      .mockReturnValue(true);
+
+  it('should NOT show an alert if browser is Safari', () => {
+    jest.spyOn(component['cameraService'], 'isIOSVersionLowerThan').mockReturnValue(true);
     jest.spyOn(component['cameraService'], 'isNotSafari').mockReturnValue(false);
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {}); 
-  
-    (component as any).alertIncompatibleDevice(); // Crida explícita a la funció
-  
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    (component as any).alertIncompatibleDevice();
+
     expect(alertSpy).not.toHaveBeenCalled();
-  
+
     jest.restoreAllMocks();
   });
 
@@ -264,128 +214,73 @@ describe('AppComponent', () => {
     expect(component.openPopover).toHaveBeenCalledWith(mockEvent);
   });
 
-  it('should show an alert if iOS version is below 14.3 and the browser is not Safari', () => {
-    // Mock del servei CameraService
-    const isIOSVersionLowerThanSpy = jest.spyOn(component['cameraService'], 'isIOSVersionLowerThan').mockReturnValue(true);
-    const isNotSafariSpy = jest.spyOn(component['cameraService'], 'isNotSafari').mockReturnValue(true);
+  it('should NOT open popover on /callback route', async () => {
+    const event = new MouseEvent('click');
 
-    // Espia la funció global alert
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    (routerMock as any).url = '/callback';
+    routerEventsSubject.next(new NavigationEnd(1, '/callback', '/callback') as any);
 
-    // Crear el component
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
+    await component.openPopover(event);
 
-    expect(isIOSVersionLowerThanSpy).toHaveBeenCalled();
-    expect(isNotSafariSpy).toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalledWith(
-      'This application scanner is probably not supported on this device with this browser. If you have issues, use Safari browser.'
-    );
-
-    // Restaurar espies
-    isIOSVersionLowerThanSpy.mockRestore();
-    isNotSafariSpy.mockRestore();
-    alertSpy.mockRestore();
+    expect(popoverControllerMock.create).not.toHaveBeenCalled();
   });
 
-  it('should NOT show an alert if iOS version is 14.3 or above', () => {
-    const isIOSVersionLowerThanSpy = jest.spyOn(component['cameraService'], 'isIOSVersionLowerThan').mockReturnValue(false);
-    const isNotSafariSpy = jest.spyOn(component['cameraService'], 'isNotSafari').mockReturnValue(true);
-    
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  it('should open popover on non-callback route', async () => {
+    (component as any).isCallbackRoute$ = () => false;
 
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
+    popoverControllerMock.create.mockResolvedValue({
+      present: jest.fn(),
+    } as any);
 
-    expect(isIOSVersionLowerThanSpy).toHaveBeenCalled();
-    expect(isNotSafariSpy).toHaveBeenCalled();
-    expect(alertSpy).not.toHaveBeenCalled();
+    const event = new MouseEvent('click');
+    await component.openPopover(event);
 
-    isIOSVersionLowerThanSpy.mockRestore();
-    isNotSafariSpy.mockRestore();
-    alertSpy.mockRestore();
+    expect(popoverControllerMock.create).toHaveBeenCalledWith({
+      component: MenuComponent,
+      event,
+      translucent: true,
+      cssClass: 'custom-popover',
+    });
   });
 
-  it('should NOT show an alert if browser is Safari', () => {
-    const isIOSVersionLowerThanSpy = jest.spyOn(component['cameraService'], 'isIOSVersionLowerThan').mockReturnValue(true);
-    const isNotSafariSpy = jest.spyOn(component['cameraService'], 'isNotSafari').mockReturnValue(false);
-    
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  it('should emit and complete destroy subject', () => {
+    const nextSpy = jest.spyOn(component['destroy$'], 'next');
+    const completeSpy = jest.spyOn(component['destroy$'], 'complete');
 
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
+    component['ngOnDestroy']();
 
-    expect(isIOSVersionLowerThanSpy).toHaveBeenCalled();
-    expect(isNotSafariSpy).toHaveBeenCalled();
-    expect(alertSpy).not.toHaveBeenCalled();
-
-    isIOSVersionLowerThanSpy.mockRestore();
-    isNotSafariSpy.mockRestore();
-    alertSpy.mockRestore();
+    expect(nextSpy).toHaveBeenCalledTimes(1);
+    expect(completeSpy).toHaveBeenCalledTimes(1);
   });
-    
+
+  describe('isCallbackRoute$', () => {
+    it('should return true initially for /callback route', fakeAsync(() => {
+      (routerMock as any).url = '/callback';
+      routerEventsSubject.next(new NavigationEnd(1, '/callback', '/callback') as any);
+      tick();
+      expect(component.isCallbackRoute$()).toBe(true);
+    }));
+
+    it('should return false for non-callback route', fakeAsync(() => {
+      (routerMock as any).url = '/home';
+      routerEventsSubject.next(new NavigationEnd(1, '/home', '/home') as any);
+      tick();
+      expect(component.isCallbackRoute$()).toBe(false);
+    }));
+
+    it('should return true for routes starting with /callback even with segments', fakeAsync(() => {
+      (routerMock as any).url = '/callback/step2?foo=bar';
+      routerEventsSubject.next(new NavigationEnd(1, '/callback/step2?foo=bar', '/callback/step2?foo=bar') as any);
+      tick();
+      expect(component.isCallbackRoute$()).toBe(true);
+    }));
+  });
+
   it('should synchronize isLoading$ with loader service', () => {
     const loaderService = TestBed.inject(LoaderService);
     expect(component.isLoading$()).toBe(loaderService.isLoading$());
-
     loaderService.addLoadingProcess();
     expect(component.isLoading$()).toBe(loaderService.isLoading$());
-    expect(component.isLoading$()).toBeTruthy;
-  });
-
-describe('isCallbackRoute$', () => {
-  it('should return true initially for /callback route', fakeAsync(() => {
-    (routerMock as any).url = '/callback';
-    routerEventsSubject.next(new NavigationEnd(1, '/callback', '/callback') as any);
-    tick();
-    expect(component.isCallbackRoute$()).toBe(true);
-  }));
-
-  it('should return false for non-callback route', fakeAsync(() => {
-    (routerMock as any).url = '/home';
-    routerEventsSubject.next(new NavigationEnd(1, '/home', '/home') as any);
-    tick();
-    expect(component.isCallbackRoute$()).toBe(false);
-  }));
-
-  it('should return true for routes starting with /callback even with path segments', fakeAsync(() => {
-    (routerMock as any).url = '/callback/step2?foo=bar';
-    routerEventsSubject.next(new NavigationEnd(1, '/callback/step2?foo=bar', '/callback/step2?foo=bar') as any);
-    tick();
-    expect(component.isCallbackRoute$()).toBe(true);
-  }));
-});
-
-it('should NOT open popover on /callback route', fakeAsync(() => {
-  const event = new MouseEvent('click');
-
-  (routerMock as any).url = '/callback';
-  routerEventsSubject.next(new NavigationEnd(1, '/callback', '/callback') as any);
-  tick();
-
-  component.openPopover(event);
-  tick();
-
-  expect(popoverControllerMock.create).not.toHaveBeenCalled();
-}));
-
-it('should open popover on non-callback route', async () => {
-  (component as any).isCallbackRoute$ = () => false;
-
-  popoverControllerMock.create.mockResolvedValue({
-    present: jest.fn(),
-  } as any);
-
-  const event = new MouseEvent('click');
-  await component.openPopover(event);
-
-  expect(popoverControllerMock.create).toHaveBeenCalledWith({
-    component: MenuComponent,
-    event,
-    translucent: true,
-    cssClass: 'custom-popover',
+    expect(component.isLoading$()).toBeTruthy();
   });
 });
-
-});
-

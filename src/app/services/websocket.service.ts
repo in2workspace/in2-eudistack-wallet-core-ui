@@ -49,7 +49,7 @@ export class WebsocketService {
         console.log('Message received:', event.data);
         const data = JSON.parse(event.data);
     
-        let description = data.tx_code?.description || '';
+        let description = this.translate.instant('confirmation.description');
         let counter = data.timeout || 60;
     
         const cancelHandler = () => {
@@ -63,9 +63,17 @@ export class WebsocketService {
           this.loadingTimeout = setTimeout(loadingTimeOutSendHandler, 1000);
           this.sendMessage(JSON.stringify({ pin: alertData.pin }));
         }
+        const header = this.translate.instant('confirmation.pin');
+        const message = this.translate.instant('confirmation.messageHtml', {
+          description,
+          counter,
+        });
+        const cancel = this.translate.instant('confirmation.cancel');
+        const send = this.translate.instant('confirmation.send');
+
         const alertOptions: AlertOptions = {
-          header: this.translate.instant('confirmation.pin'),
-          message: `${description}<br><small class="counter">Time remaining: ${counter} seconds</small>`,
+          header: header,
+          message: message,
           inputs: [
             {
               name: 'pin',
@@ -79,12 +87,12 @@ export class WebsocketService {
           ],
           buttons: [
             {
-              text: 'Cancel',
+              text: cancel,
               role: 'cancel',
               handler: cancelHandler,
             },
             {
-              text: 'Send',
+              text: send,
               handler: sendHandler,
             },
           ],
@@ -127,9 +135,14 @@ export class WebsocketService {
     let counter = initialCounter;
   
     const interval = window.setInterval(() => {
+
       if (counter > 0) {
         counter--;
-        alert.message = `${description}<br><small class="counter">Time remaining: ${counter} seconds</small>`;
+        const message = this.translate.instant('confirmation.messageHtml', {
+        description,
+        counter,
+    });
+        alert.message = message;
       } else {
         window.clearInterval(interval);
         alert.dismiss();
