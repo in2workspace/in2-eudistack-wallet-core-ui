@@ -177,13 +177,13 @@
             "compliantCredentials": "Credencials compatibles",
             "validatedCriteria": "Criteris validats"
         },
-                "power": {
+        "power": {
             "onboarding": "Alta",
             "certification": "Certificació",
             "productoffering": "Oferta de producte",
             "execute": "Executar",
             "create": "Crear",
-            "un": "Actualitzar",
+            "update": "Actualitzar",
             "delete": "Eliminar",
             "attest": "Acreditar",
             "upload": "Pujar"
