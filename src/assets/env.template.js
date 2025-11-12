@@ -12,4 +12,5 @@
   window["env"]["secondary_contrast"] = "${SECONDARY_CONTRAST}";
   window["env"]["logo_src"] = "${LOGO_SRC}"
   window["env"]["favicon_src"] =  "${FAVICON_SRC}"
+  window["env"]["default_lang"] =  "${DEFAULT_LANG}"
 })(this);

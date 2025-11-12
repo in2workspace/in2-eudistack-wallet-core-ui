@@ -58,3 +58,10 @@ ion-radio{
   overflow: hidden;
   height: 100%;
 }
+
+.scanner-shell zxing-scanner video{
+  display: block;
+  object-fit: contain !important;
+  height: 100%;
+  max-height: calc(100vh - 180px);
+}

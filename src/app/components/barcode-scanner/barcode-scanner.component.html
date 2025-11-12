@@ -10,16 +10,17 @@
     </div>
 }
 
-<zxing-scanner
-#scanner
-[style.display]="firstActivationCompleted ? 'block' : 'none'"
-class="scanner"
-[autostart]="false"
-[formats]="allowedFormats"
-(scanSuccess)="onCodeResult($event)"
-(scanError)="onScanError($event)" 
-(scanFailure)="onScanFailure($event)"
-></zxing-scanner>
-
+<div class="scanner-shell">
+    <zxing-scanner
+    #scanner
+    [style.display]="firstActivationCompleted ? 'block' : 'none'"
+    class="scanner"
+    [autostart]="false"
+    [formats]="allowedFormats"
+    (scanSuccess)="onCodeResult($event)"
+    (scanError)="onScanError($event)" 
+    (scanFailure)="onScanFailure($event)"
+    ></zxing-scanner>
+</div>
 
 

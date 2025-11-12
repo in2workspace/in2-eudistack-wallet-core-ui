@@ -13,6 +13,7 @@ export const environment = {
       secondary_contrast:'#444444'
     },
     logo_src: "assets/logos/altia-logo.png",
-    favicon_src: "assets/icons/altia-favicon.ico"
+    favicon_src: "assets/icons/altia-favicon.ico",
+    default_lang: "en"
   }
 };
