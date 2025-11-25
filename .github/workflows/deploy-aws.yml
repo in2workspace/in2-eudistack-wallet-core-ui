@@ -90,7 +90,7 @@ jobs:
       # This makes the workflow flexible and removes hardcoded app IDs
       - name: Extract Amplify App ID
         run: |
-          AMPLIFY_APP_ID=$(aws amplify list-apps --query "apps[?name=='${{ env.AMPLIFY_APP_NAME }}'].appId" --output text)
+          AMPLIFY_APP_ID=$(aws amplify list-apps --query "apps[?name=='${{ env.AMPLIFY_APP_NAME }}'] | [0].appId" --output text)
           echo "AMPLIFY_APP_ID=$AMPLIFY_APP_ID" >> $GITHUB_ENV
           echo "Found App ID: $AMPLIFY_APP_ID for app: ${{ env.AMPLIFY_APP_NAME }}"
 
