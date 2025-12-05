@@ -7,13 +7,13 @@ export const environment = {
   logs_enabled: false,
   customizations:{
     colors:{ 
-      primary:'#00ADD3',
-      primary_contrast:'#ffffff',
-      secondary:'#50c8ff',
-      secondary_contrast:'#000000'
+      primary:'#B88EFF',
+      primary_contrast:'#000000',
+      secondary:'#76F276',
+      secondary_contrast:'#F9F3E7'
     },
-    logo_src: "assets/logos/dome-logo.png",
-    favicon_src: "assets/icons/dome-favicon.png",
+    logo_src: "assets/logos/isbe-logo.svg",
+    favicon_src: "assets/icons/isbe-favicon.svg",
     default_lang: "en"
   }
 };
