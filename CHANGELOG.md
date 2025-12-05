@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.7](https://github.com/in2workspace/in2-issuer-ui/releases/tag/v2.0.7)
+### Added
+- Altia and ISBE favicons.
+
+### Changed
+- Rename DOME favicon.
+
 ## [v2.0.6](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.6)
 ### Fixed
 - Add missing translations.
