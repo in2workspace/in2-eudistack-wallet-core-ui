@@ -14,12 +14,12 @@ export const environment = {
       secondary_contrast: window["env"]["secondary_contrast"] || '#000000' //OPTIONAL WITH fallback
     },
     assets: {
-      // Base URL for images (OPTIONAL with fallback)
-      base_url: window["env"]["assets_base_url"] ?? "/assets",
+      // Base URL for images (REQUIRED)
+      base_url: window["env"]["assets_base_url"],
       // Main app logo name, shown in the navbar. Points to "assets/logos/" (REQUIRED)
       logo_path: window["env"]["logo_path"],
       // App favicon. Points to "assets/icons/" (REQUIRED)
-      favicon_path: window["env"]["favicon_path"] ?? ""
+      favicon_path: window["env"]["favicon_path"]
     },
     default_lang: window["env"]["default_lang"] || "en" // OPTIONAL with fallback
   }
