@@ -10,7 +10,8 @@
   window["env"]["primary_contrast"] = "#ffffff";
   window["env"]["secondary"] = "#50c8ff";
   window["env"]["secondary_contrast"] = "#000000";
-  window["env"]["logo_src"] =  ""
-  window["env"]["favicon_src"] =  "assets/icons/dome-favicon.png"
+  window["env"]["images_base_url"]= "${IMAGES_BASE_URL}";
+  window["env"]["logo_path"]= "${LOGO_PATH}"
+  window["env"]["favicon_path"]= "${FAVICON_PATH}"
   window["env"]["default_lang"] =  "en"
 })(this);

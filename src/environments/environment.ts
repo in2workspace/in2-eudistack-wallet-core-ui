@@ -12,8 +12,11 @@ export const environment = {
       secondary:'#50c8ff',
       secondary_contrast:'#000000'
     },
-    logo_src: "assets/logos/dome-logo.png",
-    favicon_src: "assets/icons/dome-favicon.png",
+    images: {
+      base_url: "https://cdn.jsdelivr.net/gh/in2workspace/eudistack-images@main/ISBE",
+      logo_path:"isbe-logo.svg",
+      favicon_path:"isbe-favicon.svg",
+    },
     default_lang: "en"
   }
 };
