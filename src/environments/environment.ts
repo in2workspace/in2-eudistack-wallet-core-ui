@@ -12,8 +12,8 @@ export const environment = {
       secondary:'#50c8ff',
       secondary_contrast:'#000000'
     },
-    images: {
-      base_url: "https://cdn.jsdelivr.net/gh/in2workspace/eudistack-images@main/ISBE",
+    assets: {
+      base_url: "assets/",
       logo_path:"isbe-logo.svg",
       favicon_path:"isbe-favicon.svg",
     },

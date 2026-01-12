@@ -52,7 +52,7 @@ jobs:
       - name: Generate env.js from env.template.js (envsubst)
         env:
           IAM_EXTERNAL_URL: ${{ vars.IAM_EXTERNAL_URL }}
-          IMAGES_BASE_URL: ${{ vars.IMAGES_BASE_URL }}
+          ASSETS_BASE_URL: ${{ vars.ASSETS_BASE_URL }}
           LOGO_PATH: ${{ vars.LOGO_PATH }}
           FAVICON_PATH: ${{ vars.FAVICON_PATH }}
           PRIMARY: ${{ vars.PRIMARY }}

@@ -10,7 +10,7 @@
   window["env"]["primary_contrast"] = "#ffffff";
   window["env"]["secondary"] = "#50c8ff";
   window["env"]["secondary_contrast"] = "#000000";
-  window["env"]["images_base_url"]= "${IMAGES_BASE_URL}";
+  window["env"]["assets_base_url"]= "${ASSETS_BASE_URL}";
   window["env"]["logo_path"]= "${LOGO_PATH}"
   window["env"]["favicon_path"]= "${FAVICON_PATH}"
   window["env"]["default_lang"] =  "en"

@@ -10,7 +10,7 @@ interface Window {
       primary_contrast: string;
       secondary: string;
       secondary_contrast: string;
-      images_base_url?: string;
+      assets_base_url?: string;
       logo_path?: string;
       favicon_path?: string;
       default_lang: string;
