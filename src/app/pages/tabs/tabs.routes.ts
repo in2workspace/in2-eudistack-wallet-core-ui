@@ -5,7 +5,7 @@ import { logsEnabledGuard } from '../../guards/logs-enabled.guard';
 const routes: Routes = [
   {
     path: '',
-    // canActivateChild: [AutoLoginPartialRoutesGuard],
+    canActivateChild: [AutoLoginPartialRoutesGuard],
     loadComponent: () =>
       import('./tabs.page').then((m) => m.TabsPage),
     children: [
@@ -73,7 +73,7 @@ const routes: Routes = [
       },
       {
         path: 'vc-selector',
-        // canActivate: [AutoLoginPartialRoutesGuard],
+        canActivate: [AutoLoginPartialRoutesGuard],
         loadComponent: () =>
           import('../vc-selector/vc-selector.page').then((m) => m.VcSelectorPage),
       },
