@@ -40,7 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const currentUrl = this.router.url.split('?')[0];
       return currentUrl.startsWith('/callback');
   })));
-  public readonly logoSrc = environment.customizations.logo_src;
+  public readonly logoSrc = environment.customizations.assets.base_url + '/' + environment.customizations.assets.logo_path;
   private readonly destroy$ = new Subject<void>();
   public isLoading$: Signal<boolean>;
 
@@ -81,7 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private setFavicon(): void {
-    const faviconUrl = environment.customizations.favicon_src;
+    const faviconUrl = environment.customizations.assets.base_url + '/' + environment.customizations.assets.favicon_path;
 
     // load favicon from environment
     let faviconLink: HTMLLinkElement = this.document.querySelector("link[rel='icon']") || this.document.createElement('link');
