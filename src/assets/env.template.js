@@ -11,7 +11,7 @@
   window["env"]["secondary"] = "${SECONDARY}";
   window["env"]["secondary_contrast"] = "${SECONDARY_CONTRAST}";
   window["env"]["assets_base_url"]= "${ASSETS_BASE_URL}";
-  window["env"]["logo_path"]= "${LOGO_PATH}"
-  window["env"]["favicon_path"]= "${FAVICON_PATH}"
-  window["env"]["default_lang"] =  "${DEFAULT_LANG}"
+  window["env"]["logo_path"]= "${LOGO_PATH}";
+  window["env"]["favicon_path"]= "${FAVICON_PATH}";
+  window["env"]["default_lang"] =  "${DEFAULT_LANG}";
 })(this);

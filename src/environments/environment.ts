@@ -13,9 +13,9 @@ export const environment = {
       secondary_contrast:'#000000'
     },
     assets: {
-      base_url: "assets/",
-      logo_path:"isbe-logo.svg",
-      favicon_path:"isbe-favicon.svg",
+      base_url: "assets",
+      logo_path:"logos/altia-logo.svg",
+      favicon_path:"icons/altia-favicon.ico",
     },
     default_lang: "en"
   }
