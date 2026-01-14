@@ -98,7 +98,8 @@ export class ColorService {
     this.document.body.appendChild(el);
 
     const computed = getComputedStyle(el).color;
-    this.document.body.removeChild(el);
+
+    el.remove();
 
     return this.rgbFuncToChannels(computed);
   }
@@ -166,35 +167,35 @@ export class ColorService {
     return { h, s, l };
   }
 
-  private hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
-    const c = (1 - Math.abs(2 * l - 1)) * s;
-    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-    const m = l - c / 2;
+ private hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
 
-    let rp = 0;
-    let gp = 0;
-    let bp = 0;
+  let rp = 0;
+  let gp = 0;
+  let bp = 0;
 
-    if (h >= 0 && h < 60) {
-      rp = c; gp = x; bp = 0;
-    } else if (h < 120) {
-      rp = x; gp = c; bp = 0;
-    } else if (h < 180) {
-      rp = 0; gp = c; bp = x;
-    } else if (h < 240) {
-      rp = 0; gp = x; bp = c;
-    } else if (h < 300) {
-      rp = x; gp = 0; bp = c;
-    } else {
-      rp = c; gp = 0; bp = x;
-    }
-
-    return {
-      r: (rp + m) * 255,
-      g: (gp + m) * 255,
-      b: (bp + m) * 255,
-    };
+  if (h >= 0 && h < 60) {
+    rp = c; gp = x;
+  } else if (h < 120) {
+    rp = x; gp = c;
+  } else if (h < 180) {
+    gp = c; bp = x;
+  } else if (h < 240) {
+    gp = x; bp = c;
+  } else if (h < 300) {
+    rp = x; bp = c;
+  } else {
+    rp = c; bp = x;
   }
+
+  return {
+    r: (rp + m) * 255,
+    g: (gp + m) * 255,
+    b: (bp + m) * 255,
+  };
+}
 
   private clamp01(n: number): number {
     return Math.min(1, Math.max(0, n));
