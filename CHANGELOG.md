@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.9](https://github.com/in2workspace/in2-issuer-ui/releases/tag/v2.0.9)
 ### Changed
-- 
+- Make primary and secondary ionic color variables fully configurable.
 
 ## [2.0.8](https://github.com/in2workspace/in2-issuer-ui/releases/tag/v2.0.8)
 ### Changed
