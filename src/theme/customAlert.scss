@@ -1,5 +1,14 @@
 // Resources: https://lea.verou.me/blog/2024/css-conditionals-now/
 
+:root{
+  /** custom alert **/
+  --custom-alert-error-bg: #fdf0f0;
+  --custom-alert-error-text: #7b2531;
+  --custom-alert-ok-bg: #e7f8e4;
+  --custom-alert-ok-info-bg: #d0efff;
+  --custom-alert-ok-text: #215112;
+}
+
 ion-alert.custom-alert-error .alert-wrapper {
     background-color: var(--custom-alert-error-bg) !important;
     color: white !important;
