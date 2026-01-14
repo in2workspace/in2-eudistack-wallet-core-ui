@@ -23,15 +23,14 @@ export class ColorService {
         root.style.setProperty(`${cssVariable}-shade`, shade);
         root.style.setProperty(`${cssVariable}-tint`, tint);
 
-        // Optional: keep rgb versions of shade/tint too
         root.style.setProperty(`${cssVariable}-shade-rgb`, this.toRgbChannels(shade));
         root.style.setProperty(`${cssVariable}-tint-rgb`, this.toRgbChannels(tint));
       }
     });
   }
 
+  // Returns "r, g, b" (e.g. "0, 173, 211")
   private toRgbChannels(color: string): string {
-    // Returns "r, g, b" (e.g. "0, 173, 211")
     const normalized = color.trim().toLowerCase();
 
     // #RGB / #RRGGBB
