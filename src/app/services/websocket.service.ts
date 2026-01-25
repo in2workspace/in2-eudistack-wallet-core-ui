@@ -1,18 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthenticationService } from './authentication.service';
-import { BehaviorSubject } from 'rxjs';
 import { AlertController, AlertOptions } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
 import { TranslateService } from '@ngx-translate/core';
-import { WEBSOCKET_PATH } from '../constants/api.constants';
+import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebsocketService {
-  private messageSubject = new BehaviorSubject<string>('');
-  private socket!: WebSocket;
+  private pinSocket?: WebSocket;
+  private notificationSocket?: WebSocket;
 
   private loadingTimeout: any;
 
@@ -21,110 +20,109 @@ export class WebsocketService {
   public readonly loader = inject(LoaderService);
   public readonly translate = inject(TranslateService);
 
+  public connectPinSocket(): Promise<void> {
+    return this.connectSocket(
+      WEBSOCKET_PIN_PATH,
+      (data) => this.handlePinSocketMessage(data),
+      (ws) => (this.pinSocket = ws)
+    );
+  }
 
-  public connect(): Promise<void> {
+  public connectNotificationSocket(): Promise<void> {
+    return this.connectSocket(
+      WEBSOCKET_NOTIFICATION_PATH,
+      (data) => this.handleNotificationSocketMessage(data),
+      (ws) => (this.notificationSocket = ws)
+    );
+  }
+  
+  public closePinConnection(): void {
+    this.safeClose(this.pinSocket);
+    this.pinSocket = undefined;
+  }
+
+  public closeNotificationConnection(): void {
+    this.safeClose(this.notificationSocket);
+    this.notificationSocket = undefined;
+  }
+  
+  public sendPinMessage(message: string): void {
+    this.sendMessage(this.pinSocket, message);
+  }
+
+  public sendNotificationMessage(message: string): void {
+    this.sendMessage(this.notificationSocket, message);
+  }
+
+  private connectSocket(
+    path: string,
+    onParsedMessage: (data: any) => Promise<void>,
+    assignSocket: (ws: WebSocket) => void
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.socket = new WebSocket(
-        environment.websocket_url + WEBSOCKET_PATH
-      );
-    
-      // ON OPEN
-      this.socket.onopen = () => {
-        console.log('WebSocket connection opened');
-        this.sendMessage(
-          JSON.stringify({ id: this.authenticationService.getToken() })
-        );
+      const ws = new WebSocket(environment.websocket_url + path);
+      assignSocket(ws);
+
+      ws.onopen = () => {
+        console.log(`WebSocket connection opened: ${path}`);
+        this.sendMessage(ws, JSON.stringify({ id: this.authenticationService.getToken() }));
         resolve();
       };
-      
-      // ON ERROR
-      this.socket.onerror = (ev: Event) => {
-        console.error('WebSocket failed to open');
-        console.error(ev);
+
+      ws.onerror = (ev: Event) => {
+        console.error(`WebSocket failed to open: ${path}`, ev);
         reject(new Error('Websocket error.'));
       };
-    
-      // ON MESSAGE
-      this.socket.onmessage = async (event) => {
-        console.log('Message received:', event.data);
-        const data = JSON.parse(event.data);
-    
-        let description = this.translate.instant('confirmation.description');
-        let counter = data.timeout || 60;
-    
-        const cancelHandler = () => {
-          clearInterval(interval);
-        };
-        const loadingTimeOutSendHandler = () => {
-          this.loader.addLoadingProcess();
-        };
-        const sendHandler = (alertData: any) => {
-          clearInterval(interval);
-          this.loadingTimeout = setTimeout(loadingTimeOutSendHandler, 1000);
-          this.sendMessage(JSON.stringify({ pin: alertData.pin }));
-        }
-        const header = this.translate.instant('confirmation.pin');
-        const message = this.translate.instant('confirmation.messageHtml', {
-          description,
-          counter,
-        });
-        const cancel = this.translate.instant('confirmation.cancel');
-        const send = this.translate.instant('confirmation.send');
 
-        const alertOptions: AlertOptions = {
-          header: header,
-          message: message,
-          inputs: [
-            {
-              name: 'pin',
-              type: 'text',
-              placeholder: 'PIN',
-              attributes: {
-                inputmode: 'numeric',
-                pattern: '[0-9]*',
-              },
-            },
-          ],
-          buttons: [
-            {
-              text: cancel,
-              role: 'cancel',
-              handler: cancelHandler,
-            },
-            {
-              text: send,
-              handler: sendHandler,
-            },
-          ],
-          backdropDismiss: false,
-        };
-        
-        const alert = await this.alertController.create(alertOptions);
-    
-        const interval = this.startCountdown(alert, description, counter);
-    
-        await alert.present();
+      ws.onmessage = async (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          await onParsedMessage(data);
+        } catch (e) {
+          console.error(`WebSocket message parse/handle error: ${path}`, e, event.data);
+        }
       };
-    
-      // ON CLOSE
-      this.socket.onclose = () => {
+
+      ws.onclose = () => {
         clearTimeout(this.loadingTimeout);
         this.loader.removeLoadingProcess();
-        console.log('WebSocket connection closed');
+        console.log(`WebSocket connection closed: ${path}`);
       };
     });
   }
-  
-  public sendMessage(message: string): void {
-    if (this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(message);
+
+  private sendMessage(socket: WebSocket | undefined, payload: string): void {
+    if (!socket) {
+      console.error('WebSocket is not initialized.');
+      return;
+    }
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(payload);
     } else {
       console.error('WebSocket connection is not open.');
     }
   }
 
-  public closeConnection(): void {
-    this.socket.close();
+  private safeClose(socket?: WebSocket): void {
+    try {
+      if (socket && socket.readyState !== WebSocket.CLOSED) {
+        socket.close();
+      }
+    } catch (e) {
+      console.warn('Error closing websocket', e);
+    }
+  }
+
+   private async handlePinSocketMessage(data: any): Promise<void> {
+    if (data.pin === true || data.txCode) {
+      await this.handlePinRequest(data);
+    }
+  }
+
+  private async handleNotificationSocketMessage(data: any): Promise<void> {
+    if (data.decision === true) {
+      await this.handleNotificationDecisionRequest(data);
+    }
   }
 
   private startCountdown(
@@ -151,5 +149,92 @@ export class WebsocketService {
   
     return interval;
   }
-  
+
+  private async handlePinRequest(data: any): Promise<void> {
+    const description = this.translate.instant('confirmation.description');
+    const counter = data.timeout || 60;
+
+    let interval: any;
+
+    const cancel = this.translate.instant('confirmation.cancel');
+    const send = this.translate.instant('confirmation.send');
+    const header = this.translate.instant('confirmation.pin');
+
+    const message = this.translate.instant('confirmation.messageHtml', { description, counter });
+
+    const cancelHandler = () => clearInterval(interval);
+
+    const loadingTimeOutSendHandler = () => {
+      this.loader.addLoadingProcess();
+    };
+
+    const sendHandler = (alertData: any) => {
+      clearInterval(interval);
+      this.loadingTimeout = setTimeout(loadingTimeOutSendHandler, 1000);
+      this.sendPinMessage(JSON.stringify({ pin: alertData.pin }));
+    };
+
+    const alertOptions: AlertOptions = {
+      header,
+      message,
+      inputs: [
+        {
+          name: 'pin',
+          type: 'text',
+          placeholder: 'PIN',
+          attributes: {
+            inputmode: 'numeric',
+            pattern: '[0-9]*',
+          },
+        },
+      ],
+      buttons: [
+        { text: cancel, role: 'cancel', handler: cancelHandler },
+        { text: send, handler: sendHandler },
+      ],
+      backdropDismiss: false,
+    };
+
+    const alert = await this.alertController.create(alertOptions);
+    interval = this.startCountdown(alert, description, counter);
+  }
+
+  private async handleNotificationDecisionRequest(data: any): Promise<void> {
+    const counter = data.timeout || 60;
+
+    const header = this.translate.instant('confirmation.new-credential-title');
+    const accept = this.translate.instant('confirmation.accept');
+    const reject = this.translate.instant('confirmation.cancel');
+
+    const description = this.translate.instant('confirmation.new-credential');
+    const message =
+      this.translate.instant('credentials.acceptMessageHtml', { description, counter }) ||
+      `${description}<br/><br/><b>${counter}</b>`;
+
+    let interval: any;
+
+    const rejectHandler = () => {
+      clearInterval(interval);
+      this.sendNotificationMessage(JSON.stringify({ decision: 'REJECTED' }));
+    };
+
+    const acceptHandler = () => {
+      clearInterval(interval);
+      this.sendNotificationMessage(JSON.stringify({ decision: 'ACCEPTED' }));
+    };
+
+    const alertOptions: AlertOptions = {
+      header,
+      message,
+      buttons: [
+        { text: reject, role: 'cancel', handler: rejectHandler },
+        { text: accept, role: 'confirm', handler: acceptHandler },
+      ],
+      backdropDismiss: false,
+    };
+
+    const alert = await this.alertController.create(alertOptions);
+    interval = this.startCountdown(alert, description, counter);
+  }
+
 }

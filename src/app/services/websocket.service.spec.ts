@@ -96,7 +96,7 @@ describe('WebsocketService', () => {
   });
 
   afterEach(() => {
-    service.closeConnection();
+    service.closePinConnection();
     window['WebSocket'] = originalWebSocket;
     jest.clearAllMocks();
   });
@@ -212,7 +212,7 @@ describe('WebsocketService', () => {
   it('should close WebSocket connection', () => {
     service.connect();
 
-    service.closeConnection();
+    service.closePinConnection();
 
     expect(service['socket'].close).toHaveBeenCalledTimes(1);
   });
