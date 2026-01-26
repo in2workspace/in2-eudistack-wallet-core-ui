@@ -16,7 +16,7 @@ import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { catchError, defer, finalize, forkJoin, from, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
 import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
@@ -94,9 +94,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
     this.showScannerView = false;
     this.showScanner = false;
     this.cdr.detectChanges();
-
-    this.websocket.closePinConnection();
-    this.websocket.closeNotificationConnection();
   }
 
   public openScannerViewWithoutScanner(): void {
@@ -143,87 +140,63 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
   }
 
   public qrCodeEmit(qrCode: string): void {
-    const isCredentialOffer = qrCode.includes('credential_offer_uri');
-
     let executeContentSucessCallback: (arg: any) => Observable<any>;
-    if (isCredentialOffer) {
+    //todo don't accept qrs that are not to login or get VC
+    if(qrCode.includes('credential_offer_uri')){
+      //show VCs list
       this.closeScannerViewAndScanner();
-      executeContentSucessCallback = () => this.handleActivationSuccess();
-    } else {
+      // CROSS-DEVICE CREDENTIAL OFFER FLOW
+      executeContentSucessCallback = () => {
+        return this.handleActivationSuccess();
+      }
+    }else{
+      // LOGIN / VERIFIABLE PRESENTATION
+      // hide scanner but don't show VCs list
       this.closeScanner();
       this.loader.addLoadingProcess();
       executeContentSucessCallback = (executionResponse: JSON) => {
         return from(this.router.navigate(['/tabs/vc-selector/'], {
-          queryParams: { executionResponse: JSON.stringify(executionResponse) },
+          queryParams: {
+            executionResponse: JSON.stringify(executionResponse),
+          },
         })).pipe(
-          tap(() => this.loader.removeLoadingProcess())
+          tap(() => { this.loader.removeLoadingProcess() })
         );
-      };
+      }
     }
-
-    from(this.websocket.connectPinSocket()).pipe(
-      tap(() => this.loader.addLoadingProcess()),
-
-      // 1) Lanzamos executeContent (esto disparará tx_code y luego decision)
-      switchMap(() => this.walletService.executeContent(qrCode)),
-
-      // 2) Para credential_offer: esperamos a que el PIN termine (decision:true)
-      switchMap((executionResponse) => {
-        if (!isCredentialOffer) return of(executionResponse);
-        return this.websocket.waitForPinApproved$().pipe(
-          map(() => executionResponse)
-        );
-      }),
-
-      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
-
-      // 4) Ahora sí: abrimos notification (solo credential_offer)
-      switchMap(() => isCredentialOffer
-        ? from(this.websocket.connectNotificationSocket())
-        : of(void 0)
-      ),
-
-      finalize(() => {
-        this.loader.removeLoadingProcess();
-        this.websocket.closePinConnection();
-        if (!isCredentialOffer) this.websocket.closeNotificationConnection();
-      }),
-
-      catchError((err) => {
-        this.websocket.closePinConnection();
-        this.websocket.closeNotificationConnection();
-        return throwError(() => err);
-      }),
-
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      error: (error) => this.handleContentExecutionError(error),
-    });
+    this.websocket.connectPinSocket()
+      .then(() => {
+        this.loader.addLoadingProcess();
+        this.walletService.executeContent(qrCode)
+          .pipe(
+            takeUntilDestroyed(this.destroyRef),
+            switchMap((executionResponse) => {
+                return executeContentSucessCallback(executionResponse);
+              }),
+            finalize(() => {
+              this.loader.removeLoadingProcess();
+              this.websocket.closePinConnection();
+            }),
+          ).subscribe({
+              error: (error: ExtendedHttpErrorResponse) => {
+                this.handleContentExecutionError(error);
+              },
+          });
+      })
+      .catch(err => {
+        this.handleContentExecutionError(err)
+      })
   }
-
 
   public sameDeviceVcActivationFlow(): void {
     this.websocket.connectPinSocket()
       .then(() => {
         console.info('Requesting Credential Offer via same-device flow.');
-
         this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri).subscribe({
           next: () => {
-            this.handleActivationSuccess().subscribe({
-              next: async () => {
-                await this.router.navigate(['/tabs/credentials']);
-                this.websocket.closePinConnection();
-
-                try {
-                  await this.websocket.connectNotificationSocket();
-                } catch (e) {
-                  console.error('Notification socket failed to open', e);
-                }
-              },
-              error: (err) => {
-                console.error(err);
-                this.websocket.closePinConnection();
-              }
+            this.handleActivationSuccess().subscribe(() => {
+              this.router.navigate(['/tabs/credentials']);
+              this.websocket.closePinConnection();
             });
           },
           error: (err) => {
@@ -232,10 +205,10 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
           },
         });
       })
-      .catch(err => this.handleContentExecutionError(err));
+      .catch(err => {
+          this.handleContentExecutionError(err)
+      })
   }
-
-
 
   private async showTempOkMessage(): Promise<void> {
     const alert = await this.alertController.create({
@@ -262,9 +235,27 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       .pipe(
         tap(() => {
           this.loader.removeLoadingProcess();
-          this.showTempOkMessage();
+          this.handleAcceptanceSuccess();
         })
       )
+  }
+
+  public handleAcceptanceSuccess(): void {
+    this.loader.addLoadingProcess();
+    this.websocket.connectAndWaitNotification$(60).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        this.loader.removeLoadingProcess();
+        this.websocket.closeNotificationConnection();
+      }),
+    ).subscribe({
+      next: () => {        
+        this.showTempOkMessage();
+      },
+      error: (err) => {
+        this.handleContentExecutionError(err);
+      },
+    });
   }
 
   private loadCredentials(): Observable<VerifiableCredential[]> {

@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
-import { filter, Observable, of, Subject, switchMap, take, throwError } from 'rxjs';
+import { defer, filter, from, mapTo, Observable, of, race, Subject, switchMap, take, throwError, timer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,18 +14,24 @@ export class WebsocketService {
   private pinSocket?: WebSocket;
   private notificationSocket?: WebSocket;
 
+  private notificationMessagesSubject = new Subject<any>();
+  public notificationMessages$ = this.notificationMessagesSubject.asObservable();
+
   private loadingTimeout: any;
 
-  pinMessages$ = new Subject<any>();
-
-  public waitForPinApproved$(): Observable<void> {
-    return this.pinMessages$.pipe(
-      filter((msg: any) => typeof msg?.decision === 'boolean'),
-      take(1),
-      switchMap((msg: any) => {
-        if (msg.decision === true) return of(void 0);
-        return throwError(() => new Error('[PIN] Rejected by user'));
-      })
+  connectAndWaitNotification$(timeoutSeconds = 60): Observable<void> {
+    return defer(() => from(this.connectNotificationSocket())).pipe(
+      switchMap(() =>
+        race(
+          this.notificationMessages$.pipe(
+            take(1),
+            mapTo(void 0),
+          ),
+          timer(timeoutSeconds * 1000).pipe(
+            switchMap(() => throwError(() => new Error('[NOTIFICATION] Timeout')))
+          )
+        )
+      )
     );
   }
 
