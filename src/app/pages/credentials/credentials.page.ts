@@ -164,59 +164,50 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       }
     }
-    Promise.all([
-      this.websocket.connectPinSocket(),
-      this.websocket.connectNotificationSocket()
-    ])
-    .then(() => {
-      this.loader.addLoadingProcess();
-      this.walletService.executeContent(qrCode)
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          switchMap((executionResponse) => {
-              return executeContentSucessCallback(executionResponse);
-            }),
-          finalize(() => {
-            this.loader.removeLoadingProcess();
-            this.websocket.closePinConnection();
-            this.websocket.closeNotificationConnection();
-          }),
-        ).subscribe({
-            error: (error: ExtendedHttpErrorResponse) => {
-              this.handleContentExecutionError(error);
-            },
-        });
-    })
-    .catch(err => {
-      this.handleContentExecutionError(err)
-    })
+    this.websocket.connectPinSocket()
+      .then(() => {
+        this.loader.addLoadingProcess();
+        this.walletService.executeContent(qrCode)
+          .pipe(
+            takeUntilDestroyed(this.destroyRef),
+            switchMap((executionResponse) => {
+                return executeContentSucessCallback(executionResponse);
+              }),
+            finalize(() => {
+              this.loader.removeLoadingProcess();
+              this.websocket.closePinConnection();
+              }),
+          ).subscribe({
+              error: (error: ExtendedHttpErrorResponse) => {
+                this.handleContentExecutionError(error);
+              },
+          });
+      })
+      .catch(err => {
+        this.handleContentExecutionError(err)
+      })
   }
 
   public sameDeviceVcActivationFlow(): void {
-    Promise.all([
-      this.websocket.connectPinSocket(),
-      this.websocket.connectNotificationSocket()
-    ])
-    .then(() => {
-      console.info('Requesting Credential Offer via same-device flow.');
-      this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri).subscribe({
-        next: () => {
-          this.handleActivationSuccess().subscribe(() => {
-            this.router.navigate(['/tabs/credentials']);
+    this.websocket.connectPinSocket()
+      .then(() => {
+        console.info('Requesting Credential Offer via same-device flow.');
+        this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri).subscribe({
+          next: () => {
+            this.handleActivationSuccess().subscribe(() => {
+              this.router.navigate(['/tabs/credentials']);
+              this.websocket.closePinConnection();
+            });
+          },
+          error: (err) => {
+            console.error(err);
             this.websocket.closePinConnection();
-            this.websocket.closeNotificationConnection();
-          });
-        },
-        error: (err) => {
-          console.error(err);
-          this.websocket.closePinConnection();
-          this.websocket.closeNotificationConnection();
-        },
-      });
-    })
-    .catch(err => {
-        this.handleContentExecutionError(err)
-    })
+          },
+        });
+      })
+      .catch(err => {
+          this.handleContentExecutionError(err)
+      })
   }
 
   private async showTempOkMessage(): Promise<void> {
