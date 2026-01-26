@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
+import { filter, Observable, of, Subject, switchMap, take, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,18 @@ export class WebsocketService {
   private notificationSocket?: WebSocket;
 
   private loadingTimeout: any;
+
+  // Ejemplo: expone eventos del pin
+  pinMessages$ = new Subject<any>();
+
+  waitForPinApproved$(): Observable<void> {
+    return this.pinMessages$.pipe(
+      filter(m => m?.decision !== undefined),
+      take(1),
+      switchMap(m => m.decision ? of(void 0) : throwError(() => new Error('PIN rejected')))
+    );
+  }
+
 
   private readonly alertController = inject(AlertController);
   private readonly authenticationService = inject(AuthenticationService);

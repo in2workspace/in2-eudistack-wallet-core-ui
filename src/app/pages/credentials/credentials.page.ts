@@ -160,36 +160,24 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       };
     }
-    defer(() => from(this.websocket.connectPinSocket()))
-      .pipe(
-        tap(() => this.loader.addLoadingProcess()),
+    from(this.websocket.connectPinSocket()).pipe(
+      tap(() => this.loader.addLoadingProcess()),
+      switchMap(() => this.walletService.executeContent(qrCode)),
+      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
 
-        switchMap(() => {
-          if (!isCredentialOffer) return of(null);
-          return from(this.websocket.connectNotificationSocket());
-        }),
+      switchMap(() => isCredentialOffer ? this.websocket.waitForPinApproved$() : of(void 0)),
 
-        switchMap(() => this.walletService.executeContent(qrCode)),
+      switchMap(() => isCredentialOffer ? from(this.websocket.connectNotificationSocket()) : of(void 0)),
 
-        switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+      finalize(() => {
+        this.loader.removeLoadingProcess();
+        this.websocket.closePinConnection();
+        if (!isCredentialOffer) this.websocket.closeNotificationConnection();
+      }),
 
-        finalize(() => {
-          this.loader.removeLoadingProcess();
-          this.websocket.closePinConnection();
-        }),
-
-        catchError((err) => {
-          this.websocket.closePinConnection();
-          this.websocket.closeNotificationConnection();
-          return throwError(() => err);
-        }),
-
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        error: (error) => this.handleContentExecutionError(error),
-      });
-
+    ).subscribe({
+      error: (error) => this.handleContentExecutionError(error),
+    });
   }
 
   public sameDeviceVcActivationFlow(): void {
