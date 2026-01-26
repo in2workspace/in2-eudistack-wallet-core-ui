@@ -233,7 +233,6 @@ export class WebsocketService {
     const previewHtml = preview
     ? `
       <div style="margin-top:10px">
-        <b>${this.translate.instant('confirmation.new-credential-title')}</b><br/>
         ${preview.subjectName ? `Titular: ${this.escapeHtml(preview.subjectName)}<br/>` : ''}
         ${preview.organization ? `Organización: ${this.escapeHtml(preview.organization)}<br/>` : ''}
         ${preview.issuer ? `Emisor: ${this.escapeHtml(preview.issuer)}<br/>` : ''}
@@ -246,7 +245,9 @@ export class WebsocketService {
     const accept = this.translate.instant('confirmation.accept');
     const reject = this.translate.instant('confirmation.cancel');
 
-    const descriptionWithPreview = `${previewHtml}`;
+    const baseDescription = this.translate.instant('confirmation.new-credential');
+
+    const descriptionWithPreview = `${baseDescription}${previewHtml}`;
     const message = this.translate.instant('confirmation.messageHtml', {
       description: descriptionWithPreview,
       counter,
