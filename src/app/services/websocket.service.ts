@@ -42,6 +42,7 @@ export class WebsocketService {
   }
 
   public connectNotificationSocket(): Promise<void> {
+    console.log("Xivato 1");
     return this.connectSocket(
       WEBSOCKET_NOTIFICATION_PATH,
       (data) => this.handleNotificationDecisionRequest(data),
