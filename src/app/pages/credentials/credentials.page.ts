@@ -16,7 +16,7 @@ import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { catchError, defer, finalize, forkJoin, from, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { catchError, defer, finalize, forkJoin, from, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
 import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
@@ -160,22 +160,47 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       };
     }
+
     from(this.websocket.connectPinSocket()).pipe(
       tap(() => this.loader.addLoadingProcess()),
+
+      // 1) Lanzamos executeContent (esto disparará tx_code y luego decision)
       switchMap(() => this.walletService.executeContent(qrCode)),
-      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
-      tap(() => {
-        this.websocket.closePinConnection();
+
+      // 2) Para credential_offer: esperamos a que el PIN termine (decision:true)
+      switchMap((executionResponse) => {
+        if (!isCredentialOffer) return of(executionResponse);
+        return this.websocket.waitForPinApproved$().pipe(
+          map(() => executionResponse)
+        );
       }),
-      switchMap(() => isCredentialOffer ? from(this.websocket.connectNotificationSocket()) : of(void 0)),
+
+      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+
+      // 4) Ahora sí: abrimos notification (solo credential_offer)
+      switchMap(() => isCredentialOffer
+        ? from(this.websocket.connectNotificationSocket())
+        : of(void 0)
+      ),
+
       finalize(() => {
         this.loader.removeLoadingProcess();
+        this.websocket.closePinConnection();
         if (!isCredentialOffer) this.websocket.closeNotificationConnection();
       }),
+
+      catchError((err) => {
+        this.websocket.closePinConnection();
+        this.websocket.closeNotificationConnection();
+        return throwError(() => err);
+      }),
+
+      takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       error: (error) => this.handleContentExecutionError(error),
     });
   }
+
 
   public sameDeviceVcActivationFlow(): void {
     this.websocket.connectPinSocket()

@@ -16,6 +16,20 @@ export class WebsocketService {
 
   private loadingTimeout: any;
 
+  pinMessages$ = new Subject<any>();
+
+  public waitForPinApproved$(): Observable<void> {
+    return this.pinMessages$.pipe(
+      filter((msg: any) => typeof msg?.decision === 'boolean'),
+      take(1),
+      switchMap((msg: any) => {
+        if (msg.decision === true) return of(void 0);
+        return throwError(() => new Error('[PIN] Rejected by user'));
+      })
+    );
+  }
+
+
   private readonly alertController = inject(AlertController);
   private readonly authenticationService = inject(AuthenticationService);
   public readonly loader = inject(LoaderService);
