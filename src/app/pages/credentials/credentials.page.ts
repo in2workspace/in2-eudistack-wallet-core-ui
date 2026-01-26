@@ -141,55 +141,56 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
 
   public qrCodeEmit(qrCode: string): void {
     let executeContentSucessCallback: (arg: any) => Observable<any>;
-
-    const isIssuance = qrCode.includes('credential_offer_uri');
-
-    if (isIssuance) {
+    //todo don't accept qrs that are not to login or get VC
+    if(qrCode.includes('credential_offer_uri')){
+      //show VCs list
       this.closeScannerViewAndScanner();
-      executeContentSucessCallback = () => this.handleActivationSuccess();
-    } else {
+      // CROSS-DEVICE CREDENTIAL OFFER FLOW
+      executeContentSucessCallback = () => {
+        return this.handleActivationSuccess();
+      }
+    }else{
+      // LOGIN / VERIFIABLE PRESENTATION
+      // hide scanner but don't show VCs list
       this.closeScanner();
       this.loader.addLoadingProcess();
       executeContentSucessCallback = (executionResponse: JSON) => {
         return from(this.router.navigate(['/tabs/vc-selector/'], {
-          queryParams: { executionResponse: JSON.stringify(executionResponse) },
+          queryParams: {
+            executionResponse: JSON.stringify(executionResponse),
+          },
         })).pipe(
-          tap(() => this.loader.removeLoadingProcess())
+          tap(() => { this.loader.removeLoadingProcess() })
         );
-      };
+      }
     }
-
-    const connect$ = isIssuance
-      ? Promise.all([
-          this.websocket.connectPinSocket(),
-          this.websocket.connectNotificationSocket(),
-        ]).then(() => undefined)
-      : Promise.resolve();
-
-    connect$
-      .then(() => {
-        this.loader.addLoadingProcess();
-
-        this.walletService.executeContent(qrCode)
-          .pipe(
-            takeUntilDestroyed(this.destroyRef),
-            switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
-            finalize(() => {
-              this.loader.removeLoadingProcess();
-
-              if (isIssuance) {
-                this.websocket.closePinConnection();
-                this.websocket.closeNotificationConnection();
-              }
-            })
-          )
-          .subscribe({
-            error: (error: ExtendedHttpErrorResponse) => this.handleContentExecutionError(error),
-          });
-      })
-      .catch(err => this.handleContentExecutionError(err));
+    Promise.all([
+      this.websocket.connectPinSocket(),
+      this.websocket.connectNotificationSocket()
+    ])
+    .then(() => {
+      this.loader.addLoadingProcess();
+      this.walletService.executeContent(qrCode)
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap((executionResponse) => {
+              return executeContentSucessCallback(executionResponse);
+            }),
+          finalize(() => {
+            this.loader.removeLoadingProcess();
+            this.websocket.closePinConnection();
+            this.websocket.closeNotificationConnection();
+          }),
+        ).subscribe({
+            error: (error: ExtendedHttpErrorResponse) => {
+              this.handleContentExecutionError(error);
+            },
+        });
+    })
+    .catch(err => {
+      this.handleContentExecutionError(err)
+    })
   }
-
 
   public sameDeviceVcActivationFlow(): void {
     Promise.all([
