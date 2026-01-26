@@ -141,8 +141,9 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
 
   public qrCodeEmit(qrCode: string): void {
     let executeContentSucessCallback: (arg: any) => Observable<any>;
+    const isCredentialOffer = qrCode.includes('credential_offer_uri');
     //todo don't accept qrs that are not to login or get VC
-    if(qrCode.includes('credential_offer_uri')){
+    if(isCredentialOffer){
       //show VCs list
       this.closeScannerViewAndScanner();
       // CROSS-DEVICE CREDENTIAL OFFER FLOW
@@ -164,29 +165,29 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       }
     }
-    this.websocket.connectPinSocket()
-      .then(() => {
-        this.loader.addLoadingProcess();
-        this.walletService.executeContent(qrCode)
-          .pipe(
-            takeUntilDestroyed(this.destroyRef),
-            switchMap((executionResponse) => {
-                return executeContentSucessCallback(executionResponse);
-              }),
-            finalize(() => {
-              this.loader.removeLoadingProcess();
-              this.websocket.closePinConnection();
-              if(qrCode.includes('credential_offer_uri')) this.websocket.closeNotificationConnection();
-            }),
-          ).subscribe({
-              error: (error: ExtendedHttpErrorResponse) => {
-                this.handleContentExecutionError(error);
-              },
-          });
-      })
-      .catch(err => {
-        this.handleContentExecutionError(err)
-      })
+    const socketPromises: Promise<void>[] = [this.websocket.connectPinSocket()];
+    if (isCredentialOffer) socketPromises.push(this.websocket.connectNotificationSocket());
+
+    from(Promise.all(socketPromises))
+      .pipe(
+        tap(() => this.loader.addLoadingProcess()),
+
+        switchMap(() => this.walletService.executeContent(qrCode)),
+
+        switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+
+        finalize(() => {
+          this.loader.removeLoadingProcess();
+          this.websocket.closePinConnection();
+          if (isCredentialOffer) this.websocket.closeNotificationConnection();
+        }),
+
+        catchError((error: ExtendedHttpErrorResponse) => {
+          this.handleContentExecutionError(error);
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
   public sameDeviceVcActivationFlow(): void {

@@ -29,7 +29,6 @@ export class WebsocketService {
   }
 
   public connectNotificationSocket(): Promise<void> {
-    console.log("Xivato 1");
     return this.connectSocket(
       WEBSOCKET_NOTIFICATION_PATH,
       (data) => this.handleNotificationDecisionRequest(data),
@@ -142,12 +141,7 @@ export class WebsocketService {
     return interval;
   }
 
-  private async handlePinRequest(data: any): Promise<void> {
-    if (data?.decision) {
-      await this.connectNotificationSocket();
-      return;
-    }
-    
+  private async handlePinRequest(data: any): Promise<void> {    
     if (!data?.tx_code) {
       console.log('[PIN] Ignoring non-tx_code message:', data);
       return;
@@ -203,6 +197,11 @@ export class WebsocketService {
   }
 
   private async handleNotificationDecisionRequest(data: any): Promise<void> {
+    if (!data?.decision) {
+      console.log('[NOTIFICATION] Ignoring non-decision message:', data);
+      return;
+    }
+
     const counter = data.timeout || 60;
 
     const header = this.translate.instant('confirmation.new-credential-title');
