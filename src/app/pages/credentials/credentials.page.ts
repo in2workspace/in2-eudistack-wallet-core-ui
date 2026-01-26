@@ -165,17 +165,32 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       }
     }
-    const socketPromises: Promise<void>[] = [this.websocket.connectPinSocket()];
-    if (isCredentialOffer) socketPromises.push(this.websocket.connectNotificationSocket());
+    // 1) Conectar sockets según flow (notification solo si offer)
+    const socketsToConnect: Promise<void>[] = [this.websocket.connectPinSocket()];
+    if (isCredentialOffer) socketsToConnect.push(this.websocket.connectNotificationSocket());
 
-    from(Promise.all(socketPromises))
+    from(Promise.all(socketsToConnect))
       .pipe(
-        tap(() => this.loader.addLoadingProcess()),
+        // 2) Ejecutar contenido cuando sockets ya están listos
+        switchMap(() => {
+          this.loader.addLoadingProcess();
+          return this.walletService.executeContent(qrCode);
+        }),
 
-        switchMap(() => this.walletService.executeContent(qrCode)),
+        // 3) Continuar según flow
+        switchMap((executionResponse) => {
+          if (isCredentialOffer) {
+            return this.handleActivationSuccess();
+          }
 
-        switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+          return from(
+            this.router.navigate(['/tabs/vc-selector/'], {
+              queryParams: { executionResponse: JSON.stringify(executionResponse) },
+            })
+          );
+        }),
 
+        // 4) Cerrar sockets siempre
         finalize(() => {
           this.loader.removeLoadingProcess();
           this.websocket.closePinConnection();

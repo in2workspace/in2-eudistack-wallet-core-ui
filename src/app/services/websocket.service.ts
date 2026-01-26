@@ -20,43 +20,25 @@ export class WebsocketService {
   public readonly loader = inject(LoaderService);
   public readonly translate = inject(TranslateService);
 
-  public connectPinSocket(): Promise<void> {
-    return this.connectSocket(
-      WEBSOCKET_PIN_PATH,
-      (data) => this.handlePinRequest(data),
-      (ws) => (this.pinSocket = ws)
-    );
-  }
+  // websocket.service.ts
+  private async routeMessage(data: any): Promise<void> {
+    // PIN challenge
+    if (data?.tx_code) {
+      await this.handlePinRequest(data);
+      return;
+    }
 
-  public connectNotificationSocket(): Promise<void> {
-    return this.connectSocket(
-      WEBSOCKET_NOTIFICATION_PATH,
-      (data) => this.handleNotificationDecisionRequest(data),
-      (ws) => (this.notificationSocket = ws)
-    );
-  }
-  
-  public closePinConnection(): void {
-    this.safeClose(this.pinSocket);
-    this.pinSocket = undefined;
-  }
+    // Notification decision request
+    if (data?.decision != null || data?.type === 'NOTIFICATION') {
+      await this.handleNotificationDecisionRequest(data);
+      return;
+    }
 
-  public closeNotificationConnection(): void {
-    this.safeClose(this.notificationSocket);
-    this.notificationSocket = undefined;
-  }
-  
-  public sendPinMessage(message: string): void {
-    this.sendMessage(this.pinSocket, message);
-  }
-
-  public sendNotificationMessage(message: string): void {
-    this.sendMessage(this.notificationSocket, message);
+    console.log('[WS] Ignoring unknown message:', data);
   }
 
   private connectSocket(
     path: string,
-    onParsedMessage: (data: any) => Promise<void>,
     assignSocket: (ws: WebSocket) => void
   ): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -74,11 +56,11 @@ export class WebsocketService {
         reject(new Error('Websocket error.'));
       };
 
-      ws.onmessage = async (event) => {        
-        console.log('Message received:', event.data);
+      ws.onmessage = async (event) => {
+        console.log(`[WS ${path}] Message received:`, event.data);
         try {
           const data = JSON.parse(event.data);
-          await onParsedMessage(data);
+          await this.routeMessage(data);
         } catch (e) {
           console.error(`WebSocket message parse/handle error: ${path}`, e, event.data);
         }
@@ -90,6 +72,33 @@ export class WebsocketService {
         console.log(`WebSocket connection closed: ${path}`);
       };
     });
+  }
+
+  public connectPinSocket(): Promise<void> {
+    return this.connectSocket(WEBSOCKET_PIN_PATH, (ws) => (this.pinSocket = ws));
+  }
+
+  public connectNotificationSocket(): Promise<void> {
+    return this.connectSocket(WEBSOCKET_NOTIFICATION_PATH, (ws) => (this.notificationSocket = ws));
+  }
+
+  
+  public closePinConnection(): void {
+    this.safeClose(this.pinSocket);
+    this.pinSocket = undefined;
+  }
+
+  public closeNotificationConnection(): void {
+    this.safeClose(this.notificationSocket);
+    this.notificationSocket = undefined;
+  }
+  
+  public sendPinMessage(message: string): void {
+    this.sendMessage(this.pinSocket, message);
+  }
+
+  public sendNotificationMessage(message: string): void {
+    this.sendMessage(this.notificationSocket, message);
   }
 
   private sendMessage(socket: WebSocket | undefined, payload: string): void {
