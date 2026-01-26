@@ -166,7 +166,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
     }
     Promise.all([
       this.websocket.connectPinSocket(),
-      this.websocket.connectNotificationSocket()
+      //this.websocket.connectNotificationSocket()
     ])
     .then(() => {
       this.loader.addLoadingProcess();
@@ -179,7 +179,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
           finalize(() => {
             this.loader.removeLoadingProcess();
             this.websocket.closePinConnection();
-            this.websocket.closeNotificationConnection();
+            //this.websocket.closeNotificationConnection();
           }),
         ).subscribe({
             error: (error: ExtendedHttpErrorResponse) => {
