@@ -16,7 +16,7 @@ import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
 import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
@@ -94,6 +94,9 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
     this.showScannerView = false;
     this.showScanner = false;
     this.cdr.detectChanges();
+
+    this.websocket.closePinConnection();
+    this.websocket.closeNotificationConnection();
   }
 
   public openScannerViewWithoutScanner(): void {
@@ -165,31 +168,26 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       }
     }
-    this.websocket.connectPinSocket()
-    .then(() => {
-      this.loader.addLoadingProcess();
-
-      this.walletService.executeContent(qrCode)
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
-          finalize(() => {
-            this.loader.removeLoadingProcess();
-            this.websocket.closePinConnection();
-          }),
-        )
-        .subscribe({
-          next: async () => {
-            try {
-              await this.websocket.connectNotificationSocket();
-            } catch (e) {
-              console.error('Notification socket failed', e);
-            }
-          },
-          error: (error) => this.handleContentExecutionError(error),
-        });
-    })
-    .catch(err => this.handleContentExecutionError(err));
+    from(Promise.all([
+      this.websocket.connectPinSocket(),
+      isCredentialOffer ? this.websocket.connectNotificationSocket() : Promise.resolve(),
+    ]))
+    .pipe(
+      tap(() => this.loader.addLoadingProcess()),
+      switchMap(() => this.walletService.executeContent(qrCode)),
+      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+      finalize(() => {
+        this.loader.removeLoadingProcess();
+      }),
+      catchError((err) => {
+        this.websocket.closePinConnection();
+        this.websocket.closeNotificationConnection();
+        return throwError(() => err);
+      })
+    )
+    .subscribe({
+      error: (error) => this.handleContentExecutionError(error),
+    });
   }
 
   public sameDeviceVcActivationFlow(): void {
