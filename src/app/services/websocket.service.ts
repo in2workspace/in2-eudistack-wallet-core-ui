@@ -197,6 +197,7 @@ export class WebsocketService {
 
     const alert = await this.alertController.create(alertOptions);
     interval = this.startCountdown(alert, description, counter);
+    await alert.present();
   }
 
   private async handleNotificationDecisionRequest(data: any): Promise<void> {
@@ -234,7 +235,8 @@ export class WebsocketService {
     };
 
     const alert = await this.alertController.create(alertOptions);
-    interval = this.startCountdown(alert, description, counter);
+    interval = this.startCountdown(alert, description, counter);    
+    await alert.present();
   }
 
 }
