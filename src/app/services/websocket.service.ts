@@ -143,13 +143,13 @@ export class WebsocketService {
   }
 
   private async handlePinRequest(data: any): Promise<void> {
-    if (!data?.tx_code) {
-      console.log('[PIN] Ignoring non-tx_code message:', data);
-      return;
-    }
-
     if (data?.decision) {
       await this.connectNotificationSocket();
+      return;
+    }
+    
+    if (!data?.tx_code) {
+      console.log('[PIN] Ignoring non-tx_code message:', data);
       return;
     }
 
