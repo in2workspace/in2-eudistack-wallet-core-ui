@@ -163,13 +163,15 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
     defer(() => from(this.websocket.connectPinSocket()))
       .pipe(
         tap(() => this.loader.addLoadingProcess()),
-        switchMap(() => this.walletService.executeContent(qrCode)),
-        switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
 
         switchMap(() => {
           if (!isCredentialOffer) return of(null);
           return from(this.websocket.connectNotificationSocket());
         }),
+
+        switchMap(() => this.walletService.executeContent(qrCode)),
+
+        switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
 
         finalize(() => {
           this.loader.removeLoadingProcess();
@@ -187,6 +189,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       .subscribe({
         error: (error) => this.handleContentExecutionError(error),
       });
+
   }
 
   public sameDeviceVcActivationFlow(): void {
