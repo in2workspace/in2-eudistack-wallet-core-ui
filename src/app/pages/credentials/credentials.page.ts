@@ -165,51 +165,65 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       }
     }
-    from(this.connectSocketsForFlow(isCredentialOffer))
-    .pipe(
-      tap(() => this.loader.addLoadingProcess()),
-      switchMap(() => this.walletService.executeContent(qrCode)),
-      takeUntilDestroyed(this.destroyRef),
-      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
-      finalize(() => {
-        this.loader.removeLoadingProcess();
-        this.websocket.closePinConnection();
-        if (isCredentialOffer) this.websocket.closeNotificationConnection();
-      }),
-    )
-    .subscribe({
-      error: (error: ExtendedHttpErrorResponse) => this.handleContentExecutionError(error),
-    });
+    this.websocket.connectPinSocket()
+    .then(() => {
+      this.loader.addLoadingProcess();
+
+      this.walletService.executeContent(qrCode)
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+          finalize(() => {
+            this.loader.removeLoadingProcess();
+            this.websocket.closePinConnection();
+          }),
+        )
+        .subscribe({
+          next: async () => {
+            try {
+              await this.websocket.connectNotificationSocket();
+            } catch (e) {
+              console.error('Notification socket failed', e);
+            }
+          },
+          error: (error) => this.handleContentExecutionError(error),
+        });
+    })
+    .catch(err => this.handleContentExecutionError(err));
   }
 
   public sameDeviceVcActivationFlow(): void {
-    from(this.connectSocketsForFlow(true))
-      .pipe(
-        tap(() => console.info('Requesting Credential Offer via same-device flow.')),
-        switchMap(() => this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri)),
-        switchMap(() => this.handleActivationSuccess()),
-        finalize(() => {
-          this.websocket.closePinConnection();
-          this.websocket.closeNotificationConnection();
-        })
-      )
-      .subscribe({
-        next: () => this.router.navigate(['/tabs/credentials']),
-        error: (err) => {
-          console.error(err);
-          this.websocket.closePinConnection();
-          this.websocket.closeNotificationConnection();
-        },
+    this.websocket.connectPinSocket()
+      .then(() => {
+        console.info('Requesting Credential Offer via same-device flow.');
+
+        this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri).subscribe({
+          next: () => {
+            this.handleActivationSuccess().subscribe({
+              next: async () => {
+                await this.router.navigate(['/tabs/credentials']);
+                this.websocket.closePinConnection();
+                try {
+                  await this.websocket.connectNotificationSocket();
+                } catch (e) {
+                  console.error('Notification socket failed to open', e);
+                }
+              },
+              error: (err) => {
+                console.error(err);
+                this.websocket.closePinConnection();
+              }
+            });
+          },
+          error: (err) => {
+            console.error(err);
+            this.websocket.closePinConnection();
+          },
+        });
+      })
+      .catch(err => {
+        this.handleContentExecutionError(err);
       });
-  }
-
-
-  private async connectSocketsForFlow(connectNotification: boolean): Promise<void> {
-    await this.websocket.connectPinSocket();
-
-    if (connectNotification) {
-      await this.websocket.connectNotificationSocket();
-    }
   }
 
 
