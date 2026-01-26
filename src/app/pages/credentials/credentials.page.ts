@@ -146,25 +146,8 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       //show VCs list
       this.closeScannerViewAndScanner();
       // CROSS-DEVICE CREDENTIAL OFFER FLOW
-      executeContentSucessCallback = () => {
-        return from(this.websocket.connectNotificationSocket())
-          .pipe(
-            switchMap(() => {
-              this.loader.addLoadingProcess();
-              return of(null);
-            }),
-            switchMap(() => {
-              return this.handleActivationSuccess();
-            }),
-            finalize(() => {
-              this.loader.removeLoadingProcess();
-              this.websocket.closeNotificationConnection();
-            }),
-            catchError((error: ExtendedHttpErrorResponse) => {
-              this.handleContentExecutionError(error);
-              return of(null);
-            })
-          );
+      executeContentSucessCallback = () => {   
+        return this.handleActivationSuccess();
       }
     }else{
       // LOGIN / VERIFIABLE PRESENTATION
@@ -193,6 +176,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
             finalize(() => {
               this.loader.removeLoadingProcess();
               this.websocket.closePinConnection();
+              if(qrCode.includes('credential_offer_uri')) this.websocket.closeNotificationConnection();
             }),
           ).subscribe({
               error: (error: ExtendedHttpErrorResponse) => {

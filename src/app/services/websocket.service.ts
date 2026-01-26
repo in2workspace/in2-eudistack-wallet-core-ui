@@ -5,7 +5,6 @@ import { environment } from 'src/environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
-import { defer, filter, from, mapTo, Observable, of, race, Subject, switchMap, take, throwError, timer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -146,6 +145,13 @@ export class WebsocketService {
   private async handlePinRequest(data: any): Promise<void> {
     if (!data?.tx_code) {
       console.log('[PIN] Ignoring non-tx_code message:', data);
+      return;
+    }
+
+    if (data?.decision === true) {
+      if (!this.notificationSocket) {
+        await this.connectNotificationSocket();
+      }
       return;
     }
 
