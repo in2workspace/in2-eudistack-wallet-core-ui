@@ -207,15 +207,30 @@ export class WebsocketService {
     }
 
     const counter = data.timeout || 60;
+    const preview = data.credentialPreview;
+
+    const previewHtml = preview
+    ? `
+      <div style="margin-top:10px">
+        <b>${this.translate.instant('confirmation.new-credential-title')}</b><br/>
+        ${preview.subjectName ? `Titular: ${this.escapeHtml(preview.subjectName)}<br/>` : ''}
+        ${preview.organization ? `Organización: ${this.escapeHtml(preview.organization)}<br/>` : ''}
+        ${preview.issuer ? `Emisor: ${this.escapeHtml(preview.issuer)}<br/>` : ''}
+        ${preview.expirationDate ? `Expira: ${this.escapeHtml(preview.expirationDate)}<br/>` : ''}
+      </div>
+    `
+    : '';
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
     const reject = this.translate.instant('confirmation.cancel');
 
     const description = this.translate.instant('confirmation.new-credential');
-    const message =
-      this.translate.instant('credentials.acceptMessageHtml', { description, counter }) ||
-      `${description}<br/><br/><b>${counter}</b>`;
+    const baseMessage =
+    this.translate.instant('credentials.acceptMessageHtml', { description, counter }) ||
+    `${description}<br/><br/><b>${counter}</b>`;
+
+    const message = baseMessage + previewHtml;
 
     let interval: any;
 
@@ -242,6 +257,15 @@ export class WebsocketService {
     const alert = await this.alertController.create(alertOptions);
     interval = this.startCountdown(alert, description, counter);    
     await alert.present();
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
 }

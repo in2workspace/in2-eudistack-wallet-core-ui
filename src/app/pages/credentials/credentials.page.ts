@@ -247,6 +247,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       .pipe(
         tap(() => {
           this.loader.removeLoadingProcess();
+          this.showTempOkMessage();
         })
       )
   }
