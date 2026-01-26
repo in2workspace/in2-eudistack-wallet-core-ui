@@ -165,19 +165,15 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       }
     }
-    // 1) Conectar sockets según flow (notification solo si offer)
     const socketsToConnect: Promise<void>[] = [this.websocket.connectPinSocket()];
     if (isCredentialOffer) socketsToConnect.push(this.websocket.connectNotificationSocket());
 
     from(Promise.all(socketsToConnect))
       .pipe(
-        // 2) Ejecutar contenido cuando sockets ya están listos
         switchMap(() => {
           this.loader.addLoadingProcess();
           return this.walletService.executeContent(qrCode);
         }),
-
-        // 3) Continuar según flow
         switchMap((executionResponse) => {
           if (isCredentialOffer) {
             return this.handleActivationSuccess();
@@ -190,7 +186,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
           );
         }),
 
-        // 4) Cerrar sockets siempre
         finalize(() => {
           this.loader.removeLoadingProcess();
           this.websocket.closePinConnection();

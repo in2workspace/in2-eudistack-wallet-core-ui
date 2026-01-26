@@ -20,16 +20,13 @@ export class WebsocketService {
   public readonly loader = inject(LoaderService);
   public readonly translate = inject(TranslateService);
 
-  // websocket.service.ts
   private async routeMessage(data: any): Promise<void> {
-    // PIN challenge
     if (data?.tx_code) {
       await this.handlePinRequest(data);
       return;
     }
 
-    // Notification decision request
-    if (data?.decision != null || data?.type === 'NOTIFICATION') {
+    if (data?.decision != null) {
       await this.handleNotificationDecisionRequest(data);
       return;
     }
@@ -102,14 +99,12 @@ export class WebsocketService {
   }
 
   private sendMessage(socket: WebSocket | undefined, payload: string): void {
-    console.log("Xivato 3");
     if (!socket) {
       console.error('WebSocket is not initialized.');
       return;
     }
     if (socket.readyState === WebSocket.OPEN) {
       socket.send(payload);
-      console.log("Xivato 4");
     } else {
       console.error('WebSocket connection is not open.');
     }
