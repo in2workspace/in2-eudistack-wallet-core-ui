@@ -14,27 +14,7 @@ export class WebsocketService {
   private pinSocket?: WebSocket;
   private notificationSocket?: WebSocket;
 
-  private notificationMessagesSubject = new Subject<any>();
-  public notificationMessages$ = this.notificationMessagesSubject.asObservable();
-
   private loadingTimeout: any;
-
-  connectAndWaitNotification$(timeoutSeconds = 60): Observable<void> {
-    return defer(() => from(this.connectNotificationSocket())).pipe(
-      switchMap(() =>
-        race(
-          this.notificationMessages$.pipe(
-            take(1),
-            mapTo(void 0),
-          ),
-          timer(timeoutSeconds * 1000).pipe(
-            switchMap(() => throwError(() => new Error('[NOTIFICATION] Timeout')))
-          )
-        )
-      )
-    );
-  }
-
 
   private readonly alertController = inject(AlertController);
   private readonly authenticationService = inject(AuthenticationService);

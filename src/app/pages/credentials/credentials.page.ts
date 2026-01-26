@@ -147,7 +147,24 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       this.closeScannerViewAndScanner();
       // CROSS-DEVICE CREDENTIAL OFFER FLOW
       executeContentSucessCallback = () => {
-        return this.handleActivationSuccess();
+        return from(this.websocket.connectNotificationSocket())
+          .pipe(
+            switchMap(() => {
+              this.loader.addLoadingProcess();
+              return of(null);
+            }),
+            switchMap(() => {
+              return this.handleActivationSuccess();
+            }),
+            finalize(() => {
+              this.loader.removeLoadingProcess();
+              this.websocket.closeNotificationConnection();
+            }),
+            catchError((error: ExtendedHttpErrorResponse) => {
+              this.handleContentExecutionError(error);
+              return of(null);
+            })
+          );
       }
     }else{
       // LOGIN / VERIFIABLE PRESENTATION
@@ -235,27 +252,8 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       .pipe(
         tap(() => {
           this.loader.removeLoadingProcess();
-          this.handleAcceptanceSuccess();
         })
       )
-  }
-
-  public handleAcceptanceSuccess(): void {
-    this.loader.addLoadingProcess();
-    this.websocket.connectAndWaitNotification$(60).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => {
-        this.loader.removeLoadingProcess();
-        this.websocket.closeNotificationConnection();
-      }),
-    ).subscribe({
-      next: () => {        
-        this.showTempOkMessage();
-      },
-      error: (err) => {
-        this.handleContentExecutionError(err);
-      },
-    });
   }
 
   private loadCredentials(): Observable<VerifiableCredential[]> {
