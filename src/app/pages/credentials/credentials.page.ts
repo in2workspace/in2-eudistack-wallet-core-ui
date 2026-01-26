@@ -167,7 +167,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
 
         switchMap(() => {
-          if (!isCredentialOffer) return of(null);
           return from(this.websocket.connectNotificationSocket());
         }),
 
