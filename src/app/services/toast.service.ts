@@ -48,6 +48,8 @@ export class ToastServiceHandler {
       messageBody = "errors.Errunsigned";
     }else if(message.startsWith("PIN expired")){
       messageBody = "errors.pin-expired"
+    }else if(message.startsWith("The QR session expired")){
+      messageBody = "errors.qr-expired"
     }
 
     return this.showErrorAlertByTranslateLabel(messageBody);

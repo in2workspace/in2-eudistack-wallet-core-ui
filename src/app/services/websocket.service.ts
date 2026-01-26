@@ -34,6 +34,20 @@ export class WebsocketService {
     console.log('[WS] Ignoring unknown message:', data);
   }
 
+  private waitingForPin = false;
+
+  public markWaitingForPin() {
+    this.waitingForPin = true;
+  }
+
+  public clearWaitingForPin() {
+    this.waitingForPin = false;
+  }
+
+  public isWaitingForPin(): boolean {
+    return this.waitingForPin;
+  }
+
   private connectSocket(
     path: string,
     assignSocket: (ws: WebSocket) => void
@@ -54,7 +68,6 @@ export class WebsocketService {
       };
 
       ws.onmessage = async (event) => {
-        console.log(`[WS ${path}] Message received:`, event.data);
         try {
           const data = JSON.parse(event.data);
           await this.routeMessage(data);
@@ -66,6 +79,7 @@ export class WebsocketService {
       ws.onclose = () => {
         clearTimeout(this.loadingTimeout);
         this.loader.removeLoadingProcess();
+        this.clearWaitingForPin();
         console.log(`WebSocket connection closed: ${path}`);
       };
     });
@@ -83,6 +97,7 @@ export class WebsocketService {
   public closePinConnection(): void {
     this.safeClose(this.pinSocket);
     this.pinSocket = undefined;
+    this.clearWaitingForPin();
   }
 
   public closeNotificationConnection(): void {
@@ -151,6 +166,8 @@ export class WebsocketService {
       return;
     }
 
+    this.markWaitingForPin();
+
     const description = this.translate.instant('confirmation.description');
     const counter = data.timeout || 60;
 
@@ -162,7 +179,10 @@ export class WebsocketService {
 
     const message = this.translate.instant('confirmation.messageHtml', { description, counter });
 
-    const cancelHandler = () => clearInterval(interval);
+    const cancelHandler = () => {
+      clearInterval(interval);
+      this.clearWaitingForPin();
+    };
 
     const loadingTimeOutSendHandler = () => {
       this.loader.addLoadingProcess();
@@ -172,6 +192,7 @@ export class WebsocketService {
       clearInterval(interval);
       this.loadingTimeout = setTimeout(loadingTimeOutSendHandler, 1000);
       this.sendPinMessage(JSON.stringify({ pin: alertData.pin }));
+      this.clearWaitingForPin();
     };
 
     const alertOptions: AlertOptions = {
@@ -225,9 +246,7 @@ export class WebsocketService {
     const accept = this.translate.instant('confirmation.accept');
     const reject = this.translate.instant('confirmation.cancel');
 
-    const baseDescription = this.translate.instant('confirmation.new-credential');
-
-    const descriptionWithPreview = `${baseDescription}${previewHtml}`;
+    const descriptionWithPreview = `${previewHtml}`;
     const message = this.translate.instant('confirmation.messageHtml', {
       description: descriptionWithPreview,
       counter,
