@@ -16,7 +16,7 @@ import { CameraLogsService } from 'src/app/services/camera-logs.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ToastServiceHandler } from 'src/app/services/toast.service';
-import { catchError, finalize, forkJoin, from, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { catchError, defer, finalize, forkJoin, from, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { ExtendedHttpErrorResponse } from 'src/app/interfaces/errors';
 import { LoaderService } from 'src/app/services/loader.service';
 import { getExtendedCredentialType, isValidCredentialType } from 'src/app/helpers/get-credential-type.helpers';
@@ -143,51 +143,50 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
   }
 
   public qrCodeEmit(qrCode: string): void {
-    let executeContentSucessCallback: (arg: any) => Observable<any>;
     const isCredentialOffer = qrCode.includes('credential_offer_uri');
-    //todo don't accept qrs that are not to login or get VC
-    if(isCredentialOffer){
-      //show VCs list
+
+    let executeContentSucessCallback: (arg: any) => Observable<any>;
+    if (isCredentialOffer) {
       this.closeScannerViewAndScanner();
-      // CROSS-DEVICE CREDENTIAL OFFER FLOW
-      executeContentSucessCallback = () => {
-        return this.handleActivationSuccess();
-      }
-    }else{
-      // LOGIN / VERIFIABLE PRESENTATION
-      // hide scanner but don't show VCs list
+      executeContentSucessCallback = () => this.handleActivationSuccess();
+    } else {
       this.closeScanner();
       this.loader.addLoadingProcess();
       executeContentSucessCallback = (executionResponse: JSON) => {
         return from(this.router.navigate(['/tabs/vc-selector/'], {
-          queryParams: {
-            executionResponse: JSON.stringify(executionResponse),
-          },
+          queryParams: { executionResponse: JSON.stringify(executionResponse) },
         })).pipe(
-          tap(() => { this.loader.removeLoadingProcess() })
+          tap(() => this.loader.removeLoadingProcess())
         );
-      }
+      };
     }
-    from(Promise.all([
-      this.websocket.connectPinSocket(),
-      isCredentialOffer ? this.websocket.connectNotificationSocket() : Promise.resolve(),
-    ]))
-    .pipe(
-      tap(() => this.loader.addLoadingProcess()),
-      switchMap(() => this.walletService.executeContent(qrCode)),
-      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
-      finalize(() => {
-        this.loader.removeLoadingProcess();
-      }),
-      catchError((err) => {
-        this.websocket.closePinConnection();
-        this.websocket.closeNotificationConnection();
-        return throwError(() => err);
-      })
-    )
-    .subscribe({
-      error: (error) => this.handleContentExecutionError(error),
-    });
+    defer(() => from(this.websocket.connectPinSocket()))
+      .pipe(
+        tap(() => this.loader.addLoadingProcess()),
+        switchMap(() => this.walletService.executeContent(qrCode)),
+        switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+
+        switchMap(() => {
+          if (!isCredentialOffer) return of(null);
+          return from(this.websocket.connectNotificationSocket());
+        }),
+
+        finalize(() => {
+          this.loader.removeLoadingProcess();
+          this.websocket.closePinConnection();
+        }),
+
+        catchError((err) => {
+          this.websocket.closePinConnection();
+          this.websocket.closeNotificationConnection();
+          return throwError(() => err);
+        }),
+
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        error: (error) => this.handleContentExecutionError(error),
+      });
   }
 
   public sameDeviceVcActivationFlow(): void {
@@ -201,6 +200,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
               next: async () => {
                 await this.router.navigate(['/tabs/credentials']);
                 this.websocket.closePinConnection();
+
                 try {
                   await this.websocket.connectNotificationSocket();
                 } catch (e) {
@@ -219,10 +219,9 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
           },
         });
       })
-      .catch(err => {
-        this.handleContentExecutionError(err);
-      });
+      .catch(err => this.handleContentExecutionError(err));
   }
+
 
 
   private async showTempOkMessage(): Promise<void> {
