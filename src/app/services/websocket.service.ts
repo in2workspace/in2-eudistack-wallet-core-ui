@@ -115,7 +115,7 @@ export class WebsocketService {
       console.warn('Error closing websocket', e);
     }
   }
-  
+
   private startCountdown(
     alert: any,
     description: string,
@@ -142,6 +142,11 @@ export class WebsocketService {
   }
 
   private async handlePinRequest(data: any): Promise<void> {
+    if (!data?.tx_code) {
+      console.log('[PIN] Ignoring non-tx_code message:', data);
+      return;
+    }
+
     const description = this.translate.instant('confirmation.description');
     const counter = data.timeout || 60;
 
