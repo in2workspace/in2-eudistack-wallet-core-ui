@@ -148,10 +148,8 @@ export class WebsocketService {
       return;
     }
 
-    if (data?.decision === true) {
-      if (!this.notificationSocket) {
-        await this.connectNotificationSocket();
-      }
+    if (data?.decision) {
+      await this.connectNotificationSocket();
       return;
     }
 
