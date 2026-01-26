@@ -164,7 +164,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       tap(() => this.loader.addLoadingProcess()),
       switchMap(() => this.walletService.executeContent(qrCode)),
       switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
-      switchMap(() => isCredentialOffer ? this.websocket.waitForPinApproved$() : of(void 0)),
       tap(() => {
         this.websocket.closePinConnection();
       }),

@@ -16,18 +16,6 @@ export class WebsocketService {
 
   private loadingTimeout: any;
 
-  // Ejemplo: expone eventos del pin
-  pinMessages$ = new Subject<any>();
-
-  waitForPinApproved$(): Observable<void> {
-    return this.pinMessages$.pipe(
-      filter(m => m?.decision !== undefined),
-      take(1),
-      switchMap(m => m.decision ? of(void 0) : throwError(() => new Error('PIN rejected')))
-    );
-  }
-
-
   private readonly alertController = inject(AlertController);
   private readonly authenticationService = inject(AuthenticationService);
   public readonly loader = inject(LoaderService);
