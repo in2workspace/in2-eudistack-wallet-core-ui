@@ -23,7 +23,7 @@ export class WebsocketService {
   public connectPinSocket(): Promise<void> {
     return this.connectSocket(
       WEBSOCKET_PIN_PATH,
-      (data) => this.handlePinSocketMessage(data),
+      (data) => this.handlePinRequest(data),
       (ws) => (this.pinSocket = ws)
     );
   }
@@ -156,6 +156,7 @@ export class WebsocketService {
   }
 
   private async handlePinRequest(data: any): Promise<void> {
+    console.log("Xivato 5");
     const description = this.translate.instant('confirmation.description');
     const counter = data.timeout || 60;
 
