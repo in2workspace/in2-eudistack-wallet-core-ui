@@ -41,6 +41,7 @@
     },
     "home":{
         "ok-msg": "S'ha afegit la credencial",
+        "rejected-msg": "S'ha rebutjat l'oferta de credencial",
         "scan": "Escanejar QR"
     },
     "language-selector":{

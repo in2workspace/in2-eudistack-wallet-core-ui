@@ -221,25 +221,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
           this.handleContentExecutionError(err)
       })
   }
-
-  private async showTempOkMessage(): Promise<void> {
-    const alert = await this.alertController.create({
-      message: `
-        <div style="display: flex; align-items: center; gap: 50px;">
-          <ion-icon name="checkmark-circle-outline" ></ion-icon>
-          <span>${this.translate.instant('home.ok-msg')}</span>
-        </div>
-      `,
-      cssClass: 'custom-alert-ok',
-    });
-
-    await alert.present();
-
-    setTimeout(async () => {
-      await alert.dismiss();
-    }, 2000);
-  }
-
+  
   private handleActivationSuccess(): Observable<VerifiableCredential[]> {
     this.loader.addLoadingProcess();
 
@@ -247,10 +229,11 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
       .pipe(
         tap(() => {
           this.loader.removeLoadingProcess();
-          this.showTempOkMessage();
         })
       )
   }
+
+  
 
   private loadCredentials(): Observable<VerifiableCredential[]> {
     // todo this conditional should be removed when scanner is moved to another page

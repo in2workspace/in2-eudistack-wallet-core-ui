@@ -225,23 +225,26 @@ export class WebsocketService {
     const accept = this.translate.instant('confirmation.accept');
     const reject = this.translate.instant('confirmation.cancel');
 
-    const description = this.translate.instant('confirmation.new-credential');
-    const baseMessage =
-    this.translate.instant('credentials.acceptMessageHtml', { description, counter }) ||
-    `${description}<br/><br/><b>${counter}</b>`;
+    const baseDescription = this.translate.instant('confirmation.new-credential');
 
-    const message = baseMessage + previewHtml;
+    const descriptionWithPreview = `${baseDescription}${previewHtml}`;
+    const message = this.translate.instant('confirmation.messageHtml', {
+      description: descriptionWithPreview,
+      counter,
+    }) || `${descriptionWithPreview}<br/><br/><b>${counter}</b>`;
 
     let interval: any;
 
-    const rejectHandler = () => {
+    const rejectHandler = async () => {
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'REJECTED' }));
+      await this.showTempOkMessage('home.rejected-msg');
     };
 
-    const acceptHandler = () => {
+    const acceptHandler = async () => {
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'ACCEPTED' }));
+      await this.showTempOkMessage('home.ok-msg');
     };
 
     const alertOptions: AlertOptions = {
@@ -255,9 +258,28 @@ export class WebsocketService {
     };
 
     const alert = await this.alertController.create(alertOptions);
-    interval = this.startCountdown(alert, description, counter);    
+    interval = this.startCountdown(alert, descriptionWithPreview, counter);    
     await alert.present();
   }
+
+  private async showTempOkMessage(message: string): Promise<void> {
+    const alert = await this.alertController.create({
+      message: `
+        <div style="display: flex; align-items: center; gap: 50px;">
+          <ion-icon name="checkmark-circle-outline" ></ion-icon>
+          <span>${this.translate.instant(message)}</span>
+        </div>
+      `,
+      cssClass: 'custom-alert-ok',
+    });
+
+    await alert.present();
+
+    setTimeout(async () => {
+      await alert.dismiss();
+    }, 2000);
+  }
+
 
   private escapeHtml(value: string): string {
     return value

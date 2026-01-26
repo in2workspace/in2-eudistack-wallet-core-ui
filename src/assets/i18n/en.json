@@ -43,6 +43,7 @@
     },
     "home":{
         "ok-msg": "Credential added",
+        "rejected-msg": "Credential offer rejected",
         "scan": "Scan QR"
     },
     "language-selector":{

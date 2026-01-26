@@ -41,6 +41,7 @@
     },
     "home":{
         "ok-msg": "Credencial agregada",
+        "rejected-msg": "Oferta de credencial rechazada",
         "scan": "Escanear QR"
     },
     "language-selector":{
