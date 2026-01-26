@@ -31,7 +31,7 @@ export class WebsocketService {
   public connectNotificationSocket(): Promise<void> {
     return this.connectSocket(
       WEBSOCKET_NOTIFICATION_PATH,
-      (data) => this.handleNotificationSocketMessage(data),
+      (data) => this.handleNotificationDecisionRequest(data),
       (ws) => (this.notificationSocket = ws)
     );
   }
@@ -115,21 +115,7 @@ export class WebsocketService {
       console.warn('Error closing websocket', e);
     }
   }
-
-   private async handlePinSocketMessage(data: any): Promise<void> {
-    console.log("Xivato 1");
-    if (data.pin === true || data.txCode) {
-      console.log("Xivato 2");
-      await this.handlePinRequest(data);
-    }
-  }
-
-  private async handleNotificationSocketMessage(data: any): Promise<void> {
-    if (data.decision === true) {
-      await this.handleNotificationDecisionRequest(data);
-    }
-  }
-
+  
   private startCountdown(
     alert: any,
     description: string,
@@ -156,7 +142,6 @@ export class WebsocketService {
   }
 
   private async handlePinRequest(data: any): Promise<void> {
-    console.log("Xivato 5");
     const description = this.translate.instant('confirmation.description');
     const counter = data.timeout || 60;
 

@@ -141,8 +141,9 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
 
   public qrCodeEmit(qrCode: string): void {
     let executeContentSucessCallback: (arg: any) => Observable<any>;
+    const isCredentialOffer = qrCode.includes('credential_offer_uri');
     //todo don't accept qrs that are not to login or get VC
-    if(qrCode.includes('credential_offer_uri')){
+    if(isCredentialOffer){
       //show VCs list
       this.closeScannerViewAndScanner();
       // CROSS-DEVICE CREDENTIAL OFFER FLOW
@@ -164,51 +165,53 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         );
       }
     }
-    this.websocket.connectPinSocket()
-      .then(() => {
-        this.loader.addLoadingProcess();
-        this.walletService.executeContent(qrCode)
-          .pipe(
-            takeUntilDestroyed(this.destroyRef),
-            switchMap((executionResponse) => {
-                return executeContentSucessCallback(executionResponse);
-              }),
-            finalize(() => {
-              this.loader.removeLoadingProcess();
-              this.websocket.closePinConnection();
-              }),
-          ).subscribe({
-              error: (error: ExtendedHttpErrorResponse) => {
-                this.handleContentExecutionError(error);
-              },
-          });
-      })
-      .catch(err => {
-        this.handleContentExecutionError(err)
-      })
+    from(this.connectSocketsForFlow(isCredentialOffer))
+    .pipe(
+      tap(() => this.loader.addLoadingProcess()),
+      switchMap(() => this.walletService.executeContent(qrCode)),
+      takeUntilDestroyed(this.destroyRef),
+      switchMap((executionResponse) => executeContentSucessCallback(executionResponse)),
+      finalize(() => {
+        this.loader.removeLoadingProcess();
+        this.websocket.closePinConnection();
+        if (isCredentialOffer) this.websocket.closeNotificationConnection();
+      }),
+    )
+    .subscribe({
+      error: (error: ExtendedHttpErrorResponse) => this.handleContentExecutionError(error),
+    });
   }
 
   public sameDeviceVcActivationFlow(): void {
-    this.websocket.connectPinSocket()
-      .then(() => {
-        console.info('Requesting Credential Offer via same-device flow.');
-        this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri).subscribe({
-          next: () => {
-            this.handleActivationSuccess().subscribe(() => {
-              this.router.navigate(['/tabs/credentials']);
-              this.websocket.closePinConnection();
-            });
-          },
-          error: (err) => {
-            console.error(err);
-            this.websocket.closePinConnection();
-          },
-        });
-      })
-      .catch(err => {
-          this.handleContentExecutionError(err)
-      })
+    from(this.connectSocketsForFlow(true))
+      .pipe(
+        tap(() => console.info('Requesting Credential Offer via same-device flow.')),
+        switchMap(() => this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri)),
+        switchMap(() => this.handleActivationSuccess()),
+        finalize(() => {
+          this.websocket.closePinConnection();
+          this.websocket.closeNotificationConnection();
+        })
+      )
+      .subscribe({
+        next: () => this.router.navigate(['/tabs/credentials']),
+        error: (err) => {
+          console.error(err);
+          this.websocket.closePinConnection();
+          this.websocket.closeNotificationConnection();
+        },
+      });
   }
+
+
+  private async connectSocketsForFlow(connectNotification: boolean): Promise<void> {
+    await this.websocket.connectPinSocket();
+
+    if (connectNotification) {
+      await this.websocket.connectNotificationSocket();
+    }
+  }
+
 
   private async showTempOkMessage(): Promise<void> {
     const alert = await this.alertController.create({
