@@ -74,7 +74,8 @@ export class WebsocketService {
         reject(new Error('Websocket error.'));
       };
 
-      ws.onmessage = async (event) => {
+      ws.onmessage = async (event) => {        
+        console.log('Message received:', event.data);
         try {
           const data = JSON.parse(event.data);
           await onParsedMessage(data);
@@ -92,12 +93,14 @@ export class WebsocketService {
   }
 
   private sendMessage(socket: WebSocket | undefined, payload: string): void {
+    console.log("Xivato 3");
     if (!socket) {
       console.error('WebSocket is not initialized.');
       return;
     }
     if (socket.readyState === WebSocket.OPEN) {
       socket.send(payload);
+      console.log("Xivato 4");
     } else {
       console.error('WebSocket connection is not open.');
     }
@@ -114,7 +117,9 @@ export class WebsocketService {
   }
 
    private async handlePinSocketMessage(data: any): Promise<void> {
+    console.log("Xivato 1");
     if (data.pin === true || data.txCode) {
+      console.log("Xivato 2");
       await this.handlePinRequest(data);
     }
   }
