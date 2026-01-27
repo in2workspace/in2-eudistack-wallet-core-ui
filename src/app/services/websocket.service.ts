@@ -27,13 +27,10 @@ export class WebsocketService {
       await this.handlePinRequest(data);
       return;
     }
-
     if (data?.decision != null) {
       await this.handleNotificationDecisionRequest(data);
       return;
     }
-
-    console.log('[WS] Ignoring unknown message:', data);
   }
 
   private connectSocket(
@@ -79,7 +76,6 @@ export class WebsocketService {
   public connectNotificationSocket(): Promise<void> {
     return this.connectSocket(WEBSOCKET_NOTIFICATION_PATH, (ws) => (this.notificationSocket = ws));
   }
-
   
   public closePinConnection(): void {
     this.safeClose(this.pinSocket);
@@ -147,10 +143,6 @@ export class WebsocketService {
   }
 
   private async handlePinRequest(data: any): Promise<void> {    
-    if (!data?.tx_code) {
-      console.log('[PIN] Ignoring non-tx_code message:', data);
-      return;
-    }
 
     const description = this.translate.instant('confirmation.description');
     const counter = data.timeout || 60;
@@ -204,10 +196,6 @@ export class WebsocketService {
   }
 
   private async handleNotificationDecisionRequest(data: any): Promise<void> {
-    if (!data?.decision) {
-      console.log('[NOTIFICATION] Ignoring non-decision message:', data);
-      return;
-    }
     let closedByUser = false;
 
     const timeoutSeconds = data.timeout || 60;
@@ -341,9 +329,6 @@ export class WebsocketService {
 
   private formatDateHuman(dateStr: string): string {
     const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      return this.escapeHtml(dateStr);
-    }
 
     return date.toLocaleDateString(
       this.translate.currentLang || 'es-ES',
