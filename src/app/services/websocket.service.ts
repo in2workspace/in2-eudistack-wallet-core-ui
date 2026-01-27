@@ -227,6 +227,8 @@ export class WebsocketService {
       return;
     }
 
+    console.log(data);
+
     const timeoutSeconds = data.timeout || 60;
 
     const preview = data.credentialPreview;
@@ -254,11 +256,13 @@ export class WebsocketService {
 
     const baseDescription = this.translate.instant('confirmation.new-credential');
 
-    const descriptionWithPreview = `${baseDescription}${previewHtml}`;
+    const descriptionWithPreview = previewHtml
+      ? `${baseDescription}<br/><br/><hr/><br/>${previewHtml}`
+      : baseDescription;
     const message = this.translate.instant('confirmation.messageHtml', {
       description: descriptionWithPreview,
       counter: initialCounter,
-    }) || `${descriptionWithPreview}<br/><br/>`;
+    });
 
     let interval: any;
 
