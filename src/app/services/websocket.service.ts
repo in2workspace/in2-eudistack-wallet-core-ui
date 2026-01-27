@@ -221,15 +221,31 @@ export class WebsocketService {
     const initialCounter = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
 
     const previewHtml = preview
-    ? `
-      <div style="margin-top:10px">
-        ${preview.subjectName ? `<strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}<br/>` : ''}
-        ${preview.organization ? `<strong>Organización:</strong> ${this.escapeHtml(preview.organization)}<br/>` : ''}
-        ${preview.issuer ? `<strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}<br/>` : ''}
-        ${preview.expirationDate ? `<strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}<br/>` : ''}
-      </div>
-    `
-    : '';
+      ? `
+        <div style="margin-top:10px">
+          ${preview.subjectName ? `
+            <div>
+              <strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}
+            </div>` : ''}
+
+          ${preview.organization ? `
+            <div>
+              <strong>Organización:</strong> ${this.escapeHtml(preview.organization)}
+            </div>` : ''}
+
+          ${preview.issuer ? `
+            <div>
+              <strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}
+            </div>` : ''}
+
+          ${preview.expirationDate ? `
+            <div>
+              <strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}
+            </div>` : ''}
+        </div>
+      `
+      : '';
+
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
