@@ -223,44 +223,14 @@ export class WebsocketService {
 
     const previewHtml = preview
     ? `
-      <div style="
-        margin-top:12px;
-        display:flex;
-        flex-direction:column;
-        gap:8px;
-        font-size:14px;
-        line-height:1.4;
-      ">
-
-          ${preview.subjectName ? `
-            <div style="margin-bottom:6px">
-              <strong>Titular:</strong>
-              <span> ${this.escapeHtml(preview.subjectName)}</span>
-            </div>` : ''}
-
-          ${preview.organization ? `
-            <div style="margin-bottom:6px">
-              <strong>Organización:</strong>
-              <span> ${this.escapeHtml(preview.organization)}</span>
-            </div>` : ''}
-
-          ${preview.issuer ? `
-            <div style="margin-bottom:6px">
-              <strong>Emisor:</strong>
-              <span> ${this.escapeHtml(preview.issuer)}</span>
-            </div>` : ''}
-
-          ${preview.expirationDate ? `
-            <div style="margin-bottom:6px">
-              <strong>Válido hasta:</strong>
-              <span> ${this.formatDateHuman(preview.expirationDate)}</span>
-            </div>` : ''}
-
-        </div>
+      <div style="margin-top:10px">
+        ${preview.subjectName ? `<strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}<br/>` : ''}
+        ${preview.organization ? `<strong>Organización:</strong> ${this.escapeHtml(preview.organization)}<br/>` : ''}
+        ${preview.issuer ? `<strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}<br/>` : ''}
+        ${preview.expirationDate ? `<strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}<br/>` : ''}
       </div>
     `
     : '';
-
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
@@ -344,7 +314,6 @@ export class WebsocketService {
   }
 
   private formatDateHuman(dateStr: string): string {
-    console.log(dateStr);
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
       return this.escapeHtml(dateStr);
@@ -359,6 +328,5 @@ export class WebsocketService {
       }
     );
   }
-
 
 }
