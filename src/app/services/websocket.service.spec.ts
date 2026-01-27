@@ -49,6 +49,8 @@ describe('WebsocketService', () => {
   let mockAuthService: any;
 
   beforeEach(() => {
+    originalWebSocket = window['WebSocket'];
+    
     mockAuthService = {
       getToken: jest.fn().mockReturnValue('fake-token')
     }
@@ -87,11 +89,13 @@ describe('WebsocketService', () => {
       onopen: jest.fn(),
     } as any;
 
-    mockWebSocketConstructor = jest.fn(() => mockPinWebSocketInstance);
-    mockWebSocketConstructor['OPEN'] = 1;
+     mockWebSocketConstructor = jest.fn(() => mockPinWebSocketInstance);
+    (mockWebSocketConstructor as any).OPEN = 1;
+    (mockWebSocketConstructor as any).CLOSED = 3;
+
     window['WebSocket'] = mockWebSocketConstructor as any;
 
-    originalWebSocket = window['WebSocket'];
+    service = TestBed.inject(WebsocketService);
     jest.spyOn(service, 'sendPinMessage');
   });
 
@@ -270,6 +274,169 @@ describe('WebsocketService', () => {
     jest.clearAllTimers();
     clearIntervalSpy.mockRestore();
   });
+
+  it('should create and open a notification WebSocket connection', fakeAsync(() => {
+    service.connectNotificationSocket();
+    expect(window.WebSocket).toHaveBeenCalledWith(`${environment.websocket_url}/api/v1/notification`);
+  }));
+
+  it('should send a message when notification WebSocket is open', fakeAsync(() => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const token = service['authenticationService'].getToken();
+
+    let notificationSocket: any;
+
+    mockWebSocketConstructor = jest.fn(() => {
+      notificationSocket = {
+        send: jest.fn(),
+        close: jest.fn(),
+        readyState: 1,
+        onopen: undefined,
+        onmessage: undefined,
+        onclose: undefined,
+        onerror: undefined,
+      };
+      return notificationSocket;
+    });
+
+    (mockWebSocketConstructor as any).OPEN = 1;
+    (mockWebSocketConstructor as any).CLOSED = 3;
+
+    window['WebSocket'] = mockWebSocketConstructor as any;
+
+    service.connectNotificationSocket();
+    notificationSocket.onopen();
+
+    expect(notificationSocket.send).toHaveBeenCalledTimes(1);
+    expect(notificationSocket.send).toHaveBeenCalledWith(JSON.stringify({ id: token }));
+    expect(logSpy).toHaveBeenCalledWith('WebSocket connection opened: /api/v1/notification');
+  }));
+
+  it('should not send message when notification socket is undefined', fakeAsync(() => {
+    const logErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    service.sendNotificationMessage('Test');
+    
+    expect(logErrorSpy).toHaveBeenCalledWith('WebSocket is not initialized.');
+  }));
+
+  it('should send authentication token on notification socket open', fakeAsync(() => {
+    let notificationSocket: any;
+    const token = 'fake-token';
+
+    mockWebSocketConstructor = jest.fn(() => {
+      notificationSocket = {
+        send: jest.fn(),
+        close: jest.fn(),
+        readyState: 1,
+        onopen: undefined,
+        onmessage: undefined,
+        onclose: undefined,
+        onerror: undefined,
+      };
+      return notificationSocket;
+    });
+
+    (mockWebSocketConstructor as any).OPEN = 1;
+    (mockWebSocketConstructor as any).CLOSED = 3;
+
+    window['WebSocket'] = mockWebSocketConstructor as any;
+
+    service.connectNotificationSocket();
+    notificationSocket.onopen();
+
+    expect(notificationSocket.send).toHaveBeenCalledTimes(1);
+    expect(notificationSocket.send).toHaveBeenCalledWith(JSON.stringify({ id: token }));
+  }));
+
+
+  it('should handle pin socket connection with proper token', fakeAsync(() => {
+    const token = service['authenticationService'].getToken();
+    
+    service.connectPinSocket();
+    mockPinWebSocketInstance.onopen();
+
+    expect(mockPinWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ id: token }));
+    expect(mockPinWebSocketInstance.send).toHaveBeenCalledTimes(1);
+  }));
+
+  it('should handle notification decision messages', fakeAsync(() => {
+    const createAlertSpy = jest.spyOn(service['alertController'], 'create');
+    service.connectNotificationSocket();
+
+    const messageEvent = new MessageEvent('message', {
+      data: JSON.stringify({ decision: 'ACCEPT', timeout: 60 }),
+    });
+
+    mockPinWebSocketInstance.onmessage(messageEvent);
+    tick();
+    expect(createAlertSpy).toHaveBeenCalled();
+  }));
+
+  it('should send notification message', fakeAsync(() => {
+    (service as any)['notificationSocket'] = mockPinWebSocketInstance;
+    jest.spyOn(service, 'sendNotificationMessage');
+
+    service.sendNotificationMessage('Test Notification');
+
+    expect((service as any)['notificationSocket'].send).toHaveBeenCalledWith('Test Notification');
+  }));
+
+  it('should close notification connection', () => {
+    service.connectNotificationSocket();
+
+    const ws = (service as any)['notificationSocket'];
+    service.closeNotificationConnection();
+
+    expect(ws.close).toHaveBeenCalledTimes(1);
+    expect((service as any)['notificationSocket']).toBeUndefined();
+  });
+
+  it('should display notification alert with credential preview', fakeAsync(() => {
+    const createAlertSpy = jest.spyOn(service['alertController'], 'create');
+    const translateMockExtended = {
+      ...translateMock,
+      instant: jest.fn((key: string, params?: any) => {
+        if (key === 'confirmation.new-credential-title') return 'New Credential';
+        if (key === 'confirmation.accept') return 'Accept';
+        if (key === 'confirmation.new-credential') return 'A new credential has been received';
+        return translateMock.instant(key, params);
+      }),
+      currentLang: 'en',
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
+      providers: [
+        WebsocketService,
+        LoaderService,
+        { provide: AuthenticationService, useValue: mockAuthService },
+        { provide: AlertController, useValue: alertControllerMock },
+        { provide: TranslateService, useValue: translateMockExtended },
+      ],
+    });
+
+    service = TestBed.inject(WebsocketService);
+    service.connectNotificationSocket();
+
+    const messageEvent = new MessageEvent('message', {
+      data: JSON.stringify({
+        decision: 'ACCEPT',
+        timeout: 60,
+        credentialPreview: {
+          subjectName: 'John Doe',
+          organization: 'Test Org',
+          issuer: 'Test Issuer',
+          expirationDate: '2025-12-31',
+        },
+      }),
+    });
+
+    mockPinWebSocketInstance.onmessage(messageEvent);
+    tick();
+    expect(createAlertSpy).toHaveBeenCalled();
+  }));
   
 
 });
