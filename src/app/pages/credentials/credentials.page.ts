@@ -189,7 +189,6 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         finalize(() => {
           this.loader.removeLoadingProcess();
           this.websocket.closePinConnection();
-          if (isCredentialOffer) this.websocket.closeNotificationConnection();
         }),
 
         catchError((error: ExtendedHttpErrorResponse) => {

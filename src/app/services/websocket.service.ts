@@ -269,12 +269,14 @@ export class WebsocketService {
     const rejectHandler = async () => {
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'REJECTED' }));
+      this.closeNotificationConnection();
       await this.showTempOkMessage('home.rejected-msg');
     };
 
     const acceptHandler = async () => {
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'ACCEPTED' }));
+      this.closeNotificationConnection();
       await this.showTempOkMessage('home.ok-msg');
     };
 
@@ -290,6 +292,9 @@ export class WebsocketService {
 
     const alert = await this.alertController.create(alertOptions);
     await alert.present();
+    alert.onDidDismiss().then(() => {
+      this.closeNotificationConnection();
+    });
     const counterReal = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
     interval = this.startCountdown(alert, descriptionWithPreview, counterReal);    
   }
