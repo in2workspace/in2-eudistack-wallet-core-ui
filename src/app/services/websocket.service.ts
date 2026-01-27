@@ -226,22 +226,22 @@ export class WebsocketService {
           ${preview.subjectName ? `
             <div>
               <strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}
-            </div>` : ''}
+            </div>` : ''}<br/><br/><hr/><br/>
 
           ${preview.organization ? `
             <div>
               <strong>Organización:</strong> ${this.escapeHtml(preview.organization)}
-            </div>` : ''}
+            </div>` : ''}<br/><br/>
 
           ${preview.issuer ? `
             <div>
               <strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}
-            </div>` : ''}
+            </div>` : ''}<br/><br/>
 
           ${preview.expirationDate ? `
             <div>
               <strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}
-            </div>` : ''}
+            </div>` : ''}<br/><br/>
         </div>
       `
       : '';
