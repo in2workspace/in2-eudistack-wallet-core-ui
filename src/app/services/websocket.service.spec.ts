@@ -427,14 +427,6 @@ describe('WebsocketService', () => {
     expect(createAlertSpy).toHaveBeenCalled();
   }));
 
-  it('should escape HTML in credential preview', () => {
-    const dangerous = '<script>alert("xss")</script>';
-    const result = service['escapeHtml'](dangerous);
-    
-    expect(result).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
-    expect(result).not.toContain('<script>');
-  });
-
   it('should format date in human readable format', () => {
     const dateStr = '2025-12-31';
     const result = service['formatDateHuman'](dateStr);

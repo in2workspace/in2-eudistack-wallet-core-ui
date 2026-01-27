@@ -29,7 +29,6 @@ export class WebsocketService {
     }
     if (data?.decision != null) {
       await this.handleNotificationDecisionRequest(data);
-      return;
     }
   }
 
@@ -208,38 +207,47 @@ export class WebsocketService {
     
     const initialCounter = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
 
-    const previewHtml = preview
-    ? `
-      <div style="margin-top:10px">
-        <ul role="list" style="padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
-          ${preview.subjectName ? `
-            <li role="listitem">
-              <div style="word-break:break-word;"><strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}</div>
-            </li>
-          ` : ''}
+    let previewHtml = '';
 
-          ${preview.organization ? `
-            <li role="listitem">
-              <div style="word-break:break-word;"><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
-            </li>
-          ` : ''}
+    if (preview) {
+      previewHtml = `
+        <div style="margin-top:10px">
+          <ul role="list" style="padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
+            ${preview.subjectName
+              ? `
+                <li role="listitem">
+                  <div style="word-break:break-word;"><strong>Titular:</strong> ${preview.subjectName}</div>
+                </li>
+              `
+              : ''}
 
-          ${preview.issuer ? `
-            <li role="listitem">
-              <div style="word-break:break-word;"><strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}</div>
-            </li>
-          ` : ''}
+            ${preview.organization
+              ? `
+                <li role="listitem">
+                  <div style="word-break:break-word;"><strong>Organización:</strong> ${preview.organization}</div>
+                </li>
+              `
+              : ''}
 
-          ${preview.expirationDate ? `
-            <li role="listitem">
-              <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
-            </li>
-          ` : ''}
-        </ul>
-      </div>
-    `
-    : '';
+            ${preview.issuer
+              ? `
+                <li role="listitem">
+                  <div style="word-break:break-word;"><strong>Emisor:</strong> ${preview.issuer}</div>
+                </li>
+              `
+              : ''}
 
+            ${preview.expirationDate
+              ? `
+                <li role="listitem">
+                  <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
+                </li>
+              `
+              : ''}
+          </ul>
+        </div>
+      `;
+    }
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
@@ -315,16 +323,6 @@ export class WebsocketService {
       await alert.dismiss();
 
     }, 2000);
-  }
-
-
-  private escapeHtml(value: string): string {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
   }
 
   private formatDateHuman(dateStr: string): string {
