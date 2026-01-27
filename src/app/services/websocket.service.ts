@@ -208,8 +208,7 @@ export class WebsocketService {
       console.log('[NOTIFICATION] Ignoring non-decision message:', data);
       return;
     }
-
-    console.log(data);
+    let closedByUser = false;
 
     const timeoutSeconds = data.timeout || 60;
 
@@ -249,6 +248,7 @@ export class WebsocketService {
     let interval: any;
 
     const rejectHandler = async () => {
+      closedByUser = true;
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'REJECTED' }));
       this.closeNotificationConnection();
@@ -256,6 +256,7 @@ export class WebsocketService {
     };
 
     const acceptHandler = async () => {
+      closedByUser = true;
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'ACCEPTED' }));
       this.closeNotificationConnection();
@@ -276,9 +277,12 @@ export class WebsocketService {
     await alert.present();
     alert.onDidDismiss().then(() => {
       this.closeNotificationConnection();
-      this.toastServiceHandler
+      if(!closedByUser){
+        this.toastServiceHandler
           .showErrorAlert("The QR session expired")
           .subscribe();
+      }
+      
     });
     const counterReal = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
     interval = this.startCountdown(alert, descriptionWithPreview, counterReal);    
