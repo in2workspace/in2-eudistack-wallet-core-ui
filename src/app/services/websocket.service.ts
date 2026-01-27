@@ -227,8 +227,15 @@ export class WebsocketService {
       return;
     }
 
-    const counter = data.timeout || 60;
+    const timeoutSeconds = data.timeout || 60;
+
     const preview = data.credentialPreview;
+    const expiresAt =
+    typeof data.expiresAt === 'number'
+      ? data.expiresAt
+      : Date.now() + timeoutSeconds * 1000;
+    
+    const initialCounter = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
 
     const previewHtml = preview
     ? `
@@ -250,8 +257,8 @@ export class WebsocketService {
     const descriptionWithPreview = `${baseDescription}${previewHtml}`;
     const message = this.translate.instant('confirmation.messageHtml', {
       description: descriptionWithPreview,
-      counter,
-    }) || `${descriptionWithPreview}<br/><br/><b>${counter}</b>`;
+      counter: initialCounter,
+    }) || `${descriptionWithPreview}<br/><br/>`;
 
     let interval: any;
 
@@ -278,8 +285,9 @@ export class WebsocketService {
     };
 
     const alert = await this.alertController.create(alertOptions);
-    interval = this.startCountdown(alert, descriptionWithPreview, counter);    
     await alert.present();
+    const counterReal = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+    interval = this.startCountdown(alert, descriptionWithPreview, counterReal);    
   }
 
   private async showTempOkMessage(message: string): Promise<void> {
