@@ -223,8 +223,14 @@ export class WebsocketService {
 
     const previewHtml = preview
     ? `
-      <div style="margin-top:12px">
-        <div style="font-size:14px; line-height:1.4">
+      <div style="
+        margin-top:12px;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        font-size:14px;
+        line-height:1.4;
+      ">
 
           ${preview.subjectName ? `
             <div style="margin-bottom:6px">
