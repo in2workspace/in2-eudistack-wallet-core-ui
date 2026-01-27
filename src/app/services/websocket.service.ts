@@ -226,33 +226,40 @@ export class WebsocketService {
         <ul role="list" style="padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
           ${preview.subjectName ? `
             <li role="listitem">
-              <div><strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}</div>
+              <div style="font-weight:600;">Titular</div>
+              <div>${this.escapeHtml(preview.subjectName)}</div>
             </li>
           ` : ''}
 
           ${preview.organization ? `
             <li role="listitem">
-              <div><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
+              <div style="font-weight:600;">Organización</div>
+              <div style="word-break:break-word;">
+                ${this.escapeHtml(preview.organization)}
+              </div>
             </li>
           ` : ''}
 
           ${preview.issuer ? `
             <li role="listitem">
-              <div><strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}</div>
+              <div style="font-weight:600;">Emisor</div>
+              <div style="word-break:break-word;">
+                ${this.escapeHtml(preview.issuer)}
+              </div>
             </li>
           ` : ''}
 
           ${preview.expirationDate ? `
             <li role="listitem">
-              <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
+              <div style="font-weight:600;">Expira</div>
+              <div>${this.formatDateHuman(preview.expirationDate)}</div>
             </li>
           ` : ''}
         </ul>
       </div>
     `
     : '';
-
-
+    
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
     const reject = this.translate.instant('confirmation.cancel');

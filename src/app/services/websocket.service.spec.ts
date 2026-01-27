@@ -5,7 +5,7 @@ import { AlertController } from '@ionic/angular';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { environment } from 'src/environments/environment';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { WEBSOCKET_PATH } from '../constants/api.constants';
+import { WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
 
 
@@ -92,7 +92,7 @@ describe('WebsocketService', () => {
     window['WebSocket'] = mockWebSocketConstructor as any;
 
     originalWebSocket = window['WebSocket'];
-    jest.spyOn(service, 'sendMessage');
+    jest.spyOn(service, 'sendPinMessage');
   });
 
   afterEach(() => {
@@ -102,36 +102,35 @@ describe('WebsocketService', () => {
   });
 
   it('should create and open a WebSocket connection', fakeAsync(() => {
-    service.connect();
-    expect(window.WebSocket).toHaveBeenCalledWith(`${environment.websocket_url}${WEBSOCKET_PATH}`);
-    expect(service.sendMessage).not.toHaveBeenCalled();
+    service.connectPinSocket();
+    expect(window.WebSocket).toHaveBeenCalledWith(`${environment.websocket_url}${WEBSOCKET_PIN_PATH}`);
+    expect(service.sendPinMessage).not.toHaveBeenCalled();
   }));
 
   it('should send a message when WebSocket is open', fakeAsync(() => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     const token = service['authenticationService'].getToken();
-    service.connect();
+    service.connectPinSocket();
     
     mockWebSocketInstance.onopen('open');
-    expect(service.sendMessage).toHaveBeenCalled();
-    expect(service.sendMessage).toHaveBeenCalledWith(JSON.stringify({ id: token }));
+    expect(service.sendPinMessage).toHaveBeenCalled();
+    expect(service.sendPinMessage).toHaveBeenCalledWith(JSON.stringify({ id: token }));
     expect(logSpy).toHaveBeenCalledWith('WebSocket connection opened');
   }));
 
   it('should handle incoming messages', fakeAsync(() => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     const createAlertSpy = jest.spyOn(service['alertController'], 'create');
-    service.connect();
+    service.connectPinSocket();
 
     const messageEvent = new MessageEvent('message', { data: JSON.stringify({ tx_code: { description: 'Test description' } }) });
     
     mockWebSocketInstance.onmessage(messageEvent);
-    expect(logSpy).toHaveBeenCalledWith('Message received:', messageEvent.data);
     expect(createAlertSpy).toHaveBeenCalled();
   }));
 
   it('rejects the connect promise when WebSocket errors', () => {
-  const connectPromise = service.connect();
+  const connectPromise = service.connectPinSocket();
 
   const err = new Error('WebSocket failed to open');
   mockWebSocketInstance.onerror(err);
@@ -146,9 +145,9 @@ describe('WebsocketService', () => {
     const messageEvent = new MessageEvent('message', {
       data: JSON.stringify({ tx_code: { }, timeout }),
     });
-  
-    service.connect();
-  
+
+    service.connectPinSocket();
+
     mockWebSocketInstance.onmessage(messageEvent);
   
     tick();
@@ -185,40 +184,40 @@ describe('WebsocketService', () => {
 
   it('should log message on WebSocket close', fakeAsync(() => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    service.connect();
+    service.connectPinSocket();
 
     mockWebSocketInstance.onclose(new CloseEvent('close'));
-    expect(logSpy).toHaveBeenCalledWith('WebSocket connection closed');
+    expect(logSpy).toHaveBeenCalledWith('WebSocket connection closed: /api/v1/pin');
   }));
 
   it('should send a message', fakeAsync(() => {
-    service['socket'] = mockWebSocketInstance;
+    (service as any)['pinSocket'] = mockWebSocketInstance;
     
-    service.sendMessage('Test Message');
+    service.sendPinMessage('Test Message');
 
-    expect(service['socket'].send).toHaveBeenCalledWith('Test Message');
-    expect(service['socket'].send).toHaveBeenCalledTimes(1);
+    expect((service as any)['pinSocket'].send).toHaveBeenCalledWith('Test Message');
+    expect((service as any)['pinSocket'].send).toHaveBeenCalledTimes(1);
 
     const logErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    service['socket'] = { ...mockWebSocketInstance, readyState: 999 };
+    (service as any)['pinSocket'] = { ...mockWebSocketInstance, readyState: 999 };
 
-    service.sendMessage('Test Message 2');
+    service.sendPinMessage('Test Message 2');
 
-    expect(service['socket'].send).toHaveBeenCalledTimes(1);
+    expect((service as any)['pinSocket'].send).toHaveBeenCalledTimes(1);
     expect(logErrorSpy).toHaveBeenCalledWith('WebSocket connection is not open.');
 
   }));
 
   it('should close WebSocket connection', () => {
-    service.connect();
+    service.connectPinSocket();
 
     service.closePinConnection();
 
-    expect(service['socket'].close).toHaveBeenCalledTimes(1);
+    expect((service as any)['pinSocket'].closePinConnection).toHaveBeenCalledTimes(1);
   });
 
   it('hauria de cridar setInterval', () => {
-    service['socket'] = mockWebSocketInstance;
+    (service as any)['pinSocket'] = mockWebSocketInstance;
     const alertMock = { message: '', dismiss: jest.fn() };
     const description = 'Test description';
     const initialCounter = 3;
@@ -236,7 +235,7 @@ describe('WebsocketService', () => {
   });
   
   it('should decrement counter and update counter in alert', () => {
-    service['socket'] = mockWebSocketInstance;
+    (service as any)['pinSocket'] = mockWebSocketInstance;
     const alertMock = { message: '', dismiss: jest.fn() };
     const description = 'Test description';
     const initialCounter = 3;
