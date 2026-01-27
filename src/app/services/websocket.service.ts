@@ -338,6 +338,7 @@ export class WebsocketService {
   }
 
   private formatDateHuman(dateStr: string): string {
+    console.log(dateStr);
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
       return this.escapeHtml(dateStr);
