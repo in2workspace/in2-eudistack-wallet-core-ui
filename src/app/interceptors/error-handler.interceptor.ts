@@ -11,12 +11,10 @@ import { catchError } from 'rxjs/operators';
 import { ToastServiceHandler } from '../services/toast.service';
 import { SERVER_PATH } from '../constants/api.constants';
 import { environment } from 'src/environments/environment';
-import { WebsocketService } from '../services/websocket.service';
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
   private readonly toastServiceHandler = inject(ToastServiceHandler);
-  private readonly websocket = inject(WebsocketService);
 
   private logHandledSilentlyErrorMsg(errMsg: string){
     console.error('Handled silently:', errMsg);
@@ -67,11 +65,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           SERVER_PATH.REQUEST_CREDENTIAL) 
           && (errStatus === 408 || errStatus === 504)
         ){
-          if (this.websocket.isWaitingForPin()) {
-            errMessage = 'PIN expired';
-          } else {
-            errMessage = 'The QR session expired';
-          }
+          errMessage = 'PIN expired';
         } 
         //cross-device 
         else if (pathname.endsWith(SERVER_PATH.EXECUTE_CONTENT)){
@@ -81,11 +75,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             //simply don't change the message, the one from backend is ok
           }else if(errorResp.status === 504 || errorResp.status === 408){
             //504 for nginx Gateway timeout, 408 for backend
-            if (this.websocket.isWaitingForPin()) {
-              errMessage = 'PIN expired';
-            } else {
-              errMessage = 'The QR session expired';
-            }
+            errMessage = 'PIN expired';
           }
           else if(!errMessage.startsWith('The received QR content cannot be processed'))
           {

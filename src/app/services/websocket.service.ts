@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
+import { ToastServiceHandler } from './toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,7 @@ export class WebsocketService {
   private readonly authenticationService = inject(AuthenticationService);
   public readonly loader = inject(LoaderService);
   public readonly translate = inject(TranslateService);
+  private readonly toastServiceHandler = inject(ToastServiceHandler);
 
   private async routeMessage(data: any): Promise<void> {
     if (data?.tx_code) {
@@ -32,20 +34,6 @@ export class WebsocketService {
     }
 
     console.log('[WS] Ignoring unknown message:', data);
-  }
-
-  private waitingForPin = false;
-
-  public markWaitingForPin() {
-    this.waitingForPin = true;
-  }
-
-  public clearWaitingForPin() {
-    this.waitingForPin = false;
-  }
-
-  public isWaitingForPin(): boolean {
-    return this.waitingForPin;
   }
 
   private connectSocket(
@@ -79,7 +67,6 @@ export class WebsocketService {
       ws.onclose = () => {
         clearTimeout(this.loadingTimeout);
         this.loader.removeLoadingProcess();
-        this.clearWaitingForPin();
         console.log(`WebSocket connection closed: ${path}`);
       };
     });
@@ -97,7 +84,6 @@ export class WebsocketService {
   public closePinConnection(): void {
     this.safeClose(this.pinSocket);
     this.pinSocket = undefined;
-    this.clearWaitingForPin();
   }
 
   public closeNotificationConnection(): void {
@@ -166,8 +152,6 @@ export class WebsocketService {
       return;
     }
 
-    this.markWaitingForPin();
-
     const description = this.translate.instant('confirmation.description');
     const counter = data.timeout || 60;
 
@@ -181,7 +165,6 @@ export class WebsocketService {
 
     const cancelHandler = () => {
       clearInterval(interval);
-      this.clearWaitingForPin();
     };
 
     const loadingTimeOutSendHandler = () => {
@@ -192,7 +175,6 @@ export class WebsocketService {
       clearInterval(interval);
       this.loadingTimeout = setTimeout(loadingTimeOutSendHandler, 1000);
       this.sendPinMessage(JSON.stringify({ pin: alertData.pin }));
-      this.clearWaitingForPin();
     };
 
     const alertOptions: AlertOptions = {
@@ -241,14 +223,38 @@ export class WebsocketService {
 
     const previewHtml = preview
     ? `
-      <div style="margin-top:10px">
-        ${preview.subjectName ? `Titular: ${this.escapeHtml(preview.subjectName)}<br/>` : ''}
-        ${preview.organization ? `Organización: ${this.escapeHtml(preview.organization)}<br/>` : ''}
-        ${preview.issuer ? `Emisor: ${this.escapeHtml(preview.issuer)}<br/>` : ''}
-        ${preview.expirationDate ? `Expira: ${this.escapeHtml(preview.expirationDate)}<br/>` : ''}
+      <div style="margin-top:12px">
+        <div style="font-size:14px; line-height:1.4">
+
+          ${preview.subjectName ? `
+            <div style="margin-bottom:6px">
+              <strong>Titular:</strong>
+              <span> ${this.escapeHtml(preview.subjectName)}</span>
+            </div>` : ''}
+
+          ${preview.organization ? `
+            <div style="margin-bottom:6px">
+              <strong>Organización:</strong>
+              <span> ${this.escapeHtml(preview.organization)}</span>
+            </div>` : ''}
+
+          ${preview.issuer ? `
+            <div style="margin-bottom:6px">
+              <strong>Emisor:</strong>
+              <span> ${this.escapeHtml(preview.issuer)}</span>
+            </div>` : ''}
+
+          ${preview.expirationDate ? `
+            <div style="margin-bottom:6px">
+              <strong>Válido hasta:</strong>
+              <span> ${this.formatDateHuman(preview.expirationDate)}</span>
+            </div>` : ''}
+
+        </div>
       </div>
     `
     : '';
+
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
@@ -294,6 +300,9 @@ export class WebsocketService {
     await alert.present();
     alert.onDidDismiss().then(() => {
       this.closeNotificationConnection();
+      this.toastServiceHandler
+          .showErrorAlert("The QR session expired")
+          .subscribe();
     });
     const counterReal = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
     interval = this.startCountdown(alert, descriptionWithPreview, counterReal);    
@@ -314,6 +323,7 @@ export class WebsocketService {
 
     setTimeout(async () => {
       await alert.dismiss();
+
     }, 2000);
   }
 
@@ -326,5 +336,22 @@ export class WebsocketService {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
   }
+
+  private formatDateHuman(dateStr: string): string {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) {
+      return this.escapeHtml(dateStr);
+    }
+
+    return date.toLocaleDateString(
+      this.translate.currentLang || 'es-ES',
+      {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }
+    );
+  }
+
 
 }
