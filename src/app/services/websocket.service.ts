@@ -222,27 +222,39 @@ export class WebsocketService {
 
     const previewHtml = preview
     ? `
-      <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
-        ${preview.subjectName ? `
-          <div><strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}</div>
-        ` : ''}
+      <div style="margin-top:10px">
+        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
+          ${preview.subjectName ? `
+            <li style="margin:0;">
+              <div style="font-weight:600;">Titular</div>
+              <div>${this.escapeHtml(preview.subjectName)}</div>
+            </li>
+          ` : ''}
 
-        ${preview.organization ? `
-          <div><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
-        ` : ''}
+          ${preview.organization ? `
+            <li style="margin:0;">
+              <div style="font-weight:600;">Organización</div>
+              <div style="word-break:break-word;">${this.escapeHtml(preview.organization)}</div>
+            </li>
+          ` : ''}
 
-        ${preview.issuer ? `
-          <div><strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}</div>
-        ` : ''}
+          ${preview.issuer ? `
+            <li style="margin:0;">
+              <div style="font-weight:600;">Emisor</div>
+              <div style="word-break:break-word;">${this.escapeHtml(preview.issuer)}</div>
+            </li>
+          ` : ''}
 
-        ${preview.expirationDate ? `
-          <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
-        ` : ''}
+          ${preview.expirationDate ? `
+            <li style="margin:0;">
+              <div style="font-weight:600;">Expira</div>
+              <div>${this.formatDateHuman(preview.expirationDate)}</div>
+            </li>
+          ` : ''}
+        </ul>
       </div>
     `
     : '';
-
-
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
