@@ -223,38 +223,35 @@ export class WebsocketService {
     const previewHtml = preview
     ? `
       <div style="margin-top:10px">
-        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
+        <ul role="list" style="padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
           ${preview.subjectName ? `
-            <li style="margin:0;">
-              <div style="font-weight:600;">Titular</div>
-              <div>${this.escapeHtml(preview.subjectName)}</div>
+            <li role="listitem">
+              <div><strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}</div>
             </li>
           ` : ''}
 
           ${preview.organization ? `
-            <li style="margin:0;">
-              <div style="font-weight:600;">Organización</div>
-              <div style="word-break:break-word;">${this.escapeHtml(preview.organization)}</div>
+            <li role="listitem">
+              <div><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
             </li>
           ` : ''}
 
           ${preview.issuer ? `
-            <li style="margin:0;">
-              <div style="font-weight:600;">Emisor</div>
-              <div style="word-break:break-word;">${this.escapeHtml(preview.issuer)}</div>
+            <li role="listitem">
+              <div><strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}</div>
             </li>
           ` : ''}
 
           ${preview.expirationDate ? `
-            <li style="margin:0;">
-              <div style="font-weight:600;">Expira</div>
-              <div>${this.formatDateHuman(preview.expirationDate)}</div>
+            <li role="listitem">
+              <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
             </li>
           ` : ''}
         </ul>
       </div>
     `
     : '';
+
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
@@ -263,7 +260,7 @@ export class WebsocketService {
     const baseDescription = this.translate.instant('confirmation.new-credential');
 
     const descriptionWithPreview = previewHtml
-      ? `${baseDescription}<br/><br/><hr/><br/>${previewHtml}`
+      ? `${baseDescription}<br/>${previewHtml}`
       : baseDescription;
     const message = this.translate.instant('confirmation.messageHtml', {
       description: descriptionWithPreview,
