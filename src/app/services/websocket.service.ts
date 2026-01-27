@@ -221,30 +221,27 @@ export class WebsocketService {
     const initialCounter = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
 
     const previewHtml = preview
-      ? `
-        <div style="margin-top:10px">
-          ${preview.subjectName ? `
-            <div>
-              <strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}
-            </div>` : ''}<br/><br/><hr/><br/>
+    ? `
+      <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+        ${preview.subjectName ? `
+          <div><strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}</div>
+        ` : ''}
 
-          ${preview.organization ? `
-            <div>
-              <strong>Organización:</strong> ${this.escapeHtml(preview.organization)}
-            </div>` : ''}<br/><br/>
+        ${preview.organization ? `
+          <div><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
+        ` : ''}
 
-          ${preview.issuer ? `
-            <div>
-              <strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}
-            </div>` : ''}<br/><br/>
+        ${preview.issuer ? `
+          <div><strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}</div>
+        ` : ''}
 
-          ${preview.expirationDate ? `
-            <div>
-              <strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}
-            </div>` : ''}<br/><br/>
-        </div>
-      `
-      : '';
+        ${preview.expirationDate ? `
+          <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
+        ` : ''}
+      </div>
+    `
+    : '';
+
 
 
     const header = this.translate.instant('confirmation.new-credential-title');
