@@ -1,4 +1,4 @@
-import { TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick, flush, flushMicrotasks } from '@angular/core/testing';
 import { WebsocketService } from './websocket.service';
 import { AuthenticationService } from './authentication.service';
 import { AlertController } from '@ionic/angular';
@@ -24,8 +24,7 @@ class MockAlertController {
       onDidDismiss: () => Promise.resolve({ data: { values: { pin: '1234' } } }),
     });
   }
-}
-
+} 
 const translateMock = {
   instant: jest.fn((key: string, params?: any) => {
     switch (key) {
@@ -57,12 +56,11 @@ describe('WebsocketService', () => {
 
     alertControllerMock = {
       create: jest.fn().mockResolvedValue({
-        present: jest.fn(),
+        present: jest.fn(() => Promise.resolve()),
+        dismiss: jest.fn(() => Promise.resolve()),
+        onDidDismiss: jest.fn(() => Promise.resolve()),
         buttons: [
-          {
-            text: 'Send',
-            handler: jest.fn(),
-          },
+          { text: 'Send', handler: jest.fn() },
         ],
       }),
     };
@@ -77,8 +75,6 @@ describe('WebsocketService', () => {
         { provide: TranslateService, useValue: translateMock }
       ],
     });
-
-    service = TestBed.inject(WebsocketService);
 
     mockPinWebSocketInstance = {
       send: jest.fn(),
@@ -102,6 +98,8 @@ describe('WebsocketService', () => {
   afterEach(() => {
     service.closePinConnection();
     window['WebSocket'] = originalWebSocket;
+    jest.useRealTimers();
+    jest.clearAllTimers();
     jest.clearAllMocks();
   });
 
@@ -228,52 +226,43 @@ describe('WebsocketService', () => {
   });
 
 
-  it('hauria de cridar setInterval', () => {
-    (service as any)['pinSocket'] = mockPinWebSocketInstance;
+  it('hauria de cridar setInterval', fakeAsync(() => {
     const alertMock = { message: '', dismiss: jest.fn() };
     const description = 'Test description';
-    const initialCounter = 3;
-  
-    jest.useFakeTimers();
-  
+
     const setIntervalSpy = jest.spyOn(window, 'setInterval');
-  
-    service['startCountdown'](alertMock, description, initialCounter);
-  
+
+    const intervalId = service['startCountdown'](alertMock, description, 3);
+
     expect(setIntervalSpy).toHaveBeenCalled();
     expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
-  
+
+    clearInterval(intervalId);
+
     setIntervalSpy.mockRestore();
-  });
+  }));
   
-  it('should decrement counter and update counter in alert', () => {
-    (service as any)['pinSocket'] = mockPinWebSocketInstance;
+  it('should decrement counter and update counter in alert', fakeAsync(() => {
     const alertMock = { message: '', dismiss: jest.fn() };
     const description = 'Test description';
-    const initialCounter = 3;
-  
 
-    jest.useFakeTimers();
-
-    jest.spyOn(alertMock, 'dismiss');
     const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
-  
-    service['startCountdown'](alertMock, description, initialCounter);
-  
-    jest.advanceTimersByTime(1000); 
-    expect(alertMock.message).toContain('Time remaining: 2 seconds');
-  
-    jest.advanceTimersByTime(1000);
-    expect(alertMock.message).toContain('Time remaining: 1 seconds');
-  
-    jest.advanceTimersByTime(2000); 
-    expect(alertMock.dismiss).toHaveBeenCalled();
 
+    service['startCountdown'](alertMock, description, 3);
+
+    tick(1000);
+    expect(alertMock.message).toContain('Time remaining: 2 seconds');
+
+    tick(1000);
+    expect(alertMock.message).toContain('Time remaining: 1 seconds');
+
+    tick(2000);
+    expect(alertMock.dismiss).toHaveBeenCalled();
     expect(clearIntervalSpy).toHaveBeenCalled();
-  
-    jest.clearAllTimers();
+
     clearIntervalSpy.mockRestore();
-  });
+  }));
+
 
   it('should create and open a notification WebSocket connection', fakeAsync(() => {
     service.connectNotificationSocket();
@@ -437,6 +426,255 @@ describe('WebsocketService', () => {
     tick();
     expect(createAlertSpy).toHaveBeenCalled();
   }));
-  
+
+  it('should escape HTML in credential preview', () => {
+    const dangerous = '<script>alert("xss")</script>';
+    const result = service['escapeHtml'](dangerous);
+    
+    expect(result).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    expect(result).not.toContain('<script>');
+  });
+
+  it('should format date in human readable format', () => {
+    const dateStr = '2025-12-31';
+    const result = service['formatDateHuman'](dateStr);
+    
+    expect(result).toBeTruthy();
+    expect(result).toMatch(/\d{1,2}/);
+  });
+
+  it('should handle WebSocket message parsing error gracefully', fakeAsync(() => {
+    const logErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    service.connectPinSocket();
+
+    const invalidMessageEvent = new MessageEvent('message', {
+      data: 'invalid json {',
+    });
+
+    mockPinWebSocketInstance.onmessage(invalidMessageEvent);
+    tick();
+
+    expect(logErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('WebSocket message parse/handle error'),
+      expect.any(Error),
+      'invalid json {'
+    );
+  }));
+
+  it('should safely close WebSocket even if error occurs', () => {
+    const mockSocketWithError = {
+      readyState: 1,
+      close: jest.fn(() => {
+        throw new Error('Close error');
+      }),
+    };
+
+    const logWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    service['safeClose'](mockSocketWithError as any);
+
+    expect(logWarnSpy).toHaveBeenCalledWith('Error closing websocket', expect.any(Error));
+  });
+
+  it('should not attempt to close already closed WebSocket', () => {
+    const mockClosedSocket = {
+      readyState: 3,
+      close: jest.fn(),
+    };
+
+    service['safeClose'](mockClosedSocket as any);
+
+    expect(mockClosedSocket.close).not.toHaveBeenCalled();
+  });
+
+  it('should clear countdown interval when cancel button handler is executed', fakeAsync(() => {
+    // Arrange
+    const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
+
+    alertControllerMock.create.mockResolvedValue({
+      present: jest.fn(() => Promise.resolve()),
+      dismiss: jest.fn(() => Promise.resolve()),
+      onDidDismiss: jest.fn(() => Promise.resolve()),
+    });
+
+    service.connectPinSocket();
+
+    const messageEvent = new MessageEvent('message', {
+      data: JSON.stringify({ tx_code: {}, timeout: 3 }),
+    });
+
+    mockPinWebSocketInstance.onmessage(messageEvent);
+
+    flushMicrotasks();
+    flushMicrotasks();
+
+    const alertOptions = alertControllerMock.create.mock.calls[0][0];
+    const cancelBtn = alertOptions.buttons.find((b: any) => b.role === 'cancel');
+
+    cancelBtn.handler();
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+
+    clearIntervalSpy.mockRestore();
+  }));
+
+  it('should send pin, clear interval, and add loading process after 1s when send handler is executed', fakeAsync(() => {
+
+    const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
+
+    const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+    const addLoadingSpy = jest.spyOn(service.loader, 'addLoadingProcess');
+
+    const sendPinSpy = jest.spyOn(service, 'sendPinMessage');
+
+    alertControllerMock.create.mockResolvedValue({
+      present: jest.fn(() => Promise.resolve()),
+      dismiss: jest.fn(() => Promise.resolve()),
+      onDidDismiss: jest.fn(() => Promise.resolve()),
+    });
+
+    service.connectPinSocket();
+
+    const messageEvent = new MessageEvent('message', {
+      data: JSON.stringify({ tx_code: {}, timeout: 3 }),
+    });
+
+    mockPinWebSocketInstance.onmessage(messageEvent);
+
+    flushMicrotasks();
+    flushMicrotasks();
+
+    const alertOptions = alertControllerMock.create.mock.calls[0][0];
+    const sendBtn = alertOptions.buttons.find((b: any) => b.text === 'Send');
+
+    sendBtn.handler({ pin: '1234' });
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(sendPinSpy).toHaveBeenCalledWith(JSON.stringify({ pin: '1234' }));
+
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+
+    expect(addLoadingSpy).not.toHaveBeenCalled();
+
+    tick(1000);
+    expect(addLoadingSpy).toHaveBeenCalledTimes(1);
+
+    clearIntervalSpy.mockRestore();
+    setTimeoutSpy.mockRestore();
+  }));
+
+  it('should REJECT notification: clear interval, send message, close socket and show rejected ok message', fakeAsync(() => {
+    const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
+
+    const sendNotifSpy = jest.spyOn(service, 'sendNotificationMessage');
+    const closeNotifSpy = jest.spyOn(service, 'closeNotificationConnection');
+    const showTempSpy = jest
+      .spyOn(service as any, 'showTempOkMessage')
+      .mockResolvedValue(undefined);
+
+    const mockAlert = {
+      present: jest.fn(() => Promise.resolve()),
+      onDidDismiss: jest.fn(() => Promise.resolve()),
+      dismiss: jest.fn(() => Promise.resolve()),
+    };
+    alertControllerMock.create.mockResolvedValue(mockAlert);
+
+    let notificationSocket: any;
+    mockWebSocketConstructor = jest.fn(() => {
+      notificationSocket = {
+        send: jest.fn(),
+        close: jest.fn(),
+        readyState: 1,
+        onopen: undefined,
+        onmessage: undefined,
+        onclose: undefined,
+        onerror: undefined,
+      };
+      return notificationSocket;
+    });
+    (mockWebSocketConstructor as any).OPEN = 1;
+    (mockWebSocketConstructor as any).CLOSED = 3;
+    window['WebSocket'] = mockWebSocketConstructor as any;
+
+    service.connectNotificationSocket();
+
+    const messageEvent = new MessageEvent('message', {
+      data: JSON.stringify({ decision: 'ANY', timeout: 60 }),
+    });
+    notificationSocket.onmessage(messageEvent);
+
+    flushMicrotasks();
+    flushMicrotasks();
+
+    const alertOptions = alertControllerMock.create.mock.calls[0][0];
+    const rejectBtn = alertOptions.buttons.find((b: any) => b.role === 'cancel');
+
+    rejectBtn.handler();
+    flushMicrotasks();
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(sendNotifSpy).toHaveBeenCalledWith(JSON.stringify({ decision: 'REJECTED' }));
+    expect(closeNotifSpy).toHaveBeenCalledTimes(1);
+    expect(showTempSpy).toHaveBeenCalledWith('home.rejected-msg');
+
+    clearIntervalSpy.mockRestore();
+  }));
+
+  it('should ACCEPT notification: clear interval, send message, close socket and show ok message', fakeAsync(() => {
+    const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
+
+    const sendNotifSpy = jest.spyOn(service, 'sendNotificationMessage');
+    const closeNotifSpy = jest.spyOn(service, 'closeNotificationConnection');
+    const showTempSpy = jest
+      .spyOn(service as any, 'showTempOkMessage')
+      .mockResolvedValue(undefined);
+
+    const mockAlert = {
+      present: jest.fn(() => Promise.resolve()),
+      onDidDismiss: jest.fn(() => Promise.resolve()),
+      dismiss: jest.fn(() => Promise.resolve()),
+    };
+    alertControllerMock.create.mockResolvedValue(mockAlert);
+
+    let notificationSocket: any;
+    mockWebSocketConstructor = jest.fn(() => {
+      notificationSocket = {
+        send: jest.fn(),
+        close: jest.fn(),
+        readyState: 1,
+        onopen: undefined,
+        onmessage: undefined,
+        onclose: undefined,
+        onerror: undefined,
+      };
+      return notificationSocket;
+    });
+    (mockWebSocketConstructor as any).OPEN = 1;
+    (mockWebSocketConstructor as any).CLOSED = 3;
+    window['WebSocket'] = mockWebSocketConstructor as any;
+
+    service.connectNotificationSocket();
+
+    const messageEvent = new MessageEvent('message', {
+      data: JSON.stringify({ decision: 'ANY', timeout: 60 }),
+    });
+    notificationSocket.onmessage(messageEvent);
+
+    flushMicrotasks();
+    flushMicrotasks();
+
+    const alertOptions = alertControllerMock.create.mock.calls[0][0];
+    const acceptBtn = alertOptions.buttons.find((b: any) => b.role === 'confirm');
+
+    acceptBtn.handler();
+    flushMicrotasks();
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(sendNotifSpy).toHaveBeenCalledWith(JSON.stringify({ decision: 'ACCEPTED' }));
+    expect(closeNotifSpy).toHaveBeenCalledTimes(1);
+    expect(showTempSpy).toHaveBeenCalledWith('home.ok-msg');
+
+    clearIntervalSpy.mockRestore();
+  }));
 
 });

@@ -65,7 +65,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           SERVER_PATH.REQUEST_CREDENTIAL) 
           && (errStatus === 408 || errStatus === 504)
         ){
-          errMessage = 'PIN expired';
+          errMessage = "PIN expired"
         } 
         //cross-device 
         else if (pathname.endsWith(SERVER_PATH.EXECUTE_CONTENT)){
@@ -75,7 +75,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             //simply don't change the message, the one from backend is ok
           }else if(errorResp.status === 504 || errorResp.status === 408){
             //504 for nginx Gateway timeout, 408 for backend
-            errMessage = 'PIN expired';
+            errMessage = "PIN expired"
           }
           else if(!errMessage.startsWith('The received QR content cannot be processed'))
           {
