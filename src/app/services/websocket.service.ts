@@ -212,15 +212,15 @@ export class WebsocketService {
       previewHtml = `
         <div class="cred-preview">
           <div class="cred-row">
-            <span class="cred-label">${subjectLabel}${this.escapeHtml(preview.subjectName)}</span>
+            <span class="cred-label"><strong>${subjectLabel}</strong>${this.escapeHtml(preview.subjectName)}</span>
           </div>
 
           <div class="cred-row">
-            <span class="cred-label">${organizationLabel}${this.escapeHtml(preview.organization)}</span>
+            <span class="cred-label"><strong>${organizationLabel}</strong>${this.escapeHtml(preview.organization)}</span>
           </div>
 
             <div class="cred-row">
-              <span class="cred-label">${expirationLabel}${this.formatDateHuman(preview.expirationDate)}</span>
+              <span class="cred-label"><strong>${expirationLabel}</strong>${this.formatDateHuman(preview.expirationDate)}</span>
             </div>
         </div>
       `;
@@ -304,7 +304,8 @@ export class WebsocketService {
 
 
   private formatDateHuman(dateStr: string): string {
-    dateStr = this.escapeHtml(dateStr)
+    dateStr = this.escapeHtml(dateStr);
+    console.log(dateStr);
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
       return dateStr;
@@ -321,13 +322,18 @@ export class WebsocketService {
   }
 
   private escapeHtml(value: string): string {
-    return value
+    let s = String(value ?? '');
+
+    if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+      s = s.slice(1, -1);
+    }
+
+    return s
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-      .replace(/^"+|"+$/g, '');
+      .replace(/'/g, '&#039;');
   }
 
 
