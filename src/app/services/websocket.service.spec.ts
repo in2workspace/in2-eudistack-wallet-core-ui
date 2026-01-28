@@ -602,6 +602,7 @@ describe('WebsocketService', () => {
     const rejectBtn = alertOptions.buttons.find((b: any) => b.role === 'cancel');
 
     rejectBtn.handler();
+  
     flushMicrotasks();
 
     expect(clearIntervalSpy).toHaveBeenCalled();

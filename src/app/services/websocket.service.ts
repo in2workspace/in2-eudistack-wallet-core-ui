@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
 import { ToastServiceHandler } from './toast.service';
+import { isPinRequest, isNotificationRequest } from '../interfaces/websocket-data';
 
 @Injectable({
   providedIn: 'root',
@@ -23,11 +24,11 @@ export class WebsocketService {
   private readonly toastServiceHandler = inject(ToastServiceHandler);
 
   private async routeMessage(data: any): Promise<void> {
-    if (data?.tx_code) {
+    if (isPinRequest(data)) {
       await this.handlePinRequest(data);
       return;
     }
-    if (data?.decision != null) {
+    if (isNotificationRequest(data)) {
       await this.handleNotificationDecisionRequest(data);
     }
   }
@@ -197,15 +198,9 @@ export class WebsocketService {
   private async handleNotificationDecisionRequest(data: any): Promise<void> {
     let closedByUser = false;
 
-    const timeoutSeconds = data.timeout || 60;
+    const counter = data.timeout || 80;
 
     const preview = data.credentialPreview;
-    const expiresAt =
-    typeof data.expiresAt === 'number'
-      ? data.expiresAt
-      : Date.now() + timeoutSeconds * 1000;
-    
-    const initialCounter = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
 
     let previewHtml = '';
 
@@ -216,7 +211,7 @@ export class WebsocketService {
             ${preview.subjectName
               ? `
                 <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Titular:</strong> ${preview.subjectName}</div>
+                  <div style="word-break:break-word;"><strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}</div>
                 </li>
               `
               : ''}
@@ -224,7 +219,7 @@ export class WebsocketService {
             ${preview.organization
               ? `
                 <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Organización:</strong> ${preview.organization}</div>
+                  <div style="word-break:break-word;"><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
                 </li>
               `
               : ''}
@@ -232,7 +227,7 @@ export class WebsocketService {
             ${preview.issuer
               ? `
                 <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Emisor:</strong> ${preview.issuer}</div>
+                  <div style="word-break:break-word;"><strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}</div>
                 </li>
               `
               : ''}
@@ -260,7 +255,7 @@ export class WebsocketService {
       : baseDescription;
     const message = this.translate.instant('confirmation.messageHtml', {
       description: descriptionWithPreview,
-      counter: initialCounter,
+      counter: counter,
     });
 
     let interval: any;
@@ -269,7 +264,7 @@ export class WebsocketService {
       closedByUser = true;
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'REJECTED' }));
-      this.closeNotificationConnection();
+      Promise.resolve().then(() => this.closeNotificationConnection());
       await this.showTempOkMessage('home.rejected-msg');
     };
 
@@ -277,7 +272,7 @@ export class WebsocketService {
       closedByUser = true;
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'ACCEPTED' }));
-      this.closeNotificationConnection();
+      Promise.resolve().then(() => this.closeNotificationConnection());
       await this.showTempOkMessage('home.ok-msg');
     };
 
@@ -294,6 +289,7 @@ export class WebsocketService {
     const alert = await this.alertController.create(alertOptions);
     await alert.present();
     alert.onDidDismiss().then(() => {
+      clearInterval(interval);
       this.closeNotificationConnection();
       if(!closedByUser){
         this.toastServiceHandler
@@ -302,8 +298,7 @@ export class WebsocketService {
       }
       
     });
-    const counterReal = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
-    interval = this.startCountdown(alert, descriptionWithPreview, counterReal);    
+    interval = this.startCountdown(alert, descriptionWithPreview, counter);    
   }
 
   private async showTempOkMessage(message: string): Promise<void> {
@@ -337,5 +332,16 @@ export class WebsocketService {
       }
     );
   }
+
+  private escapeHtml(value: unknown): string {
+    const s = String(value ?? '');
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
 
 }
