@@ -217,12 +217,24 @@ export class WebsocketService {
               : ''}
 
             ${preview.organization
-              ? `
-                <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
-                </li>
-              `
-              : ''}
+            ? `
+              <li role="listitem">
+                <div>
+                  <strong>Organización:</strong>
+                  <span style="
+                    display:inline-block;
+                    max-width: 260px;
+                    vertical-align: bottom;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  " title="${this.escapeHtml(preview.organization)}">
+                    ${this.escapeHtml(preview.organization)}
+                  </span>
+                </div>
+              </li>
+            `
+            : ''}
 
             ${preview.issuer
               ? `
