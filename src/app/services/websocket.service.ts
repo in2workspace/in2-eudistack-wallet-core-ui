@@ -219,18 +219,9 @@ export class WebsocketService {
             ${preview.organization
             ? `
               <li role="listitem">
-                <div>
+                <div style="word-break:break-word;">
                   <strong>Organización:</strong>
-                  <span style="
-                    display:inline-block;
-                    max-width: 260px;
-                    vertical-align: bottom;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                  " title="${this.escapeHtml(preview.organization)}">
-                    ${this.escapeHtml(preview.organization)}
-                  </span>
+                  ${this.escapeHtml(this.truncateMiddle(preview.organization, 70))}
                 </div>
               </li>
             `
@@ -353,6 +344,16 @@ export class WebsocketService {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  private truncateMiddle(text: string, max = 55): string {
+      if (!text) return '';
+      const clean = text.trim();
+      if (clean.length <= max) return clean;
+      const keep = Math.max(10, Math.floor((max - 3) / 2));
+      const start = clean.slice(0, keep);
+      const end = clean.slice(-keep);
+      return `${start}...${end}`;
   }
 
 
