@@ -77,30 +77,26 @@ ion-alert.custom-alert-error .alert-wrapper {
   }
 
   ion-alert .cred-preview {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-/* Fila Campo: Valor */
-ion-alert .cred-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-}
+  ion-alert.custom-alert-credential .cred-row {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 8px;
+    align-items: start;
+  }
 
-/* Etiqueta */
-ion-alert .cred-label {
-  font-weight: 600;
-  white-space: nowrap;   /* "Titular:" no se parte */
-  flex-shrink: 0;
-}
+  ion-alert.custom-alert-credential .cred-label {
+    font-weight: 600;
+    white-space: nowrap;
+  }
 
-/* Valor */
-ion-alert .cred-value {
-  flex: 1;
-  min-width: 0;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
+  ion-alert.custom-alert-credential .cred-value {
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }

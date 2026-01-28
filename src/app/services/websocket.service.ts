@@ -302,9 +302,12 @@ export class WebsocketService {
     }, 2000);
   }
 
+
   private formatDateHuman(dateStr: string): string {
-    const iso = this.normalizeIsoForJs(dateStr);
-    const date = new Date(iso);
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) {
+      return this.escapeHtml(dateStr);
+    }
 
     return date.toLocaleDateString(
       this.translate.currentLang || 'es-ES',
@@ -316,23 +319,13 @@ export class WebsocketService {
     );
   }
 
-  private normalizeIsoForJs(input: string): string {
-    if (!input) return input;
-
-    return input.replace(
-      /\.(\d{3})\d+(?=Z$)/,
-      '.$1'
-    );
-  }
-
-  private escapeHtml(value: unknown): string {
-    const s = String(value ?? '');
-    return s
+  private escapeHtml(value: string): string {
+    return value
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+      .replace(/'/g, '&#039;');
   }
 
 
