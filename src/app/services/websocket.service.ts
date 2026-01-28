@@ -205,44 +205,33 @@ export class WebsocketService {
     let previewHtml = '';
 
     if (preview) {
+      const row = (label: string, value?: unknown) => {
+        if (value === undefined || value === null || String(value).trim() === '') return '';
+        return `
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <div style="min-width:110px; font-weight:600;">${label}</div>
+            <div style="flex:1; word-break:break-word;">${this.escapeHtml(value)}</div>
+          </div>
+        `;
+      };
+
       previewHtml = `
         <div style="margin-top:10px">
-          <ul role="list" style="padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
-            ${preview.subjectName
-              ? `
-                <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Titular:</strong> ${this.escapeHtml(preview.subjectName)}</div>
-                </li>
-              `
-              : ''}
-
-            ${preview.organization
-              ? `
-                <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Organización:</strong> ${this.escapeHtml(preview.organization)}</div>
-                </li>
-              `
-              : ''}
-
-            ${preview.issuer
-              ? `
-                <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Emisor:</strong> ${this.escapeHtml(preview.issuer)}</div>
-                </li>
-              `
-              : ''}
-
-            ${preview.expirationDate
-              ? `
-                <li role="listitem">
-                  <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
-                </li>
-              `
-              : ''}
-          </ul>
+          ${row('Titular:', preview.subjectName)}
+          ${row('Organización:', preview.organization)}
+          ${row('Emisor:', preview.issuer)}
+          ${preview.expirationDate
+            ? `
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                <div style="min-width:110px; font-weight:600;">Expira:</div>
+                <div style="flex:1;">${this.formatDateHuman(preview.expirationDate)}</div>
+              </div>
+            `
+            : ''}
         </div>
       `;
     }
+
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
