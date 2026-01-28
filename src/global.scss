@@ -55,9 +55,3 @@ app-tabs ion-tab-button {
   height: 100%;
   max-height: calc(100vh - 180px);
 }
-
-ion-alert.credential-alert .cred-preview .value {
-  font-size: 15px;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}

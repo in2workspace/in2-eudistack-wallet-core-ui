@@ -206,44 +206,33 @@ export class WebsocketService {
 
     if (preview) {
       previewHtml = `
-        <div style="margin-top:10px">
-          <ul role="list" style="padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
-            ${preview.subjectName
-              ? `
-                <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Titular:</strong> ${preview.subjectName}</div>
-                </li>
-              `
-              : ''}
+        <div class="cred-preview">
+          ${preview.subjectName ? `
+            <div class="cred-row">
+              <span class="cred-label">Titular:</span>
+              <span class="cred-value">${this.escapeHtml(preview.subjectName)}</span>
+            </div>` : ''}
 
-            ${preview.organization
-              ? `
-                <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Organización:</strong> ${this.firstSixLetters(preview.organization)}</div>
-                </li>
-              `
-              : ''}
+          ${preview.organization ? `
+            <div class="credrow cred-row">
+              <span class="cred-label">Organización:</span>
+              <span class="cred-value">${this.escapeHtml(preview.organization)}</span>
+            </div>` : ''}
 
-            ${preview.issuer
-              ? `
-                <li role="listitem">
-                  <div style="word-break:break-word;"><strong>Emisor:</strong> ${preview.issuer}</div>
-                </li>
-              `
-              : ''}
+          ${preview.issuer ? `
+            <div class="cred-row">
+              <span class="cred-label">Emisor:</span>
+              <span class="cred-value">${this.escapeHtml(preview.issuer)}</span>
+            </div>` : ''}
 
-            ${preview.expirationDate
-              ? `
-                <li role="listitem">
-                  <div><strong>Expira:</strong> ${this.formatDateHuman(preview.expirationDate)}</div>
-                </li>
-              `
-              : ''}
-          </ul>
+          ${preview.expirationDate ? `
+            <div class="cred-row">
+              <span class="cred-label">Expira:</span>
+              <span class="cred-value">${this.formatDateHuman(preview.expirationDate)}</span>
+            </div>` : ''}
         </div>
       `;
     }
-
 
     const header = this.translate.instant('confirmation.new-credential-title');
     const accept = this.translate.instant('confirmation.accept');
@@ -322,6 +311,7 @@ export class WebsocketService {
   }
 
   private formatDateHuman(dateStr: string): string {
+    console.log(dateStr);
     const date = new Date(dateStr);
 
     return date.toLocaleDateString(
@@ -334,11 +324,16 @@ export class WebsocketService {
     );
   }
 
-  private firstSixLetters(text: string): string {
-    if (!text) return '';
-    const clean = text.trim();
-    return clean.length > 6 ? clean.slice(0, 6) + '…' : clean;
+  private escapeHtml(value: unknown): string {
+    const s = String(value ?? '');
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
+
 
 
 

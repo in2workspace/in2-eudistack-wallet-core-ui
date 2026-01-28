@@ -75,3 +75,32 @@ ion-alert.custom-alert-error .alert-wrapper {
     padding-top: 0.5em;
     font-weight: bold;
   }
+
+  ion-alert .cred-preview {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Una fila "Campo: valor" */
+ion-alert .cred-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap; /* clave: permite que el valor baje */
+}
+
+/* Campo */
+ion-alert .cred-label {
+  font-weight: 600;
+  white-space: nowrap; /* "Campo:" no se parte */
+}
+
+/* Valor */
+ion-alert .cred-value {
+  flex: 1 1 220px;       /* deja que el valor ocupe ancho y baje si no cabe */
+  min-width: 0;          /* importante para wrap en flex */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
