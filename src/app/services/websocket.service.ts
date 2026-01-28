@@ -201,6 +201,10 @@ export class WebsocketService {
     const counter = data.timeout || 80;
 
     const preview = data.credentialPreview;
+    const subjectLabel = this.translate.instant('confirmation.holder');
+    const organizationLabel = this.translate.instant('confirmation.organization');
+    const expirationLabel = this.translate.instant('confirmation.expiration');
+
 
     let previewHtml = '';
 
@@ -208,18 +212,15 @@ export class WebsocketService {
       previewHtml = `
         <div class="cred-preview">
           <div class="cred-row">
-            <span class="cred-label">Titular:</span>
-            <span class="cred-value">${this.escapeHtml(preview.subjectName)}</span>
+            <span class="cred-label">${subjectLabel}${this.escapeHtml(preview.subjectName)}</span>
           </div>
 
           <div class="cred-row">
-            <span class="cred-label">Organización:</span>
-            <span class="cred-value">${this.escapeHtml(preview.organization)}</span>
+            <span class="cred-label">${organizationLabel}${this.escapeHtml(preview.organization)}</span>
           </div>
 
             <div class="cred-row">
-              <span class="cred-label">Expira:</span>
-              <span class="cred-value">${this.formatDateHuman(preview.expirationDate)}</span>
+              <span class="cred-label">${expirationLabel}${this.formatDateHuman(preview.expirationDate)}</span>
             </div>
         </div>
       `;
@@ -256,7 +257,6 @@ export class WebsocketService {
       Promise.resolve().then(() => this.closeNotificationConnection());
       await this.showTempOkMessage('home.ok-msg');
     };
-    //"2027-01-28T16:59:48.313757480Z"
 
     const alertOptions: AlertOptions = {
       header,
@@ -304,9 +304,10 @@ export class WebsocketService {
 
 
   private formatDateHuman(dateStr: string): string {
+    dateStr = this.escapeHtml(dateStr)
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
-      return this.escapeHtml(dateStr);
+      return dateStr;
     }
 
     return date.toLocaleDateString(
@@ -325,7 +326,8 @@ export class WebsocketService {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(/'/g, '&#039;')
+      .replace(/^"+|"+$/g, '');
   }
 
 
