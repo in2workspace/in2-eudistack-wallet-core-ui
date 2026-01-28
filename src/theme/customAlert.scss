@@ -83,24 +83,24 @@ ion-alert.custom-alert-error .alert-wrapper {
   gap: 10px;
 }
 
-/* Una fila "Campo: valor" */
+/* Fila Campo: Valor */
 ion-alert .cred-row {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap; /* clave: permite que el valor baje */
+  align-items: flex-start;
+  gap: 6px;
 }
 
-/* Campo */
+/* Etiqueta */
 ion-alert .cred-label {
   font-weight: 600;
-  white-space: nowrap; /* "Campo:" no se parte */
+  white-space: nowrap;   /* "Titular:" no se parte */
+  flex-shrink: 0;
 }
 
 /* Valor */
 ion-alert .cred-value {
-  flex: 1 1 220px;       /* deja que el valor ocupe ancho y baje si no cabe */
-  min-width: 0;          /* importante para wrap en flex */
-  overflow-wrap: anywhere;
+  flex: 1;
+  min-width: 0;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }

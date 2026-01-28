@@ -207,29 +207,20 @@ export class WebsocketService {
     if (preview) {
       previewHtml = `
         <div class="cred-preview">
-          ${preview.subjectName ? `
-            <div class="cred-row">
-              <span class="cred-label">Titular:</span>
-              <span class="cred-value">${this.escapeHtml(preview.subjectName)}</span>
-            </div>` : ''}
+          <div class="cred-row">
+            <span class="cred-label">Titular:</span>
+            <span class="cred-value">${this.escapeHtml(preview.subjectName)}</span>
+          </div>
 
-          ${preview.organization ? `
-            <div class="credrow cred-row">
-              <span class="cred-label">Organización:</span>
-              <span class="cred-value">${this.escapeHtml(preview.organization)}</span>
-            </div>` : ''}
+          <div class="cred-row">
+            <span class="cred-label">Organización:</span>
+            <span class="cred-value">${this.escapeHtml(preview.organization)}</span>
+          </div>
 
-          ${preview.issuer ? `
-            <div class="cred-row">
-              <span class="cred-label">Emisor:</span>
-              <span class="cred-value">${this.escapeHtml(preview.issuer)}</span>
-            </div>` : ''}
-
-          ${preview.expirationDate ? `
             <div class="cred-row">
               <span class="cred-label">Expira:</span>
               <span class="cred-value">${this.formatDateHuman(preview.expirationDate)}</span>
-            </div>` : ''}
+            </div>
         </div>
       `;
     }
@@ -265,6 +256,7 @@ export class WebsocketService {
       Promise.resolve().then(() => this.closeNotificationConnection());
       await this.showTempOkMessage('home.ok-msg');
     };
+    //"2027-01-28T16:59:48.313757480Z"
 
     const alertOptions: AlertOptions = {
       header,
@@ -311,8 +303,8 @@ export class WebsocketService {
   }
 
   private formatDateHuman(dateStr: string): string {
-    console.log(dateStr);
-    const date = new Date(dateStr);
+    const iso = this.normalizeIsoForJs(dateStr);
+    const date = new Date(iso);
 
     return date.toLocaleDateString(
       this.translate.currentLang || 'es-ES',
@@ -321,6 +313,15 @@ export class WebsocketService {
         month: 'long',
         day: 'numeric',
       }
+    );
+  }
+
+  private normalizeIsoForJs(input: string): string {
+    if (!input) return input;
+
+    return input.replace(
+      /\.(\d{3})\d+(?=Z$)/,
+      '.$1'
     );
   }
 
