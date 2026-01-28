@@ -305,11 +305,7 @@ export class WebsocketService {
 
   private formatDateHuman(dateStr: string): string {
     dateStr = this.escapeHtml(dateStr);
-    console.log(dateStr);
     const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      return dateStr;
-    }
 
     return date.toLocaleDateString(
       this.translate.currentLang || 'es-ES',
