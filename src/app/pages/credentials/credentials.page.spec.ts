@@ -50,7 +50,7 @@ describe('CredentialsPage', () => {
         { provide: ChangeDetectorRef, useValue: { detectChanges: jest.fn() } },
         { provide: DestroyRef, useValue: {} },
         { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
-        { provide: WebsocketService, useValue: { connect: jest.fn(), closeConnection: jest.fn() } },
+        { provide: WebsocketService, useValue: { connect: jest.fn(), closePinConnection: jest.fn() } },
         { provide: CameraLogsService, useValue: {} },
         { provide: TranslateService, useValue: { instant: (key: string) => key } }
       ],

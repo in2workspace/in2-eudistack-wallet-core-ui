@@ -43,6 +43,7 @@
     },
     "home":{
         "ok-msg": "Credential added",
+        "rejected-msg": "Credential offer rejected",
         "scan": "Scan QR"
     },
     "language-selector":{
@@ -199,6 +200,7 @@
         "cannot-save-VC":"The credential could not be saved successfully",
         "incorrect-pin": "Incorrect PIN. Please refresh the credential offer. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
         "pin-expired": "You didn't enter the PIN within the time limit. Please refresh the credential offer. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
+        "qr-expired": "The QR session has expired. Please refresh the credential offer.",
         "unsigned": "The signed credential is not yet available",
         "loading-VCs": "There was an error loading credentials. Please try again. If the problem persists, report it to the <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>support team</a>.",
         "Errunsigned": "Credential could not be obtained",
@@ -220,10 +222,16 @@
         "header":"Send credential?",
         "ok":"Ok",
         "cancel":"Cancel",
+        "new-credential": "Do you want to accept this credential?",
+        "new-credential-title": "New Credential",
+        "accept":"Accept",
         "pin":"Enter PIN",
         "description": "A PIN has been sent to your email. Check your inbox. Enter your PIN Code.",
         "send": "send",
-        "messageHtml": "{{description}}<br><small class=\"counter\">Time remaining: {{counter}} seconds</small>"
+        "messageHtml": "{{description}}<br><small class=\"counter\">Time remaining: {{counter}} seconds</small>",
+        "organization":"Organization: ",
+        "holder":"Holder: ",
+        "expiration":"Expiration date: "
     }
 
 }
