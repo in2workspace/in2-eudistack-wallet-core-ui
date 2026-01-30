@@ -301,7 +301,7 @@ export class WebsocketService {
     setTimeout(async () => {
       await alert.dismiss();
 
-    }, 2000);
+    }, 3000);
   }
 
 
