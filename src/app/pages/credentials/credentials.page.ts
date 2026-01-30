@@ -192,6 +192,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         }),
 
         catchError((error: ExtendedHttpErrorResponse) => {
+          this.websocket.closeNotificationConnection();
           this.handleContentExecutionError(error);
           return of(null);
         })
@@ -227,6 +228,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
 
         catchError((err: ExtendedHttpErrorResponse) => {
           console.error(err);
+          this.websocket.closeNotificationConnection();
           this.handleContentExecutionError(err);
           return of(null);
         })

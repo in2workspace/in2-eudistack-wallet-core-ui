@@ -81,6 +81,7 @@ ion-alert.custom-alert-error .alert-wrapper {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    align-items: flex-start;
   }
 
   ion-alert.custom-alert-credential .cred-row {
