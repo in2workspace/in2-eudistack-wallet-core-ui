@@ -192,6 +192,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
         }),
 
         catchError((error: ExtendedHttpErrorResponse) => {
+          this.websocket.closeNotificationConnection();
           this.handleContentExecutionError(error);
           return of(null);
         })
@@ -200,26 +201,41 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
   }
 
   public sameDeviceVcActivationFlow(): void {
-    this.websocket.connectPinSocket()
-      .then(() => {
-        console.info('Requesting Credential Offer via same-device flow.');
-        this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri).subscribe({
-          next: () => {
-            this.handleActivationSuccess().subscribe(() => {
-              this.router.navigate(['/tabs/credentials']);
-              this.websocket.closePinConnection();
-            });
-          },
-          error: (err) => {
-            console.error(err);
-            this.websocket.closePinConnection();
-          },
-        });
-      })
-      .catch(err => {
-          this.handleContentExecutionError(err)
-      })
+    const socketsToConnect: Promise<void>[] = [
+      this.websocket.connectPinSocket(),
+      this.websocket.connectNotificationSocket(),
+    ];
+
+    from(Promise.all(socketsToConnect))
+      .pipe(
+        tap(() => {
+          console.info('Requesting Credential Offer via same-device flow.');
+        }),
+
+        switchMap(() =>
+          this.walletService.requestOpenidCredentialOffer(this.credentialOfferUri)
+        ),
+
+        switchMap(() => this.handleActivationSuccess()),
+
+        switchMap(() =>
+          from(this.router.navigate(['/tabs/credentials']))
+        ),
+
+        finalize(() => {
+          this.websocket.closePinConnection();
+        }),
+
+        catchError((err: ExtendedHttpErrorResponse) => {
+          console.error(err);
+          this.websocket.closeNotificationConnection();
+          this.handleContentExecutionError(err);
+          return of(null);
+        })
+      )
+      .subscribe();
   }
+
   
   private handleActivationSuccess(): Observable<VerifiableCredential[]> {
     this.loader.addLoadingProcess();
@@ -254,6 +270,7 @@ export class CredentialsPage implements OnInit, ViewWillLeave {
             }
           }
           return cred;
+
         });
         // todo avoid this
         this.cdr.detectChanges();

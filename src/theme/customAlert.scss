@@ -76,11 +76,17 @@ ion-alert.custom-alert-error .alert-wrapper {
     font-weight: bold;
   }
 
-  ion-alert .cred-preview {
+  ion-alert .alert-message div.cred-preview {
     margin-top: 12px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+
+  @media (min-width: 768px) {
+    ion-alert .alert-message .cred-preview {
+      align-items: flex-start;
+    }
   }
 
   ion-alert.custom-alert-credential .cred-row {
