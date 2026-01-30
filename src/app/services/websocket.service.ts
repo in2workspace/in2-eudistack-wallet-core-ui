@@ -247,7 +247,8 @@ export class WebsocketService {
       clearInterval(interval);
       this.sendNotificationMessage(JSON.stringify({ decision: 'REJECTED' }));
       Promise.resolve().then(() => this.closeNotificationConnection());
-      await this.showTempOkMessage('home.rejected-msg');
+      await this.showTempOkMessage('home.rejected-msg');      
+      window.location.reload();
     };
 
     const acceptHandler = async () => {
@@ -276,7 +277,8 @@ export class WebsocketService {
       if(!closedByUser){
         this.toastServiceHandler
           .showErrorAlert("The QR session expired")
-          .subscribe();
+          .subscribe();        
+        window.location.reload();
       }
       
     });
@@ -299,7 +301,7 @@ export class WebsocketService {
     setTimeout(async () => {
       await alert.dismiss();
 
-    }, 2000);
+    }, 3000);
   }
 
 
@@ -331,8 +333,4 @@ export class WebsocketService {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
   }
-
-
-
-
 }
