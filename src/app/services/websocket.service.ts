@@ -301,23 +301,23 @@ export class WebsocketService {
         const fnKey = this.normalizeKey(p?.function);
         const actionKeys = this.normalizeActionKeys(p?.action);
 
-        const functionLabel = this.translate.instant(`powers.function.${fnKey}`) || p?.function || '';
+        const functionLabel =
+          this.translate.instant(`vc-fields.power.${fnKey}`) || p?.function || '';
+
         const actionLabels = actionKeys
-          .map((a) => this.translate.instant(`powers.action.${a}`) || a)
+          .map((a) => this.translate.instant(`vc-fields.power.${a}`) || a)
           .join(', ');
 
-        const line = this.translate.instant('powers.format.line', {
-          function: functionLabel,
-          actions: actionLabels,
-        });
+        const line = `${functionLabel}: ${actionLabels}`;
         console.log('Mapped line:', line);
 
-        return line?.trim();
+        return line.trim();
       })
       .filter(Boolean);
 
-    return lines.join('\n');
+    return lines.join('<br/>');
   }
+
 
   private normalizeKey(value: unknown): string {
     return String(value ?? '')
