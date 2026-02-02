@@ -8,7 +8,7 @@ interface NotificationData {
   credentialPreview?: {
     subjectName?: string;
     organization?: string;
-    powers?: string;
+    power?: string;
     expirationDate?: string;
   };
   timeout?: number;

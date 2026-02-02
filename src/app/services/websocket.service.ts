@@ -203,7 +203,7 @@ export class WebsocketService {
     const preview = data.credentialPreview;
     const subjectLabel = this.translate.instant('confirmation.holder');
     const organizationLabel = this.translate.instant('confirmation.organization');
-    const powersLabel = this.translate.instant('confirmation.organization');
+    const powersLabel = this.translate.instant('confirmation.powers');
     const expirationLabel = this.translate.instant('confirmation.expiration');
 
 
@@ -221,7 +221,7 @@ export class WebsocketService {
           </div>
 
           <div class="cred-row">
-            <span class="cred-label"><strong>${powersLabel}</strong>${this.escapeHtml(preview.powers)}</span>
+            <span class="cred-label"><strong>${powersLabel}</strong>${this.mapPowersToHumanReadable(preview.power)}</span>
           </div>
 
           <div class="cred-row">
@@ -288,6 +288,45 @@ export class WebsocketService {
       
     });
     interval = this.startCountdown(alert, descriptionWithPreview, counter);    
+  }
+
+  public mapPowersToHumanReadable(powers: Array<any>): string {
+    if (!Array.isArray(powers) || powers.length === 0) return '';
+
+    const lines = powers
+      .map((p) => {
+        const fnKey = this.normalizeKey(p?.function);
+        const actionKeys = this.normalizeActionKeys(p?.action);
+
+        const functionLabel = this.translate.instant(`powers.function.${fnKey}`) || p?.function || '';
+        const actionLabels = actionKeys
+          .map((a) => this.translate.instant(`powers.action.${a}`) || a)
+          .join(', ');
+
+        const line = this.translate.instant('powers.format.line', {
+          function: functionLabel,
+          actions: actionLabels,
+        });
+
+        return line?.trim();
+      })
+      .filter(Boolean);
+
+    return lines.join('\n');
+  }
+
+  private normalizeKey(value: unknown): string {
+    return String(value ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  private normalizeActionKeys(actions: unknown): string[] {
+    if (!Array.isArray(actions)) return [];
+    return actions
+      .map((a) => this.normalizeKey(a))
+      .filter(Boolean);
   }
 
   private async showTempOkMessage(message: string): Promise<void> {
