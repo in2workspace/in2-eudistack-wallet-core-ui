@@ -231,6 +231,7 @@
         "messageHtml": "{{description}}<br><small class=\"counter\">Time remaining: {{counter}} seconds</small>",
         "organization":"Organization: ",
         "holder":"Holder: ",
+        "powers":"Powers: ",
         "expiration":"Expiration date: "
     }
 

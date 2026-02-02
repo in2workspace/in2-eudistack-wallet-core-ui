@@ -203,6 +203,7 @@ export class WebsocketService {
     const preview = data.credentialPreview;
     const subjectLabel = this.translate.instant('confirmation.holder');
     const organizationLabel = this.translate.instant('confirmation.organization');
+    const powersLabel = this.translate.instant('confirmation.organization');
     const expirationLabel = this.translate.instant('confirmation.expiration');
 
 
@@ -219,9 +220,13 @@ export class WebsocketService {
             <span class="cred-label"><strong>${organizationLabel}</strong>${this.escapeHtml(preview.organization)}</span>
           </div>
 
-            <div class="cred-row">
-              <span class="cred-label"><strong>${expirationLabel}</strong>${this.formatDateHuman(preview.expirationDate)}</span>
-            </div>
+          <div class="cred-row">
+            <span class="cred-label"><strong>${powersLabel}</strong>${this.escapeHtml(preview.powers)}</span>
+          </div>
+
+          <div class="cred-row">
+            <span class="cred-label"><strong>${expirationLabel}</strong>${this.formatDateHuman(preview.expirationDate)}</span>
+          </div>
         </div>
       `;
     }

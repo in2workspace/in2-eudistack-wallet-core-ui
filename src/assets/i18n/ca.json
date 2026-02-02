@@ -233,6 +233,7 @@
         "messageHtml": "{{description}}<br><small class=\"counter\">Temps restant: {{counter}} segundos</small>",
         "organization":"Organització: ",
         "holder":"Titular: ",
+        "powers":"Poders: ",
         "expiration":"Data de caducitat: "
     }
 }
