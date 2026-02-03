@@ -201,11 +201,9 @@ export class WebsocketService {
     const counter = data.timeout || 80;
 
     const preview = data.credentialPreview as CredentialPreview;
-    console.log('Credential Preview:', preview);
     const subjectLabel = this.translate.instant('confirmation.holder');
     const organizationLabel = this.translate.instant('confirmation.organization');
     const powersLabel = this.translate.instant('confirmation.powers');
-    console.log('Powers Label:', powersLabel);
     const expirationLabel = this.translate.instant('confirmation.expiration');
 
 
@@ -294,8 +292,6 @@ export class WebsocketService {
   private mapPowersToHumanReadable(powers: Power[]): string {
     if (powers.length === 0) return '';
 
-    console.log('Mapping powers to human readable:', powers);
-
     const unknown = this.translate.instant('confirmation.unknown');
 
     const lines = powers
@@ -305,17 +301,13 @@ export class WebsocketService {
 
         const functionLabelRaw =
           this.getSafeTranslation(`vc-fields.power.${fnKey}`, p?.function, unknown);
-        console.log('Function Label Raw:', functionLabelRaw);
+
         const actionLabelsRaw = actionKeys
           .map((a) => this.getSafeTranslation(`vc-fields.power.${a}`, a, unknown))
           .filter((x) => x && x !== unknown);
 
-        console.log('Action Labels Raw:', actionLabelsRaw);
-
         const functionLabel = this.escapeHtml(functionLabelRaw);
         const actionLabels = this.escapeHtml(actionLabelsRaw.join(', '));
-        console.log('Function Label:', functionLabel);
-        console.log('Action Labels:', actionLabels);
 
         if (!functionLabel || !actionLabels) return '';
 
