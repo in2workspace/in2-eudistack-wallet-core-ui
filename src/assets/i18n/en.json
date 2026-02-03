@@ -232,7 +232,8 @@
         "organization":"Organization: ",
         "holder":"Holder: ",
         "powers":"Powers: ",
-        "expiration":"Expiration date: "
+        "expiration":"Expiration date: ",
+        "unknown": "Unknown"
     }
 
 }

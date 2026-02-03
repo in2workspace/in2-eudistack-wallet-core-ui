@@ -233,6 +233,7 @@
         "organization":"Organización: ",
         "holder":"Titular: ",
         "powers":"Poderes: ",
-        "expiration":"Fecha de caducidad: "
+        "expiration":"Fecha de caducidad: ",
+        "unknown": "Desconocido"
     }
 }
