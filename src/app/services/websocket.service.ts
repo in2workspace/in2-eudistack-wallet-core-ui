@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
 import { ToastServiceHandler } from './toast.service';
-import { isPinRequest, isNotificationRequest } from '../interfaces/websocket-data';
+import { isPinRequest, isNotificationRequest, Power, CredentialPreview } from '../interfaces/websocket-data';
 
 @Injectable({
   providedIn: 'root',
@@ -200,7 +200,7 @@ export class WebsocketService {
 
     const counter = data.timeout || 80;
 
-    const preview = data.credentialPreview;
+    const preview = data.credentialPreview as CredentialPreview;
     const subjectLabel = this.translate.instant('confirmation.holder');
     const organizationLabel = this.translate.instant('confirmation.organization');
     const powersLabel = this.translate.instant('confirmation.powers');
@@ -289,7 +289,7 @@ export class WebsocketService {
     interval = this.startCountdown(alert, descriptionWithPreview, counter);    
   }
 
-  public mapPowersToHumanReadable(powers: Array<any>): string {
+  public mapPowersToHumanReadable(powers: Power[]): string {
     if (!Array.isArray(powers) || powers.length === 0) return '';
 
     const unknown = this.translate.instant('common.unknown') || 'Desconocido';

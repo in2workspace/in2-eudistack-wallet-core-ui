@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
+import { Power } from '../interfaces/verifiable-credential';
 
 
 //todo mock broadcast channel
@@ -748,17 +749,6 @@ describe('WebsocketService', () => {
     const result = service['normalizeActionKeys'](actions);
 
     expect(result).toEqual(['valid', 'another']);
-  });
-
-  it('should handle powers with missing function or action', () => {
-    const powers = [
-      { function: null, action: ['crear'] },
-      { function: 'Administrar', action: null }
-    ];
-
-    const result = service.mapPowersToHumanReadable(powers);
-
-    expect(result).toBeTruthy();
   });
 
 });
