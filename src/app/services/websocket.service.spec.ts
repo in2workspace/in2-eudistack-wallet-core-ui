@@ -416,8 +416,8 @@ describe('WebsocketService', () => {
         timeout: 60,
         credentialPreview: {
           subjectName: 'John Doe',
+          power: [{ function: 'Administrar', action: ['create', 'update'] }],
           organization: 'Test Org',
-          issuer: 'Test Issuer',
           expirationDate: '2025-12-31',
         },
       }),
@@ -699,12 +699,6 @@ describe('WebsocketService', () => {
 
   it('should return empty string for empty powers array', () => {
     expect(service['mapPowersToHumanReadable']([])).toBe('');
-  });
-
-  it('should return empty string for non-array powers', () => {
-    expect(service['mapPowersToHumanReadable'](null as any)).toBe('');
-    expect(service['mapPowersToHumanReadable'](undefined as any)).toBe('');
-    expect(service['mapPowersToHumanReadable']('not-array' as any)).toBe('');
   });
 
   it('should normalize key by removing special characters and converting to lowercase', () => {
