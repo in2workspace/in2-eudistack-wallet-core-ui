@@ -289,7 +289,7 @@ export class WebsocketService {
     interval = this.startCountdown(alert, descriptionWithPreview, counter);    
   }
 
-  public mapPowersToHumanReadable(powers: Power[]): string {
+  private mapPowersToHumanReadable(powers: Power[]): string {
     if (!Array.isArray(powers) || powers.length === 0) return '';
 
     const unknown = this.translate.instant('common.unknown') || 'Desconocido';
@@ -331,8 +331,6 @@ export class WebsocketService {
 
     return fb;
   }
-
-
 
   private normalizeKey(value: unknown): string {
     return String(value ?? '')

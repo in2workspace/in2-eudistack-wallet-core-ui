@@ -676,7 +676,7 @@ describe('WebsocketService', () => {
       { function: 'Administrar', action: ['create', 'update'] }
     ];
 
-    const result = service.mapPowersToHumanReadable(powers);
+    const result = service['mapPowersToHumanReadable'](powers);
 
     expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.administrar');
     expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.create');
@@ -690,7 +690,7 @@ describe('WebsocketService', () => {
       { function: 'Gestionar', action: ['borrar', 'modificar'] }
     ];
 
-    const result = service.mapPowersToHumanReadable(powers);
+    const result = service['mapPowersToHumanReadable'](powers);
 
     expect(result).toContain('<br/>');
     expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.administrar');
@@ -698,13 +698,13 @@ describe('WebsocketService', () => {
   });
 
   it('should return empty string for empty powers array', () => {
-    expect(service.mapPowersToHumanReadable([])).toBe('');
+    expect(service['mapPowersToHumanReadable']([])).toBe('');
   });
 
   it('should return empty string for non-array powers', () => {
-    expect(service.mapPowersToHumanReadable(null as any)).toBe('');
-    expect(service.mapPowersToHumanReadable(undefined as any)).toBe('');
-    expect(service.mapPowersToHumanReadable('not-array' as any)).toBe('');
+    expect(service['mapPowersToHumanReadable'](null as any)).toBe('');
+    expect(service['mapPowersToHumanReadable'](undefined as any)).toBe('');
+    expect(service['mapPowersToHumanReadable']('not-array' as any)).toBe('');
   });
 
   it('should normalize key by removing special characters and converting to lowercase', () => {
