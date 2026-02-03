@@ -670,4 +670,95 @@ describe('WebsocketService', () => {
     clearIntervalSpy.mockRestore();
   }));
 
+  it('should map powers to human readable format with single power', () => {
+    const powers = [
+      { function: 'Administrar', action: ['create', 'update'] }
+    ];
+
+    const result = service.mapPowersToHumanReadable(powers);
+
+    expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.administrar');
+    expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.create');
+    expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.update');
+    expect(result).toContain(':');
+  });
+
+  it('should map powers to human readable format with multiple powers', () => {
+    const powers = [
+      { function: 'Administrar', action: ['crear'] },
+      { function: 'Gestionar', action: ['borrar', 'modificar'] }
+    ];
+
+    const result = service.mapPowersToHumanReadable(powers);
+
+    expect(result).toContain('<br/>');
+    expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.administrar');
+    expect(translateMock.instant).toHaveBeenCalledWith('vc-fields.power.gestionar');
+  });
+
+  it('should return empty string for empty powers array', () => {
+    expect(service.mapPowersToHumanReadable([])).toBe('');
+  });
+
+  it('should return empty string for non-array powers', () => {
+    expect(service.mapPowersToHumanReadable(null as any)).toBe('');
+    expect(service.mapPowersToHumanReadable(undefined as any)).toBe('');
+    expect(service.mapPowersToHumanReadable('not-array' as any)).toBe('');
+  });
+
+  it('should normalize key by removing special characters and converting to lowercase', () => {
+    expect(service['normalizeKey']('Administrar')).toBe('administrar');
+    expect(service['normalizeKey']('Test Key-123')).toBe('testkey123');
+    expect(service['normalizeKey']('Special@#$Chars')).toBe('specialchars');
+    expect(service['normalizeKey']('  spaces  ')).toBe('spaces');
+  });
+
+  it('should normalize key with null or undefined', () => {
+    expect(service['normalizeKey'](null)).toBe('');
+    expect(service['normalizeKey'](undefined)).toBe('');
+  });
+
+  it('should normalize key with numbers', () => {
+    expect(service['normalizeKey'](123)).toBe('123');
+    expect(service['normalizeKey'](0)).toBe('0');
+  });
+
+  it('should normalize action keys from array', () => {
+    const actions = ['Crear', 'Editar', 'Borrar'];
+    const result = service['normalizeActionKeys'](actions);
+
+    expect(result).toEqual(['crear', 'editar', 'borrar']);
+  });
+
+  it('should normalize action keys with special characters', () => {
+    const actions = ['Test-Action', 'Special@Char', '123Number'];
+    const result = service['normalizeActionKeys'](actions);
+
+    expect(result).toEqual(['testaction', 'specialchar', '123number']);
+  });
+
+  it('should return empty array for non-array action keys', () => {
+    expect(service['normalizeActionKeys'](null)).toEqual([]);
+    expect(service['normalizeActionKeys'](undefined)).toEqual([]);
+    expect(service['normalizeActionKeys']('not-array')).toEqual([]);
+  });
+
+  it('should filter out empty strings from normalized action keys', () => {
+    const actions = ['valid', '', '  ', 'another'];
+    const result = service['normalizeActionKeys'](actions);
+
+    expect(result).toEqual(['valid', 'another']);
+  });
+
+  it('should handle powers with missing function or action', () => {
+    const powers = [
+      { function: null, action: ['crear'] },
+      { function: 'Administrar', action: null }
+    ];
+
+    const result = service.mapPowersToHumanReadable(powers);
+
+    expect(result).toBeTruthy();
+  });
+
 });

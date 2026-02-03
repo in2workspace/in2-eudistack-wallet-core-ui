@@ -206,8 +206,6 @@ export class WebsocketService {
     const powersLabel = this.translate.instant('confirmation.powers');
     const expirationLabel = this.translate.instant('confirmation.expiration');
 
-    console.log('Credential Preview:', preview);
-
 
     let previewHtml = '';
 
@@ -285,7 +283,6 @@ export class WebsocketService {
         this.toastServiceHandler
           .showErrorAlert("The QR session expired")
           .subscribe();        
-        window.location.reload();
       }
       
     });
@@ -293,7 +290,6 @@ export class WebsocketService {
   }
 
   public mapPowersToHumanReadable(powers: Array<any>): string {
-    console.log('Mapping powers:', powers);
     if (!Array.isArray(powers) || powers.length === 0) return '';
 
     const lines = powers
@@ -309,7 +305,6 @@ export class WebsocketService {
           .join(', ');
 
         const line = `${functionLabel}: ${actionLabels}`;
-        console.log('Mapped line:', line);
 
         return line.trim();
       })
