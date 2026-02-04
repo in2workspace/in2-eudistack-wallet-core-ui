@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { WEBSOCKET_NOTIFICATION_PATH, WEBSOCKET_PIN_PATH } from '../constants/api.constants';
 import { LoaderService } from './loader.service';
 import { ToastServiceHandler } from './toast.service';
-import { isPinRequest, isNotificationRequest } from '../interfaces/websocket-data';
+import { isPinRequest, isNotificationRequest, Power, CredentialPreview } from '../interfaces/websocket-data';
 
 @Injectable({
   providedIn: 'root',
@@ -200,9 +200,10 @@ export class WebsocketService {
 
     const counter = data.timeout || 80;
 
-    const preview = data.credentialPreview;
+    const preview = data.credentialPreview as CredentialPreview;
     const subjectLabel = this.translate.instant('confirmation.holder');
     const organizationLabel = this.translate.instant('confirmation.organization');
+    const powersLabel = this.translate.instant('confirmation.powers');
     const expirationLabel = this.translate.instant('confirmation.expiration');
 
 
@@ -219,9 +220,13 @@ export class WebsocketService {
             <span class="cred-label"><strong>${organizationLabel}</strong>${this.escapeHtml(preview.organization)}</span>
           </div>
 
-            <div class="cred-row">
-              <span class="cred-label"><strong>${expirationLabel}</strong>${this.formatDateHuman(preview.expirationDate)}</span>
-            </div>
+          <div class="cred-row">
+            <span class="cred-label"><strong>${powersLabel}</strong>${this.mapPowersToHumanReadable(preview.power)}</span>
+          </div>
+
+          <div class="cred-row">
+            <span class="cred-label"><strong>${expirationLabel}</strong>${this.formatDateHuman(preview.expirationDate)}</span>
+          </div>
         </div>
       `;
     }
@@ -278,11 +283,67 @@ export class WebsocketService {
         this.toastServiceHandler
           .showErrorAlert("The QR session expired")
           .subscribe();        
-        window.location.reload();
       }
       
     });
     interval = this.startCountdown(alert, descriptionWithPreview, counter);    
+  }
+
+  private mapPowersToHumanReadable(powers: Power[]): string {
+    if (powers.length === 0) return '';
+
+    const unknown = this.translate.instant('confirmation.unknown');
+
+    const lines = powers
+      .map((p) => {
+        const fnKey = this.normalizeKey(p?.function);
+        const actionKeys = this.normalizeActionKeys(p?.action);
+
+        const functionLabelRaw =
+          this.getSafeTranslation(`vc-fields.power.${fnKey}`, p?.function, unknown);
+
+        const actionLabelsRaw = actionKeys
+          .map((a) => this.getSafeTranslation(`vc-fields.power.${a}`, a, unknown))
+          .filter((x) => x && x !== unknown);
+
+        const functionLabel = this.escapeHtml(functionLabelRaw);
+        const actionLabels = this.escapeHtml(actionLabelsRaw.join(', '));
+
+        if (!functionLabel || !actionLabels) return '';
+
+        return `${functionLabel}: ${actionLabels}`;
+      })
+      .filter(Boolean);
+
+    return lines.join('<br/>');
+  }
+
+  private getSafeTranslation(key: string, fallbackText: unknown, unknown: string): string {
+    const translated = this.translate.instant(key);
+
+    const hasRealTranslation = translated && translated !== key;
+
+    if (hasRealTranslation) return String(translated);
+
+    const fb = String(fallbackText ?? '').trim();
+    const looksLikeKey = fb.includes('.') || fb.includes('_') || fb.includes('-');
+    if (!fb || looksLikeKey) return unknown;
+
+    return fb;
+  }
+
+  private normalizeKey(value: unknown): string {
+    return String(value ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  private normalizeActionKeys(actions: unknown): string[] {
+    if (!Array.isArray(actions)) return [];
+    return actions
+      .map((a) => this.normalizeKey(a))
+      .filter(Boolean);
   }
 
   private async showTempOkMessage(message: string): Promise<void> {

@@ -3,14 +3,22 @@ interface PinRequestData {
   timeout?: number;
 }
 
-interface NotificationData {
+export interface Power {
+  function: string;
+  action: string[];
+}
+
+export interface CredentialPreview {
+  power: Power[];
+  subjectName: string;
+  organization: string;
+  expirationDate: string;
+}
+
+
+export interface NotificationData {
   decision: boolean;
-  credentialPreview?: {
-    subjectName?: string;
-    organization?: string;
-    issuer?: string;
-    expirationDate?: string;
-  };
+  credentialPreview?: CredentialPreview;
   timeout?: number;
   expiresAt?: number;
 }
