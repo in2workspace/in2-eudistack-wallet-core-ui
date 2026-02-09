@@ -22,7 +22,7 @@
 </div>
 
 # Introduction 
-IN2 Wallet Front is the presentation side application for the IN2 Wallet project. It is a Ionic Angular application. 
+Altia EUDIStack Wallet Core UI is the presentation side application for the Altia EUDIStack Wallet project. It is an Ionic Angular application. 
 
 ## Architecture
 The application is based on the following architecture:
@@ -33,10 +33,10 @@ The application is based on the following architecture:
 - User login
 - User logout
 - User QR Scaning
+- User Verifiable Presentation
 - User Verifiable Credentials management
 - User Prefered Language management
-- User Prefered Scaning Camera management
-- CBOR Credential Presentation.
+- User Prefered Scanning Camera management
 
 # Getting Started
 This aplication is developed, builded and tested in Visual Studio Code 
