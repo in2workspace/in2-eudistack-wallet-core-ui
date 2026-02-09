@@ -2,7 +2,7 @@
   @if(!isBaseRoute$()){
   <ion-header [translucent]="false">
     <ion-toolbar class="toolbar" [ngClass]="{ 'blurred': isCallbackRoute$() }">
-      <img alt="DOME Logo" [src]="logoSrc" width="auto" slot="start" height="35px" class="logo"/>
+      <img alt="Logo" [src]="logoSrc" width="auto" slot="start" height="35px" class="logo"/>
       <ion-button
         slot="end"
         class="toolbar-but"
@@ -13,7 +13,6 @@
         {{userName | async}} 
         <ion-icon
           slot="end"
-          class="ion-icon-home"
           size="small"
           name="person"
         ></ion-icon>

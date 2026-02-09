@@ -10,8 +10,10 @@ interface Window {
       primary_contrast: string;
       secondary: string;
       secondary_contrast: string;
-      logo_src: string;
-      favicon_src: string;
+      assets_base_url?: string;
+      logo_path?: string;
+      favicon_path?: string;
+      default_lang: string;
     };
   }
   

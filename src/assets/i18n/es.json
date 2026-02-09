@@ -1,9 +1,8 @@
 
 {
     "menu":{
-        "home":"Inicio",
+        "scan":"Escáner QR",
         "credentials":"Credenciales",
-        "dids":"Dids",
         "camera-selector":"Selector de Cámara",
         "language-selector":"Selector de Idioma",
         "terms-of-user":"Terminos de Uso",
@@ -29,7 +28,7 @@
         "add":"Añade",
         "nocred":"No tienes ninguna credencial cargada",
         "expiration":"Caducado",
-        "expiredCredential":"Credencial caducado",
+        "expiredCredential":"Credencial caducada",
         "expiredText":"Esta credencial está caducada y ya no puedes utilizarla.",
         "close":"Cerrar",
         "confirmation":"Confirmación",
@@ -37,36 +36,13 @@
         "addVC":"Añade la credencial",
         "identify": "Identifícate"
     },
-    "dids":{
-        "title":"Dids"
-    },
     "faqs":{
         "title":"Faqs"
     },
     "home":{
-        "title":"Home",
-        "hello":"Bienvenido a IN2Wallet",
-        "scan":"Escanea el QR",
-        "add-credential": "Añadir una credencial",
-        "access":"Accede a un espacio",
-        "get-cred":"Obtener Credencial",
-        "ok-header": "Enhorabuena",
         "ok-msg": "Credencial agregada",
-        "unsucces": "Sin éxito",
-        "already-saved": "VC ya guardado",
-        "no-credential": "No hay credencial válida almacenada",
-        "ebsi-popup": {
-          "info": "Copia este DID y este Credential Offer Endpoint para completar los prerrequisitos de la emisión de la credencial EBSI.",
-          "did": "DID: ",
-          "credential-offer": "Credential Offer Endpoint: ",
-          "endpoint": "test-openid-credential-offer://",
-          "next": "Siguiente"
-        },
-        "error-ebsi": "No se ha podido retornar el did.",
-        "copy": "Copiar al portapapeles"
-    },
-    "ebsi": {
-      "title": "EBSI"
+        "rejected-msg": "Oferta de credencial rechazada",
+        "scan": "Escanear QR"
     },
     "language-selector":{
         "title":"Selector de idioma"
@@ -76,9 +52,11 @@
         "send": "Enviar logs",
         "camera": "Logs de cámara"
     },
-    "camera-logs-selector": {
-        "title": "Logs de cámara"
+    "camera-logs": {
+        "title": "Logs de cámara",
+        "no-more-logs": "No hay más logs de cámara para mostrar."
     },
+    "mailto_permission_alert": "Por favor, asegúrate de que tienes los permisos necesarios para enviar correos electrónicos con tu aplicación de correo predeterminada. Si el servicio de correo no se abre, es probable que se deba a restricciones de permisos.",
     "login":{
         "title":"Login",
         "login":"Login",
@@ -87,13 +65,6 @@
     },
     "privacy-policy":{
         "title":"Politica de Privacidad"
-    },
-    "register":{
-        "title":"Registrate",
-        "register":"Registrate",
-        "login":"Ves a Login",
-        "error": "Se ha producido algun error",
-        "email-error": "Correo electrónico no válido"
     },
     "settings":{
         "title":"Configuración"
@@ -105,10 +76,12 @@
         "title":"Selector de VC",
         "select-cred":"Selecciona una Credencial",
         "send-cred":"Envia Credencial",
-        "ok-header": "Enhorabuena",
+        "ok-header": "Credencial enviada correctamente.",
         "ok-message":"Login correcto",
-        "ko-header":"Error",
-        "ko-message":"El login ha fallado",
+        "unauthorized-message":"La credencial enviada no es válida.",
+        "bad-request-error-message":"Error al enviar la credencial",
+        "server-error-message":"No se ha podido procesar la solicitud.<br>Vuelva a intentarlo más tarde.",
+        "generic-error-message": "Error desconocido",
         "close": "Cerrar",
         "credential-revoke-message":"La credencial proporcionada no es válida, ha sido revocada o no es válida para esta operación"
     },
@@ -121,10 +94,11 @@
         "delete-message": "Si eliminas la credencial de la aplicación y necesitas recuperarla tendrás que pedir una nueva.",
         "delete-confirm": "Sí, elimínala",
         "delete-cancel": "Cancela",
+        "delete-close": "Cerrar",
         "unsigned": "Sin firmar",
         "unsigned-header": "Credencial sin firmar",
         "unsigned-message": "Su credencial aún no ha sido firmada y no puede ser utilizada. Espere a que el emisor complete el proceso de firma.",
-        "revoked": "Revocada"
+        "revoked": "Revocado"
     },
     "scanner":{
         "initializing": "Inicializando escáner..."
@@ -169,7 +143,7 @@
                 "commonName": "Nombre común",
                 "serialNumber": "Número de serie",
                 "country": "País",
-                "email": "Email"
+                "email": "Correo electrónico"
             },
             "powers": "Poderes"
         },
@@ -202,6 +176,17 @@
             },
             "compliantCredentials": "Credenciales compatibles",
             "validatedCriteria": "Criterios validados"
+        },
+        "power": {
+            "onboarding": "Alta",
+            "certification": "Certificación",
+            "productoffering": "Oferta de producto",
+            "execute": "Ejecutar",
+            "create": "Crear",
+            "update": "Actualizar",
+            "delete": "Eliminar",
+            "attest": "Acreditar",
+            "upload": "Subir"
         }
     },
     "errors":{
@@ -216,6 +201,7 @@
         "cannot-save-VC":"No se pudo guardar correctamente la credencial",
         "incorrect-pin":"PIN incorrecto. Por favor, renueve la oferta de credencial. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>.",
         "pin-expired": "No ha introducido el PIN dentro del límite de tiempo. Por favor, renueve la oferta de credencial. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>.",
+        "qr-expired": "La sesión QR ha expirado. Por favor, renueve la oferta de credencial.",
         "unsigned": "La credencial firmada aún no esta disponible.",
         "loading-VCs": "Ha habido un error al cargar las credenciales. Vuélvalo a intentar más tarde. Si el problema persiste, póngase en contacto con el <a href='https://ticketing.dome-marketplace.eu/' target='_blank' rel='noopener noreferrer'>equipo de soporte</a>.",
         "Errunsigned": "No se pudo obtener la credencial",
@@ -237,6 +223,17 @@
         "header":"¿Enviar Credencial?",
         "ok":"Ok",
         "cancel":"Cancelar",
-        "pin":"Introduce PIN"
+        "new-credential": "¿Deseas aceptar esta credencial?",
+        "new-credential-title": "Nueva credencial",
+        "accept":"Aceptar",
+        "pin":"Introduce el PIN",
+        "description": "Se ha enviado un código PIN a tu email. Revísalo e introduce el PIN.",
+        "send": "Enviar",
+        "messageHtml": "{{description}}<br><small class=\"counter\">Tiempo restante: {{counter}} segundos</small>",
+        "organization":"Organización: ",
+        "holder":"Titular: ",
+        "powers":"Poderes: ",
+        "expiration":"Fecha de caducidad: ",
+        "unknown": "Desconocido"
     }
 }

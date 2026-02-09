@@ -19,7 +19,6 @@ export class LanguageSelectorPage implements OnInit {
 
   public selected = { name: '', code: '' };
   public language = { name: '', code: '' };
-  public userName = '';
   public languages = new BehaviorSubject<unknown>('');
 
   public languageList = [

@@ -12,7 +12,11 @@ export const environment = {
       secondary:'#50c8ff',
       secondary_contrast:'#000000'
     },
-    logo_src: "assets/logos/dome-logo.png",
-    favicon_src: "assets/icons/dome-favicon.png"
+    assets: {
+      base_url: "assets",
+      logo_path:"logos/altia-logo.svg",
+      favicon_path:"icons/altia-favicon.ico",
+    },
+    default_lang: "en"
   }
 };

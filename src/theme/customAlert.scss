@@ -1,5 +1,14 @@
 // Resources: https://lea.verou.me/blog/2024/css-conditionals-now/
 
+:root{
+  /** custom alert **/
+  --custom-alert-error-bg: #fdf0f0;
+  --custom-alert-error-text: #7b2531;
+  --custom-alert-ok-bg: #e7f8e4;
+  --custom-alert-ok-info-bg: #d0efff;
+  --custom-alert-ok-text: #215112;
+}
+
 ion-alert.custom-alert-error .alert-wrapper {
     background-color: var(--custom-alert-error-bg) !important;
     color: white !important;
@@ -65,4 +74,35 @@ ion-alert.custom-alert-error .alert-wrapper {
     display: block;
     padding-top: 0.5em;
     font-weight: bold;
+  }
+
+  ion-alert .alert-message div.cred-preview {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  @media (min-width: 768px) {
+    ion-alert .alert-message .cred-preview {
+      align-items: flex-start;
+    }
+  }
+
+  ion-alert.custom-alert-credential .cred-row {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 8px;
+    align-items: start;
+  }
+
+  ion-alert.custom-alert-credential .cred-label {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  ion-alert.custom-alert-credential .cred-value {
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }

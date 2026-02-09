@@ -5,12 +5,13 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthenticationService } from './services/authentication.service';
 import { MenuComponent } from './components/menu/menu.component';
-import { StorageService } from './services/storage.service';
 import { Subject, map } from 'rxjs';
 import { CameraService } from './services/camera.service';
 import { environment } from 'src/environments/environment';
 import { LoaderService } from './services/loader.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { LanguageService } from './services/language.service';
+import { ColorService } from './services/color-service.service';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +27,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 export class AppComponent implements OnInit, OnDestroy {
   private readonly authenticationService = inject(AuthenticationService);
+  private readonly colorService = inject(ColorService);
   private readonly document = inject(DOCUMENT);
+  private readonly languageService = inject(LanguageService);
   private readonly loader = inject(LoaderService);
   private readonly router = inject(Router)
 
@@ -39,24 +42,22 @@ export class AppComponent implements OnInit, OnDestroy {
       const currentUrl = this.router.url.split('?')[0];
       return currentUrl.startsWith('/callback');
   })));
-  public readonly logoSrc = environment.customizations.logo_src;
+  public readonly logoSrc = environment.customizations.assets.base_url + '/' + environment.customizations.assets.logo_path;
   private readonly destroy$ = new Subject<void>();
   public isLoading$: Signal<boolean>;
 
   private readonly cameraService = inject(CameraService);
   private readonly popoverController = inject(PopoverController);
-  private readonly storageService = inject(StorageService);
   public readonly translate = inject(TranslateService);
 
   public constructor() {
-    this.setDefaultLanguages();
-    this.setStoredLanguage();
-    this.setCustomStyles();
-    this.setFavicon();
     this.isLoading$ = this.loader.isLoading$;
   }
 
   public ngOnInit() {
+    this.setCustomStyles();
+    this.setFavicon();
+    this.languageService.setLanguages();
     this.alertIncompatibleDevice();
   }
 
@@ -66,23 +67,19 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  public setCustomStyles(): void{
-    const root = document.documentElement;
+  public setCustomStyles(): void {
+  const cssVarMap = {
+    '--primary-custom-color': environment.customizations.colors.primary,
+    '--primary-contrast-custom-color': environment.customizations.colors.primary_contrast,
+    '--secondary-custom-color': environment.customizations.colors.secondary,
+    '--secondary-contrast-custom-color': environment.customizations.colors.secondary_contrast,
+  };
 
-    const cssVarMap = {
-      '--primary-custom-color': environment.customizations.colors.primary,
-      '--primary-contrast-custom-color': environment.customizations.colors.primary_contrast,
-      '--secondary-custom-color': environment.customizations.colors.secondary,
-      '--secondary-contrast-custom-color': environment.customizations.colors.secondary_contrast,
-    };
-  
-    Object.entries(cssVarMap).forEach(([cssVariable, colorValue]) => {
-      root.style.setProperty(cssVariable, colorValue);
-    });
-  }
+  this.colorService.applyCustomColors(cssVarMap);
+}
 
   private setFavicon(): void {
-    const faviconUrl = environment.customizations.favicon_src;
+    const faviconUrl = environment.customizations.assets.base_url + '/' + environment.customizations.assets.favicon_path;
 
     // load favicon from environment
     let faviconLink: HTMLLinkElement = this.document.querySelector("link[rel='icon']") || this.document.createElement('link');
@@ -99,24 +96,6 @@ export class AppComponent implements OnInit, OnDestroy {
     appleFaviconLink.href = faviconUrl;
     
     this.document.head.appendChild(appleFaviconLink);
-  }
-
-  private setDefaultLanguages(): void{
-    this.translate.addLangs(['en', 'es', 'ca']);
-    this.translate.setDefaultLang('en');
-    this.translate.use('en');
-  }
-
-  private setStoredLanguage(): void {
-    this.storageService.get('language').then((res: string) => {
-      const availableLangs = this.translate.getLangs();
-      
-      if (availableLangs.includes(res)) {
-        this.translate.use(res);
-      } else {
-        this.storageService.set('language', 'en');
-      }
-    });
   }
 
   //alert for IOs below 14.3
@@ -149,5 +128,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     await popover.present();
   }
+
 
 }

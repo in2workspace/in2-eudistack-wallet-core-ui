@@ -3,26 +3,6 @@
 
 /** Ionic CSS Variables **/
 :root {
-
-  ion-alert.select-alert {
-    --background: white !important;
-
-    button {
-        color: white !important;
-        font-size: 20px !important;
-    }
-
-    .sc-ion-alert-md {
-        color: white;
-    }
-    [aria-checked=true].sc-ion-alert-md .alert-radio-label.sc-ion-alert-md{
-      color:#B0FF2B;
-    }
-    [aria-checked=true].sc-ion-alert-md .alert-radio-icon.sc-ion-alert-md{
-      border-color:#B0FF2B;
-
-    }
-  }
   /**  Customer-customized variables **/
   --primary-custom-color: #00ADD3; 
   --primary-contrast-custom-color: #ffffff; 
@@ -30,28 +10,30 @@
   --secondary-contrast-custom-color: #000000; 
 
   /** primary **/
-  --ion-color-primary: #00ADD3;
-  --ion-color-primary-rgb: 56, 128, 255;
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #3171e0;
-  --ion-color-primary-tint: #4c8dff;
+  --ion-color-primary: var(--primary-custom-color);
+  --ion-color-primary-rgb: var(--primary-custom-color-rgb);
+  --ion-color-primary-contrast: var(--primary-contrast-custom-color);
+  --ion-color-primary-contrast-rgb: var(--primary-contrast-custom-color-rgb);
+  --ion-color-primary-shade: var(--primary-custom-color-shade);
+  --ion-color-primary-tint: var(--primary-custom-color-tint);
   --ion-text-color:#000000;
-  --ion-toolbar-background	: #00ADD3;
+
   --ion-item-background	: #ffffff;
   --ion-item-color	: #000000;
   --ion-color-step-850: #FFFFFF;
   --ion-toolbar-color	:#ffffff;
   --ion-card-background:#ffffff;
   --ion-card-color:#ffffff;
-  /** secondary **/
-  --ion-color-secondary: white;
-  --ion-color-secondary-rgb: 61, 194, 255;
-  --ion-color-secondary-contrast: #000000;
-  --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #36abe0;
-  --ion-color-secondary-tint: #50c8ff;
 
+  /** secondary **/
+  --ion-color-secondary: var(--secondary-custom-color);
+  --ion-color-secondary-rgb: var(--secondary-custom-color-rgb);
+  --ion-color-secondary-contrast: var(--secondary-contrast-custom-color);
+  --ion-color-secondary-contrast-rgb: var(--secondary-contrast-custom-color-rgb);
+  --ion-color-secondary-shade: var(--secondary-custom-color-shade);
+  --ion-color-secondary-tint: var(--secondary-custom-color-tint);
+
+  //todo review colors below
   /** tertiary **/
   --ion-color-tertiary: #5260ff;
   --ion-color-tertiary-rgb: 82, 96, 255;
@@ -108,10 +90,4 @@
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
 
-  /** custom alert **/
-  --custom-alert-error-bg: #fdf0f0;
-  --custom-alert-error-text: #7b2531;
-  --custom-alert-ok-bg: #e7f8e4;
-  --custom-alert-ok-info-bg: #d0efff;
-  --custom-alert-ok-text: #215112;
 }

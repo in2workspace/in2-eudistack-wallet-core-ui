@@ -4,6 +4,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.10](https://github.com/in2workspace/in2-issuer-ui/releases/tag/v2.0.10)
+### Changed
+- Make the selected tab bar button color depend on the secondary custom color.
+
+## [2.0.9](https://github.com/in2workspace/in2-issuer-ui/releases/tag/v2.0.9)
+### Changed
+- Make primary and secondary ionic color variables fully configurable.
+
+## [2.0.8](https://github.com/in2workspace/in2-issuer-ui/releases/tag/v2.0.8)
+### Changed
+- Configure logo and favicon using the `ASSETS_BASE_URL` environment variable combined with asset-specific paths.
+
+## [2.0.7](https://github.com/in2workspace/in2-issuer-ui/releases/tag/v2.0.7)
+### Added
+- Altia and ISBE favicons.
+
+### Changed
+- Rename DOME favicon.
+
+## [v2.0.6](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.6)
+### Fixed
+- Add missing translations.
+
+## [v2.0.5](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.5)
+### Fixed
+- Add missing translations.
+
+## [v2.0.4](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.4)
+### Fixed
+- Fix "product offering" power action translation.
+
+## [v2.0.3](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.3)
+### Fixed
+- Add missing translations.
+
+## [v2.0.2](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.2)
+### Changed
+- Get PIN code description from i18n files, not from API websocket message.
+
+## [v2.0.1](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.1)
+### Added
+- Get default language from environment.
+
+### Fixed
+- Add missing translations.
+
 ## [v2.0.0](https://github.com/in2workspace/in2-wallet-ui/releases/tag/v2.0.0)
 ### Changed
 - Changed VC card view.
